@@ -1,0 +1,69 @@
+[
+  {
+    "id": 1,
+    "title": "SAFE zone 4 BOY",
+    "slug": "safe-zone-4-boy",
+    "description": "T-shirt coupe droite avec visuel SAFE zone 4 BOY.",
+    "price": 10000,
+    "imageKey": "safeZoneBlack",
+    "category": "t-shirts",
+    "sizes": ["S", "M", "L", "XL", "XXL"],
+    "tags": ["restock"],
+    "variants": [
+      { "id": "black", "label": "Black", "imageKey": "safeZoneBlack" },
+      { "id": "white", "label": "White", "imageKey": "safeZoneWhite" }
+    ]
+  },
+  {
+    "id": 2,
+    "title": "BLACK CAMELEON",
+    "slug": "cameleon",
+    "description": "T-shirt graphique CAMELEON, base monochrome.",
+    "price": 10000,
+    "imageKey": "whiteCameleon",
+    "category": "t-shirts",
+    "sizes": ["S", "M", "L", "XL", "XXL"],
+    "tags": ["restock"],
+    "variants": [
+      { "id": "black", "label": "Black", "imageKey": "blackCameleon" },
+      { "id": "white", "label": "White", "imageKey": "whiteCameleon" }
+    ]
+  },
+  {
+    "id": 3,
+    "title": "NG ON TOP BLACK CAMELEON",
+    "slug": "cameleon-crop-top-black",
+    "description": "Crop top CAMELEON en noir, coupe courte et nette.",
+    "price": 10000,
+    "imageKey": "newGbonhiOnTop",
+    "category": "crop-tops",
+    "sizes": ["XS", "S", "M", "L"],
+    "tags": ["new"]
+  },
+  {
+    "id": 4,
+    "title": "SAFE BABI GIRL",
+    "slug": "safe-babi-girl",
+    "description": "T-shirt SAFE BABI GIRL, edition claire.",
+    "price": 10000,
+    "imageKey": "safeBabiGirl",
+    "category": "t-shirts",
+    "sizes": ["S", "M", "L", "XL", "XXL"],
+    "tags": ["new"],
+    "variants": [
+      { "id": "black", "label": "Black", "imageKey": "safeBabiGirlBlack" },
+      { "id": "white", "label": "White", "imageKey": "safeBabiGirl" }
+    ]
+  },
+  {
+    "id": 5,
+    "title": "NG ON TOP BGAB",
+    "slug": "crop-top-bgab",
+    "description": "Crop top BGAB, edition claire et coupe courte.",
+    "price": 10000,
+    "imageKey": "newGbonhiOnTopBgab",
+    "category": "crop-tops",
+    "sizes": ["XS", "S", "M", "L"],
+    "tags": ["new"]
+  }
+]
