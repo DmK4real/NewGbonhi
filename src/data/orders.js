@@ -1,5 +1,13 @@
 const API_BASE = import.meta.env.VITE_API_BASE || "/api";
 const DEFAULT_ERROR = "Orders service unavailable.";
+const isGitHubPages =
+  typeof window !== "undefined" && window.location.hostname.endsWith("github.io");
+
+const ensureApiConfigured = () => {
+  if (isGitHubPages && !import.meta.env.VITE_API_BASE) {
+    throw new Error("API non configuree. Definis VITE_API_BASE dans GitHub.");
+  }
+};
 
 const parseResponse = async (response) => {
   try {
@@ -10,6 +18,8 @@ const parseResponse = async (response) => {
 };
 
 const request = async (path, options = {}, token = "") => {
+  ensureApiConfigured();
+
   const headers = {
     "Content-Type": "application/json",
     ...(options.headers || {}),

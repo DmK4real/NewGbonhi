@@ -1,0 +1,15 @@
+name = "newgbonhi-api"
+main = "api/worker/index.js"
+compatibility_date = "2026-03-20"
+workers_dev = true
+
+[vars]
+TOKEN_TTL_MS = "28800000"
+
+[[durable_objects.bindings]]
+name = "ORDERS_STORE"
+class_name = "OrdersStore"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["OrdersStore"]

@@ -34,6 +34,7 @@ jobs:
       - name: Build app for Pages
         env:
           VITE_USE_HASH_ROUTER: "true"
+          VITE_API_BASE: ${{ vars.VITE_API_BASE }}
         run: npm run build -- --base=/NewGbonhi/
 
       - name: Upload artifact

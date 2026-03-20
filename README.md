@@ -68,15 +68,19 @@ Notes:
 
 ## Orders API & Admin Access
 
-Orders are stored server-side in `api/orders.json`.
+Local development API:
+- `api/server.js` (Node, file storage in `api/orders.json`)
 
-Set an admin password in `.env`:
+Cloud deployment API:
+- `api/worker/index.js` (Cloudflare Worker + Durable Object storage)
+
+Set an admin password in `.env` for local Node API:
 
 ```env
 ADMIN_PASSWORD=change-me
 ```
 
-Optional API settings:
+Optional API settings for local Node API:
 
 ```env
 API_PORT=8787
@@ -95,12 +99,6 @@ Visit `/orders` in the frontend.
 
 ## Deployment
 
-### Frontend
-Deploy `dist/` as usual (`npm run build`).
-
-### API
-Deploy `api/server.js` as a Node service and persist `api/orders.json` (or replace file storage with a database in production).
-
 ### GitHub Pages (Free URL)
 
 This repository includes an automatic GitHub Pages workflow:
@@ -113,3 +111,36 @@ Expected public URL:
 Notes:
 - Pages build uses `--base=/NewGbonhi/`
 - router uses hash mode on Pages (`VITE_USE_HASH_ROUTER=true`) to avoid 404 on refresh
+- frontend API URL is injected from repository variable `VITE_API_BASE`
+
+### Cloudflare API (Free URL)
+
+This repository includes a Worker deployment workflow:
+- file: `.github/workflows/deploy-worker.yml`
+- trigger: push on `main` when API files change
+
+`wrangler.toml` is already configured for:
+- Worker name: `newgbonhi-api`
+- Durable Object binding: `ORDERS_STORE`
+
+Before the first deployment, configure GitHub repository secrets:
+- `CLOUDFLARE_API_TOKEN`
+- `CLOUDFLARE_ACCOUNT_ID`
+
+Then configure the Worker admin password in Cloudflare dashboard:
+1. Cloudflare dashboard -> Workers & Pages -> `newgbonhi-api`
+2. Settings -> Variables and Secrets
+3. Add secret: `ADMIN_PASSWORD`
+
+After the Worker is deployed, set GitHub repository variable:
+- `VITE_API_BASE=https://<your-workers-url>/api`
+
+Then re-run the Pages workflow to rebuild the frontend with the API URL.
+
+### Useful scripts
+
+```bash
+npm run api:dev          # Local Node API
+npm run api:worker:dev   # Local Worker dev (requires Wrangler)
+npm run api:worker:deploy
+```
