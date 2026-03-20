@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from "vue-router";
+import { createRouter, createWebHashHistory, createWebHistory } from "vue-router";
 import ShopPage from "./ShopPage.vue";
 import LookbookPage from "./LookbookPage.vue";
 import AboutPage from "./AboutPage.vue";
@@ -15,8 +15,13 @@ const routes = [
   { path: "/about", name: "about", component: AboutPage },
 ];
 
+const useHashRouter = import.meta.env.VITE_USE_HASH_ROUTER === "true";
+const history = useHashRouter
+  ? createWebHashHistory(import.meta.env.BASE_URL)
+  : createWebHistory(import.meta.env.BASE_URL);
+
 const router = createRouter({
-  history: createWebHistory(),
+  history,
   routes,
   scrollBehavior() {
     return { top: 0 };
