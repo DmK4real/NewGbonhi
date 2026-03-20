@@ -100,3 +100,16 @@ Deploy `dist/` as usual (`npm run build`).
 
 ### API
 Deploy `api/server.js` as a Node service and persist `api/orders.json` (or replace file storage with a database in production).
+
+### GitHub Pages (Free URL)
+
+This repository includes an automatic GitHub Pages workflow:
+- file: `.github/workflows/deploy-pages.yml`
+- trigger: push on `main`
+
+Expected public URL:
+- `https://dmk4real.github.io/NewGbonhi/`
+
+Notes:
+- Pages build uses `--base=/NewGbonhi/`
+- router uses hash mode on Pages (`VITE_USE_HASH_ROUTER=true`) to avoid 404 on refresh
