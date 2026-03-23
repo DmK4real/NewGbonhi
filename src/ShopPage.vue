@@ -35,126 +35,53 @@
 
     <section class="hero">
       <div class="hero-copy">
-        <p class="hero-kicker">NewGbonhi Drop 01</p>
-        <h1>Urban uniform. Clean cut. No noise.</h1>
+        <p class="hero-kicker">Prochain drop</p>
+        <h1>Drop 02 en preparation</h1>
         <p class="hero-sub">
-          Tees, crop tops, and pants built for daily wear. Limited release.
+          Le shop reste focus sur les pieces du prochain drop: coupes propres,
+          graphiques forts, stock limite.
         </p>
         <div class="hero-actions">
           <button class="hero-button" type="button" @click="scrollToProducts">
-            Shop now
+            Voir les articles
           </button>
-          <RouterLink class="hero-button ghost" to="/lookbook">
-            View lookbook
+          <RouterLink class="hero-button ghost" to="/about">
+            Drop details
           </RouterLink>
         </div>
       </div>
       <div class="hero-panel">
-        <div class="hero-visual">
-          <img class="hero-photo" :src="heroImage" alt="Drop preview" />
-          <div class="hero-countdown">
-            <p>Drop ends in</p>
-            <strong>{{ countdown }}</strong>
-            <div class="countdown-bar">
-              <span :style="{ width: `${dropProgress}%` }"></span>
-            </div>
-          </div>
+        <img class="hero-photo" :src="heroImage" alt="Next drop preview" />
+        <div class="hero-countdown">
+          <p>Lancement dans</p>
+          <strong>{{ countdown }}</strong>
+          <small>{{ nextDropLabel }}</small>
         </div>
-        <div class="hero-strip">Worldwide shipping - 48h drop window</div>
       </div>
     </section>
-
-    <div class="ticker" aria-hidden="true">
-      <div class="ticker-track">
-        <div class="ticker-group">
-          <span>NewGbonhi Drop 01</span>
-          <span>Limited release</span>
-          <span>Worldwide shipping</span>
-          <span>NewGbonhi Drop 01</span>
-          <span>Limited release</span>
-          <span>Worldwide shipping</span>
-          <span>NewGbonhi Drop 01</span>
-          <span>Limited release</span>
-          <span>Worldwide shipping</span>
-          <span>NewGbonhi Drop 01</span>
-          <span>Limited release</span>
-          <span>Worldwide shipping</span>
-        </div>
-        <div class="ticker-group" aria-hidden="true">
-          <span>NewGbonhi Drop 01</span>
-          <span>Limited release</span>
-          <span>Worldwide shipping</span>
-          <span>NewGbonhi Drop 01</span>
-          <span>Limited release</span>
-          <span>Worldwide shipping</span>
-          <span>NewGbonhi Drop 01</span>
-          <span>Limited release</span>
-          <span>Worldwide shipping</span>
-          <span>NewGbonhi Drop 01</span>
-          <span>Limited release</span>
-          <span>Worldwide shipping</span>
-        </div>
-      </div>
-    </div>
 
     <section class="drop-details">
       <div class="details-head">
-        <p>Drop details</p>
-        <h2>Cut, fabric, delivery</h2>
+        <p>Drop focus</p>
+        <h2>Uniquement le prochain drop et les articles</h2>
       </div>
       <div class="details-grid">
         <article class="detail-card">
-          <h3>Fabric</h3>
-          <p>Soft cotton blend with a clean matte finish.</p>
+          <h3>Selection limitee</h3>
+          <p>Pieces essentielles du drop, sans sections annexes.</p>
         </article>
         <article class="detail-card">
-          <h3>Fit</h3>
-          <p>Relaxed street fit. True to size, size up for oversize.</p>
+          <h3>Coupe street</h3>
+          <p>Silhouettes relax avec fit propre et lisible.</p>
         </article>
         <article class="detail-card">
-          <h3>Care</h3>
-          <p>Cold wash, inside out. Low heat dry to protect prints.</p>
-        </article>
-        <article class="detail-card">
-          <h3>Delivery</h3>
-          <p>Worldwide shipping within 48h drop window.</p>
+          <h3>Sortie rapide</h3>
+          <p>Disponibilite courte, restock selon la demande.</p>
         </article>
       </div>
     </section>
 
-    <section class="lookbook">
-      <div class="lookbook-head">
-        <p>Lookbook</p>
-        <h2>Frames from the city</h2>
-      </div>
-      <div class="lookbook-grid">
-        <figure
-          v-for="(frame, index) in lookbookImages"
-          :key="frame.label"
-          class="lookbook-card"
-          :class="{ accent: index === 1 }"
-        >
-          <img :src="frame.src" :alt="frame.label" loading="lazy" />
-          <figcaption>{{ frame.label }}</figcaption>
-        </figure>
-      </div>
-    </section>
-
-    <section class="logo-section">
-      <div class="logo-head">
-        <p>Logo</p>
-        <h2>NewGbonhi marks</h2>
-        <p class="logo-sub">Swipe to explore the marks</p>
-      </div>
-      <div class="logo-grid">
-        <figure v-for="logo in logoImages" :key="logo.label" class="logo-card">
-          <img :src="logo.src" :alt="logo.label" loading="lazy" />
-          <figcaption>{{ logo.label }}</figcaption>
-        </figure>
-      </div>
-    </section>
-
-    <main class="shop-main">
+    <main class="shop-main" ref="productsSection">
       <aside class="shop-sidebar">
         <div class="sidebar-block">
           <h2>Categories</h2>
@@ -170,12 +97,7 @@
           </button>
         </div>
         <div class="sidebar-block">
-          <h2>Drop info</h2>
-          <p>NewGbonhi focuses on clean cuts and bold prints.</p>
-          <p>Sizes: XS - XXL</p>
-        </div>
-        <div class="sidebar-block">
-          <h2>Quick filters</h2>
+          <h2>Filtres</h2>
           <button
             v-for="filter in filters"
             :key="filter.id"
@@ -190,7 +112,7 @@
         </div>
       </aside>
 
-      <section class="shop-content" ref="productsSection">
+      <section class="shop-content">
         <div class="mobile-filters">
           <div class="mobile-categories">
             <button
@@ -210,57 +132,18 @@
             :aria-expanded="filtersOpen"
             @click="toggleFilters"
           >
-            Filters
+            Filtres
           </button>
         </div>
+
         <div class="content-head">
           <div>
-            <p class="content-kicker">Latest pieces</p>
-            <h2>Drop 01 selection</h2>
+            <p class="content-kicker">Articles du drop</p>
+            <h2>Shop</h2>
           </div>
-          <div class="content-actions">
-            <button class="ghost-button" type="button" @click="toggleFilters">
-              Filter
-            </button>
-            <button class="ghost-button" type="button">Sort</button>
-          </div>
+          <p class="content-count">{{ filteredProducts.length }} article(s)</p>
         </div>
-        <section class="featured-set">
-          <div class="featured-head">
-            <p>Featured</p>
-            <h3>Drop 01 highlights</h3>
-          </div>
-          <div class="featured-grid">
-            <article
-              v-for="product in featuredProducts"
-              :key="product.id || product.slug || product.title"
-              class="featured-card"
-            >
-              <RouterLink
-                :to="product.url || `/product/${product.slug}`"
-                class="featured-media"
-              >
-                <img
-                  v-if="product.imagePrimary"
-                  :src="product.imagePrimary"
-                  :alt="product.title || ''"
-                  loading="lazy"
-                />
-              </RouterLink>
-              <div class="featured-info">
-                <p class="featured-kicker">{{ categoryLabel(product.category) }}</p>
-                <h4>{{ product.title }}</h4>
-                <p class="featured-price">{{ formatPrice(product.price) }}</p>
-                <RouterLink
-                  :to="product.url || `/product/${product.slug}`"
-                  class="featured-link"
-                >
-                  View piece
-                </RouterLink>
-              </div>
-            </article>
-          </div>
-        </section>
+
         <ProductGrid
           :products="filteredProducts"
           currency="XOF"
@@ -305,9 +188,9 @@
       aria-label="Quick filters"
     >
       <div class="drawer-head">
-        <h3>Quick filters</h3>
+        <h3>Filtres rapides</h3>
         <button type="button" class="drawer-close" @click="closeFilters">
-          Close
+          Fermer
         </button>
       </div>
       <div class="drawer-body">
@@ -338,42 +221,7 @@ import { products } from "./data/products.js";
 import { cartStore } from "./data/cart.js";
 
 const logoUrl = new URL("./assets/newgbonhi-logo.png", import.meta.url).href;
-const whiteCameleonUrl = new URL(
-  "./assets/WHITE CAMELEON.png",
-  import.meta.url
-).href;
-const cameleonLogoUrl = new URL(
-  "./assets/CAMELEON LOGO.jpeg",
-  import.meta.url
-).href;
-const newGbonhiArtUrl = new URL(
-  "./assets/NEW GBONHI ART.jpeg",
-  import.meta.url
-).href;
-const newGbonhiLljUrl = new URL(
-  "./assets/NEW GBONHI LLJ.jpeg",
-  import.meta.url
-).href;
-const newGbonhiSolarUrl = new URL(
-  "./assets/NEW GBONHI SOLAR.jpeg",
-  import.meta.url
-).href;
-const newGbonhiSolerUrl = new URL(
-  "./assets/NEW GBONHI SOLER.jpeg",
-  import.meta.url
-).href;
-const redCameleonUrl = new URL(
-  "./assets/RED CAMELEON.jpeg",
-  import.meta.url
-).href;
-const safeZoneUrl = new URL(
-  "./assets/BLACK SAFE zone 4 BOY.png",
-  import.meta.url
-).href;
-const safeBabiGirlBlackUrl = new URL(
-  "./assets/BLACK SAFE BABI GIRL.png",
-  import.meta.url
-).href;
+const heroImage = new URL("./assets/BLACK SAFE zone 4 BOY.png", import.meta.url).href;
 
 export default {
   name: "ShopPage",
@@ -384,62 +232,20 @@ export default {
   data() {
     return {
       logoUrl,
-      heroImage: safeZoneUrl,
-      dropDurationMs: 48 * 60 * 60 * 1000,
-      dropEndsAt: Date.now() + 48 * 60 * 60 * 1000,
+      heroImage,
+      nextDropAt: new Date("2026-04-18T18:00:00+00:00").getTime(),
       countdown: "",
-      dropProgress: 0,
       toastMessage: "",
       toastVisible: false,
       cartOpen: false,
       filtersOpen: false,
       filters: [
-        { id: "new", label: "New" },
+        { id: "new", label: "Nouveau" },
         { id: "soldOut", label: "Sold out" },
         { id: "restock", label: "Restock" },
       ],
       activeCategory: "all",
       activeFilter: null,
-      lookbookImages: [
-        {
-          src: safeZoneUrl,
-          label: "SAFE zone 4 BOY BLACK",
-        },
-        {
-          src: whiteCameleonUrl,
-          label: "WHITE CAMELEON",
-        },
-        {
-          src: safeBabiGirlBlackUrl,
-          label: "BLACK SAFE BABI GIRL",
-        },
-      ],
-      logoImages: [
-        {
-          src: cameleonLogoUrl,
-          label: "NEW GBONHI CAMELEON",
-        },
-        {
-          src: newGbonhiArtUrl,
-          label: "New Gbonhi Art",
-        },
-        {
-          src: newGbonhiLljUrl,
-          label: "New Gbonhi LLJ",
-        },
-        {
-          src: newGbonhiSolarUrl,
-          label: "New Gbonhi Solar",
-        },
-        {
-          src: newGbonhiSolerUrl,
-          label: "New Gbonhi Soler",
-        },
-        {
-          src: redCameleonUrl,
-          label: "Red Cameleon",
-        },
-      ],
       products,
     };
   },
@@ -451,24 +257,19 @@ export default {
     if (this.countdownTimer) {
       clearInterval(this.countdownTimer);
     }
+    if (this.toastTimer) {
+      clearTimeout(this.toastTimer);
+    }
   },
   computed: {
     cartCount() {
       return cartStore.cartCount.value;
     },
-    featuredProducts() {
-      const preferredSlugs = ["cameleon-crop-top-black", "crop-top-bgab"];
-      const bySlug = this.products.filter((product) =>
-        preferredSlugs.includes(product.slug)
-      );
-      if (bySlug.length === 2) {
-        return bySlug;
-      }
-      const preferred = this.products.filter(
-        (product) => product.category === "crop-tops"
-      );
-      const source = preferred.length ? preferred : this.products;
-      return source.slice(0, 2);
+    nextDropLabel() {
+      return new Intl.DateTimeFormat("fr-CI", {
+        dateStyle: "long",
+        timeStyle: "short",
+      }).format(this.nextDropAt);
     },
     categoryOptions() {
       const labelMap = {
@@ -534,24 +335,6 @@ export default {
     },
   },
   methods: {
-    categoryLabel(category) {
-      const labels = {
-        "t-shirts": "T-shirts",
-        "crop-tops": "Crop tops",
-        pants: "Pants",
-      };
-      return labels[category] || "Drop 01";
-    },
-    formatPrice(value) {
-      if (typeof value !== "number" || Number.isNaN(value)) {
-        return "";
-      }
-      const formatted = new Intl.NumberFormat("fr-CI", {
-        style: "decimal",
-        maximumFractionDigits: 0,
-      }).format(value);
-      return `${formatted} FCFA`;
-    },
     setCategory(categoryId) {
       this.activeCategory = categoryId;
     },
@@ -562,8 +345,7 @@ export default {
       this.filtersOpen = false;
     },
     toggleFilter(filterId) {
-      this.activeFilter =
-        this.activeFilter === filterId ? null : filterId;
+      this.activeFilter = this.activeFilter === filterId ? null : filterId;
     },
     toggleCart() {
       this.cartOpen = !this.cartOpen;
@@ -581,26 +363,20 @@ export default {
       }
       this.toastTimer = setTimeout(() => {
         this.toastVisible = false;
-      }, 2400);
+      }, 2200);
     },
     updateCountdown() {
       const now = Date.now();
-      const remaining = Math.max(0, this.dropEndsAt - now);
-      const total = this.dropDurationMs || 1;
-      this.dropProgress = Math.min(
-        100,
-        Math.max(0, ((total - remaining) / total) * 100)
-      );
-
+      const remaining = Math.max(0, this.nextDropAt - now);
       if (remaining <= 0) {
-        this.countdown = "Closed";
+        this.countdown = "Live";
         return;
       }
 
-      const hours = Math.floor(remaining / (1000 * 60 * 60));
+      const days = Math.floor(remaining / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((remaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
       const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
-      this.countdown = `${hours}h ${minutes}m ${seconds}s`;
+      this.countdown = `${days}j ${hours}h ${minutes}m`;
     },
     scrollToProducts() {
       const target = this.$refs.productsSection;
@@ -804,86 +580,48 @@ export default {
 }
 
 .hero-panel {
-  background: #0b0b0b;
   border-radius: 16px;
-  padding: 18px;
+  background: #0b0b0b;
   color: #fff;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  position: relative;
   overflow: hidden;
-}
-
-.hero-visual {
-  position: relative;
-  border-radius: 14px;
-  overflow: hidden;
-  background: #111;
-  min-height: 240px;
   display: grid;
-  place-items: center;
 }
 
 .hero-photo {
   width: 100%;
   height: 100%;
+  min-height: 240px;
   object-fit: cover;
-  display: block;
-  opacity: 0.9;
-  filter: contrast(1.05) saturate(1.08);
+  opacity: 0.92;
 }
 
 .hero-countdown {
-  position: absolute;
-  inset: auto 12px 12px 12px;
-  background: rgba(0, 0, 0, 0.68);
-  border-radius: 12px;
-  padding: 10px 12px;
+  padding: 14px;
   display: grid;
   gap: 6px;
   text-transform: uppercase;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.16em;
   font-size: 10px;
+  background: rgba(0, 0, 0, 0.8);
 }
 
 .hero-countdown strong {
-  font-size: 14px;
-  letter-spacing: 0.12em;
+  font-size: 18px;
+  letter-spacing: 0.1em;
 }
 
-.countdown-bar {
-  height: 4px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.countdown-bar span {
-  display: block;
-  height: 100%;
-  background: var(--accent);
-  width: 0;
-  transition: width 0.4s ease;
-}
-
-.hero-strip {
-  text-transform: uppercase;
+.hero-countdown small {
+  color: rgba(255, 255, 255, 0.8);
   font-size: 10px;
-  letter-spacing: 0.22em;
-  background: var(--accent);
-  padding: 8px 12px;
-  border-radius: 999px;
-  color: #fff;
+  letter-spacing: 0.14em;
 }
 
 .drop-details {
-  margin-top: 28px;
+  margin-top: 24px;
   padding: 24px;
   border: 1px solid var(--line);
   border-radius: 18px;
   background: #fff;
-  animation: rise 0.72s ease both;
 }
 
 .details-head p {
@@ -904,189 +642,26 @@ export default {
   margin-top: 18px;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 16px;
+  gap: 14px;
 }
 
 .detail-card {
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(0, 0, 0, 0.16);
   border-radius: 14px;
-  padding: 16px;
+  padding: 14px;
   background: #fafafa;
 }
 
 .detail-card h3 {
   margin: 0 0 8px;
   text-transform: uppercase;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   font-size: 11px;
 }
 
 .detail-card p {
   margin: 0;
-  color: var(--muted);
   font-size: 13px;
-}
-
-.ticker {
-  margin-top: 28px;
-  overflow: hidden;
-  border-radius: 999px;
-  border: 1px solid var(--line);
-  background: #fff;
-  padding: 10px 18px;
-}
-
-.ticker-track {
-  display: flex;
-  width: max-content;
-  text-transform: uppercase;
-  letter-spacing: 0.3em;
-  font-size: 10px;
-  animation: ticker 14s linear infinite;
-  will-change: transform;
-}
-
-.ticker-group {
-  display: flex;
-  gap: 28px;
-}
-
-.ticker-track span {
-  white-space: nowrap;
-}
-
-.lookbook {
-  margin-top: 32px;
-  padding: 24px;
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  background: #fff;
-  animation: rise 0.75s ease both;
-}
-
-.lookbook-head p {
-  margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 0.3em;
-  font-size: 10px;
-  color: var(--muted);
-}
-
-.lookbook-head h2 {
-  margin: 8px 0 0;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.lookbook-grid {
-  margin-top: 20px;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 16px;
-}
-
-.lookbook-card {
-  position: relative;
-  aspect-ratio: 4 / 5;
-  border: 1px solid rgba(0, 0, 0, 0.45);
-  border-radius: 16px;
-  overflow: hidden;
-  background: #fff;
-}
-
-.lookbook-card.accent {
-  border-color: var(--accent);
-  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.2);
-}
-
-.lookbook-card img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  object-position: center;
-  display: block;
-  filter: saturate(1.05);
-  background: transparent;
-}
-
-.lookbook-card figcaption {
-  position: absolute;
-  inset: auto 12px 12px 12px;
-  padding: 8px 12px;
-  border-radius: 999px;
-  background: rgba(0, 0, 0, 0.72);
-  color: #fff;
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  font-size: 10px;
-}
-
-.logo-section {
-  margin-top: 32px;
-  padding: 32px;
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  background: #fff;
-  animation: rise 0.75s ease both;
-  overflow: hidden;
-}
-
-.logo-head p {
-  margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 0.3em;
-  font-size: 10px;
-  color: var(--muted);
-}
-
-.logo-head h2 {
-  margin: 8px 0 0;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.logo-sub {
-  margin: 6px 0 0;
-  color: var(--muted);
-  font-size: 12px;
-  display: none;
-}
-
-.logo-grid {
-  margin-top: 20px;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 24px;
-}
-
-.logo-card {
-  border: 1px solid rgba(0, 0, 0, 0.4);
-  border-radius: 20px;
-  background: #fff;
-  padding: 28px;
-  display: grid;
-  gap: 14px;
-  place-items: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
-}
-
-.logo-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.16);
-}
-
-.logo-card img {
-  width: 100%;
-  height: clamp(160px, 24vw, 220px);
-  object-fit: contain;
-  display: block;
-}
-
-.logo-card figcaption {
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  font-size: 10px;
   color: var(--muted);
 }
 
@@ -1094,7 +669,7 @@ export default {
   display: grid;
   grid-template-columns: minmax(180px, 240px) minmax(0, 1fr);
   gap: 32px;
-  margin-top: 40px;
+  margin-top: 34px;
   animation: rise 0.8s ease both;
 }
 
@@ -1112,11 +687,6 @@ export default {
   text-transform: uppercase;
   letter-spacing: 0.22em;
   font-size: 12px;
-}
-
-.sidebar-block p {
-  margin: 0 0 10px;
-  color: var(--muted);
 }
 
 .category,
@@ -1148,6 +718,12 @@ export default {
   background: var(--accent);
   color: #fff;
   border-color: var(--accent);
+}
+
+.shop-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .mobile-filters {
@@ -1206,12 +782,6 @@ export default {
   white-space: nowrap;
 }
 
-.shop-content {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
 .content-head {
   display: flex;
   align-items: flex-end;
@@ -1233,100 +803,12 @@ export default {
   letter-spacing: 0.08em;
 }
 
-.content-actions {
-  display: flex;
-  gap: 10px;
-}
-
-.featured-set {
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 18px;
-  padding: 20px;
-  background: #fff;
-}
-
-.featured-head p {
+.content-count {
   margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 0.3em;
-  font-size: 10px;
-  color: var(--muted);
-}
-
-.featured-head h3 {
-  margin: 8px 0 0;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.featured-grid {
-  margin-top: 18px;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 18px;
-}
-
-.featured-card {
-  border: 1px solid rgba(0, 0, 0, 0.18);
-  border-radius: 18px;
-  overflow: hidden;
-  background: #fff;
-  display: grid;
-  grid-template-rows: 1fr auto;
-}
-
-.featured-media {
-  display: block;
-  background: #fff;
-  aspect-ratio: 4 / 5;
-  overflow: hidden;
-}
-
-.featured-media img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  display: block;
-  transition: transform 0.3s ease;
-}
-
-.featured-card:hover .featured-media img {
-  transform: scale(1.03);
-}
-
-.featured-info {
-  padding: 16px;
-  display: grid;
-  gap: 8px;
-}
-
-.featured-kicker {
-  margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  font-size: 10px;
-  color: var(--muted);
-}
-
-.featured-info h4 {
-  margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.featured-price {
-  margin: 0;
-  font-weight: 600;
-}
-
-.featured-link {
   text-transform: uppercase;
   letter-spacing: 0.18em;
   font-size: 10px;
-  text-decoration: none;
-  color: var(--text);
-  border-bottom: 2px solid var(--accent);
-  width: fit-content;
+  color: var(--muted);
 }
 
 .filter-backdrop {
@@ -1396,16 +878,6 @@ export default {
   flex-wrap: wrap;
 }
 
-.ghost-button {
-  border: 1px solid var(--line);
-  background: #fff;
-  padding: 8px 14px;
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
-  font-size: 11px;
-  cursor: pointer;
-}
-
 .shop-footer {
   margin-top: 48px;
   padding-top: 24px;
@@ -1419,6 +891,16 @@ export default {
   text-transform: uppercase;
   letter-spacing: 0.12em;
   animation: rise 0.9s ease both;
+}
+
+.footer-links {
+  display: flex;
+  gap: 16px;
+}
+
+.footer-links a {
+  color: inherit;
+  text-decoration: none;
 }
 
 .toast {
@@ -1443,16 +925,6 @@ export default {
   transform: translateY(0);
 }
 
-.footer-links {
-  display: flex;
-  gap: 16px;
-}
-
-.footer-links a {
-  color: inherit;
-  text-decoration: none;
-}
-
 @keyframes rise {
   from {
     opacity: 0;
@@ -1461,15 +933,6 @@ export default {
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-@keyframes ticker {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
   }
 }
 
@@ -1484,10 +947,6 @@ export default {
 
   .shop-sidebar {
     position: static;
-  }
-
-  .hero-visual {
-    min-height: 220px;
   }
 }
 
@@ -1515,27 +974,6 @@ export default {
 
   .shop-sidebar {
     display: none;
-  }
-
-  .logo-sub {
-    display: block;
-  }
-
-  .logo-grid {
-    grid-auto-flow: column;
-    grid-auto-columns: minmax(220px, 70vw);
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    padding-bottom: 6px;
-    scrollbar-width: none;
-  }
-
-  .logo-grid::-webkit-scrollbar {
-    display: none;
-  }
-
-  .logo-card {
-    scroll-snap-align: start;
   }
 
   .footer-links {

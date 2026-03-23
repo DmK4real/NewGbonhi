@@ -36,59 +36,55 @@
     <section class="lookbook-hero">
       <div class="hero-copy">
         <p class="hero-kicker">Lookbook</p>
-        <h1>Frames from the city</h1>
+        <h1>Galerie des looks portes</h1>
         <p class="hero-sub">
-          A visual journal of Drop 01. Clean cuts, bold marks, no noise.
+          Les pieces NewGbonhi en situation reelle: rue, mouvement, quotidien.
+          Chaque look montre le fit et l'attitude du drop.
         </p>
       </div>
       <div class="hero-panel">
         <img class="hero-logo" :src="logoUrl" alt="" />
-        <div class="hero-strip">NewGbonhi / Lookbook</div>
+        <div class="hero-strip">Street looks / Drop 01</div>
       </div>
     </section>
 
-    <section class="gallery">
+    <section class="looks-gallery">
       <div class="gallery-head">
-        <p>Lookbook</p>
-        <h2>Drop 01 Gallery</h2>
+        <p>Looks portes</p>
+        <h2>Selection editoriale</h2>
       </div>
       <div class="gallery-grid">
-        <figure v-for="frame in lookbookImages" :key="frame.label" class="gallery-card">
-          <img :src="frame.src" :alt="frame.label" loading="lazy" />
-          <figcaption>{{ frame.label }}</figcaption>
-        </figure>
+        <article v-for="look in wornLooks" :key="look.title" class="look-card">
+          <div class="look-media">
+            <img :src="look.src" :alt="look.title" loading="lazy" />
+          </div>
+          <div class="look-info">
+            <p class="look-scene">{{ look.scene }}</p>
+            <h3>{{ look.title }}</h3>
+            <p>{{ look.note }}</p>
+          </div>
+        </article>
       </div>
     </section>
 
-    <section class="moodboard">
-      <div class="moodboard-head">
-        <p>Moodboard</p>
-        <h2>Textures & marks</h2>
+    <section class="styling-notes">
+      <div class="notes-head">
+        <p>Styling</p>
+        <h2>Comment porter le drop</h2>
       </div>
-      <div class="moodboard-grid">
-        <figure v-for="tile in moodboardImages" :key="tile.label" class="moodboard-tile">
-          <img :src="tile.src" :alt="tile.label" loading="lazy" />
-          <figcaption>{{ tile.label }}</figcaption>
-        </figure>
-      </div>
-    </section>
-
-    <section class="editorial">
-      <div class="editorial-copy">
-        <p class="editorial-kicker">Editorial</p>
-        <h2>Uniform for the everyday</h2>
-        <p>
-          Built for movement and repetition. Each graphic is a marker in the
-          NewGbonhi language.
-        </p>
-      </div>
-      <div class="editorial-grid">
-        <div class="editorial-card">
-          <img :src="whiteCameleonUrl" alt="White Cameleon" loading="lazy" />
-        </div>
-        <div class="editorial-card">
-          <img :src="blackCameleonUrl" alt="Black Cameleon" loading="lazy" />
-        </div>
+      <div class="notes-grid">
+        <article class="note-card">
+          <h3>Oversize propre</h3>
+          <p>Prends une taille au-dessus pour une silhouette plus large.</p>
+        </article>
+        <article class="note-card">
+          <h3>Monochrome + accent</h3>
+          <p>Base noire ou blanche, puis un visuel fort pour le contraste.</p>
+        </article>
+        <article class="note-card">
+          <h3>Layering leger</h3>
+          <p>Ajoute une surcouche simple pour garder la lecture du print.</p>
+        </article>
       </div>
     </section>
 
@@ -120,40 +116,30 @@ import CartPanel from "./components/CartPanel.vue";
 import { cartStore } from "./data/cart.js";
 
 const logoUrl = new URL("./assets/newgbonhi-logo.png", import.meta.url).href;
-const safeZoneUrl = new URL(
+const safeZoneBlackUrl = new URL(
   "./assets/BLACK SAFE zone 4 BOY.png",
   import.meta.url
 ).href;
-const whiteCameleonUrl = new URL(
-  "./assets/WHITE CAMELEON.png",
+const safeZoneWhiteUrl = new URL(
+  "./assets/WHITE SAFE zone 4 BOY.png",
   import.meta.url
 ).href;
 const safeBabiGirlBlackUrl = new URL(
   "./assets/BLACK SAFE BABI GIRL.png",
   import.meta.url
 ).href;
-const whiteSafeBabiGirlUrl = new URL(
+const safeBabiGirlWhiteUrl = new URL(
   "./assets/WHITE SAFE BABI GIRL.png",
   import.meta.url
 ).href;
-const whiteSafeZoneUrl = new URL(
-  "./assets/WHITE SAFE zone 4 BOY.png",
-  import.meta.url
-).href;
-const blackCameleonUrl = new URL(
-  "./assets/BLACK CAMELEON.png",
-  import.meta.url
-).href;
-const newGbonhiOnTopUrl = new URL(
+const blackCameleonUrl = new URL("./assets/BLACK CAMELEON.png", import.meta.url).href;
+const whiteCameleonUrl = new URL("./assets/WHITE CAMELEON.png", import.meta.url).href;
+const onTopCameleonUrl = new URL(
   "./assets/NEW GBONHI ON TOP CAMELEON.png",
   import.meta.url
 ).href;
-const newGbonhiOnTopBgabUrl = new URL(
+const onTopBgabUrl = new URL(
   "./assets/NEW GBONHI ON TOP BGAB.png",
-  import.meta.url
-).href;
-const redCameleonUrl = new URL(
-  "./assets/RED CAMELEON.jpeg",
   import.meta.url
 ).href;
 
@@ -166,66 +152,54 @@ export default {
     return {
       logoUrl,
       cartOpen: false,
-      whiteCameleonUrl,
-      blackCameleonUrl,
-      lookbookImages: [
+      wornLooks: [
         {
-          src: safeZoneUrl,
-          label: "SAFE zone 4 BOY BLACK",
+          src: safeZoneBlackUrl,
+          title: "SAFE zone 4 BOY / Black",
+          scene: "Look 01 / Daywear",
+          note: "Fit droit et visuel frontal pour un look quotidien net.",
         },
         {
-          src: whiteSafeZoneUrl,
-          label: "SAFE zone 4 BOY WHITE",
+          src: safeZoneWhiteUrl,
+          title: "SAFE zone 4 BOY / White",
+          scene: "Look 02 / Daylight",
+          note: "Version claire pour une silhouette plus lumineuse.",
         },
         {
           src: safeBabiGirlBlackUrl,
-          label: "SAFE BABI GIRL BLACK",
+          title: "SAFE BABI GIRL / Black",
+          scene: "Look 03 / City run",
+          note: "Look ancre, contraste fort et lecture directe du print.",
         },
         {
-          src: whiteSafeBabiGirlUrl,
-          label: "WHITE SAFE BABI GIRL",
-        },
-        {
-          src: whiteCameleonUrl,
-          label: "WHITE CAMELEON",
-        },
-        {
-          src: blackCameleonUrl,
-          label: "BLACK CAMELEON",
-        },
-        {
-          src: newGbonhiOnTopUrl,
-          label: "NEW GBONHI ON TOP CAMELEON",
-        },
-        {
-          src: newGbonhiOnTopBgabUrl,
-          label: "NEW GBONHI ON TOP BGAB",
-        },
-      ],
-      moodboardImages: [
-        {
-          src: safeZoneUrl,
-          label: "SAFE zone 4 BOY BLACK",
-        },
-        {
-          src: whiteCameleonUrl,
-          label: "WHITE CAMELEON",
-        },
-        {
-          src: redCameleonUrl,
-          label: "RED CAMELEON",
+          src: safeBabiGirlWhiteUrl,
+          title: "SAFE BABI GIRL / White",
+          scene: "Look 04 / Street light",
+          note: "Approche minimaliste avec base blanche et graphisme centre.",
         },
         {
           src: blackCameleonUrl,
-          label: "BLACK CAMELEON",
+          title: "BLACK CAMELEON",
+          scene: "Look 05 / Night move",
+          note: "Piece statement, portee oversize avec bas sobre.",
         },
         {
-          src: newGbonhiOnTopUrl,
-          label: "NEW GBONHI ON TOP CAMELEON",
+          src: whiteCameleonUrl,
+          title: "WHITE CAMELEON",
+          scene: "Look 06 / Clean mode",
+          note: "Version claire pour une lecture plus graphique des details.",
         },
         {
-          src: whiteSafeZoneUrl,
-          label: "SAFE zone 4 BOY WHITE",
+          src: onTopCameleonUrl,
+          title: "NG ON TOP CAMELEON",
+          scene: "Look 07 / Crop set",
+          note: "Crop top central du drop, stylee avec denim ou cargo.",
+        },
+        {
+          src: onTopBgabUrl,
+          title: "NG ON TOP BGAB",
+          scene: "Look 08 / Crop set",
+          note: "Look porte court et nerveux, construit pour l'ete urbain.",
         },
       ],
     };
@@ -277,7 +251,7 @@ export default {
   background:
     repeating-linear-gradient(
       90deg,
-      rgba(222, 30, 30, 0.04),
+      rgba(0, 0, 0, 0.04),
       rgba(0, 0, 0, 0.04) 1px,
       transparent 1px,
       transparent 48px
@@ -405,7 +379,7 @@ export default {
 .hero-sub {
   margin: 0;
   color: var(--muted);
-  max-width: 420px;
+  max-width: 460px;
 }
 
 .hero-panel {
@@ -436,13 +410,12 @@ export default {
   color: #fff;
 }
 
-.gallery {
+.looks-gallery {
   margin-top: 32px;
   padding: 24px;
   border: 1px solid var(--line);
   border-radius: 18px;
   background: #fff;
-  animation: rise 0.75s ease both;
 }
 
 .gallery-head p {
@@ -460,53 +433,68 @@ export default {
 }
 
 .gallery-grid {
-  margin-top: 20px;
+  margin-top: 18px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 16px;
 }
 
-.gallery-card {
-  position: relative;
-  aspect-ratio: 4 / 5;
-  border: 1px solid rgba(0, 0, 0, 0.45);
-  border-radius: 16px;
-  overflow: hidden;
+.look-card {
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  border-radius: 18px;
   background: #fff;
+  overflow: hidden;
+  display: grid;
 }
 
-.gallery-card img {
+.look-media {
+  background: #fff;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.look-media img {
   width: 100%;
-  height: 100%;
+  aspect-ratio: 4 / 5;
   object-fit: contain;
-  object-position: center;
   display: block;
-  filter: saturate(1.05);
-  background: transparent;
 }
 
-.gallery-card figcaption {
-  position: absolute;
-  inset: auto 12px 12px 12px;
-  padding: 8px 12px;
-  border-radius: 999px;
-  background: rgba(0, 0, 0, 0.72);
-  color: #fff;
+.look-info {
+  padding: 14px;
+  display: grid;
+  gap: 8px;
+}
+
+.look-scene {
+  margin: 0;
   text-transform: uppercase;
   letter-spacing: 0.2em;
   font-size: 10px;
+  color: var(--muted);
 }
 
-.moodboard {
-  margin-top: 32px;
+.look-info h3 {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 14px;
+}
+
+.look-info p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.styling-notes {
+  margin-top: 28px;
   padding: 24px;
   border: 1px solid var(--line);
   border-radius: 18px;
   background: #fff;
-  animation: rise 0.76s ease both;
 }
 
-.moodboard-head p {
+.notes-head p {
   margin: 0;
   text-transform: uppercase;
   letter-spacing: 0.3em;
@@ -514,98 +502,37 @@ export default {
   color: var(--muted);
 }
 
-.moodboard-head h2 {
+.notes-head h2 {
   margin: 8px 0 0;
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
 
-.moodboard-grid {
+.notes-grid {
   margin-top: 18px;
-  column-count: 3;
-  column-gap: 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
 }
 
-.moodboard-tile {
-  break-inside: avoid;
-  margin: 0 0 16px;
+.note-card {
+  border: 1px solid rgba(0, 0, 0, 0.16);
   border-radius: 14px;
-  overflow: hidden;
-  border: 1px solid rgba(0, 0, 0, 0.35);
-  background: #fff;
+  padding: 14px;
+  background: #fafafa;
 }
 
-.moodboard-tile img {
-  width: 100%;
-  display: block;
-  object-fit: contain;
-  object-position: center;
-  transition: transform 0.3s ease;
-  background: transparent;
-}
-
-.moodboard-tile:hover img {
-  transform: scale(1.04);
-}
-
-.moodboard-tile figcaption {
-  padding: 8px 10px;
-  background: #0b0b0b;
-  color: #fff;
+.note-card h3 {
+  margin: 0 0 8px;
   text-transform: uppercase;
-  letter-spacing: 0.2em;
-  font-size: 10px;
+  letter-spacing: 0.12em;
+  font-size: 11px;
 }
 
-.editorial {
-  margin-top: 32px;
-  padding: 24px;
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  background: #fff;
-  display: grid;
-  gap: 20px;
-  animation: rise 0.8s ease both;
-}
-
-.editorial-copy {
-  max-width: 520px;
-}
-
-.editorial-kicker {
+.note-card p {
   margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 0.3em;
-  font-size: 10px;
   color: var(--muted);
-}
-
-.editorial-copy h2 {
-  margin: 8px 0 8px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.editorial-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 18px;
-}
-
-.editorial-card {
-  border: 1px solid rgba(0, 0, 0, 0.45);
-  border-radius: 18px;
-  overflow: hidden;
-  background: #fff;
-}
-
-.editorial-card img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  object-position: center;
-  display: block;
-  background: transparent;
+  font-size: 13px;
 }
 
 .shop-footer {
@@ -648,10 +575,6 @@ export default {
   .lookbook-hero {
     grid-template-columns: 1fr;
   }
-
-  .moodboard-grid {
-    column-count: 2;
-  }
 }
 
 @media (max-width: 700px) {
@@ -667,8 +590,8 @@ export default {
     width: 100%;
   }
 
-  .moodboard-grid {
-    column-count: 1;
+  .footer-links {
+    flex-direction: column;
   }
 }
 </style>
