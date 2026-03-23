@@ -36,61 +36,67 @@
     <section class="about-hero">
       <div class="hero-copy">
         <p class="hero-kicker">About</p>
-        <h1>NewGbonhi studio</h1>
+        <h1>Drop details</h1>
         <p class="hero-sub">
-          A graphic language built from city textures. Clean silhouettes, bold
-          marks, and repeat wear.
+          Fiche technique du drop: coupe, tissu, finition et recommandations de
+          port. Tout est pense pour un usage quotidien durable.
         </p>
       </div>
       <div class="hero-panel">
         <img class="hero-logo" :src="logoUrl" alt="" />
-        <div class="hero-strip">NewGbonhi / Studio</div>
+        <div class="hero-strip">NewGbonhi / Technical notes</div>
       </div>
     </section>
 
-    <section class="about-section">
-      <div class="about-head">
-        <p>Studio</p>
-        <h2>NewGbonhi studio</h2>
+    <section class="drop-specs">
+      <div class="specs-head">
+        <p>Drop 01 details</p>
+        <h2>Cut, fabric, finish</h2>
       </div>
-      <div class="about-content">
-        <p>
-          NewGbonhi blends graphic statements with everyday uniforms. Each drop
-          is built for repeat wear, clean silhouettes, and bold marks.
-        </p>
-        <p>
-          Drop 01 focuses on tees, crop tops, and pants with a monochrome base
-          and red signal accents.
-        </p>
+      <div class="specs-grid">
+        <article v-for="spec in dropSpecs" :key="spec.title" class="spec-card">
+          <h3>{{ spec.title }}</h3>
+          <p>{{ spec.text }}</p>
+        </article>
       </div>
-      <div class="timeline">
-        <div class="timeline-head">
-          <p>Timeline</p>
-          <h3>Drop 01 journey</h3>
-        </div>
-        <div class="timeline-grid">
-          <article v-for="step in timeline" :key="step.title" class="timeline-card">
-            <span class="timeline-date">{{ step.date }}</span>
-            <h4>{{ step.title }}</h4>
-            <p>{{ step.text }}</p>
-          </article>
-        </div>
-      </div>
+    </section>
 
-<div class="art-section">
-        <div class="art-head">
-          <p>New Gbonhi Art</p>
-          <h3>Backstage de creation</h3>
-        </div>
-        <div class="art-grid">
-          <article v-for="story in artStories" :key="story.title" class="art-card">
-            <img :src="story.src" :alt="story.title" loading="lazy" />
-            <div class="art-text">
-              <h4>{{ story.title }}</h4>
-              <p>{{ story.text }}</p>
-            </div>
-          </article>
-        </div>
+    <section class="fit-section">
+      <div class="fit-head">
+        <p>Fit guide</p>
+        <h2>Tailles & recommandations</h2>
+      </div>
+      <div class="fit-grid">
+        <article class="fit-card">
+          <h3>T-shirts</h3>
+          <p>Coupe droite relax. Taille habituelle pour fit standard.</p>
+        </article>
+        <article class="fit-card">
+          <h3>Crop tops</h3>
+          <p>Coupe courte pres du corps. Prends une taille au-dessus pour plus d'aisance.</p>
+        </article>
+        <article class="fit-card">
+          <h3>Entretien</h3>
+          <p>Lavage a froid, a l'envers. Repassage doux hors visuel.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="story-section">
+      <div class="story-head">
+        <p>Vision</p>
+        <h2>Pourquoi ce drop</h2>
+      </div>
+      <div class="story-copy">
+        <p>
+          NewGbonhi construit un vestiaire street clair: peu de bruit visuel,
+          des pieces qui tournent facilement, et des graphiques qui signent
+          l'identite.
+        </p>
+        <p>
+          Chaque article du drop est pense pour etre porte souvent, combine
+          simplement, et garder sa lecture dans le temps.
+        </p>
       </div>
     </section>
 
@@ -122,18 +128,6 @@ import CartPanel from "./components/CartPanel.vue";
 import { cartStore } from "./data/cart.js";
 
 const logoUrl = new URL("./assets/newgbonhi-logo.png", import.meta.url).href;
-const youngWildUrl = new URL(
-  "./assets/YOUNG WILD & FREE.jpeg",
-  import.meta.url
-).href;
-const brightArtUrl = new URL(
-  "./assets/BRIGHT ART NEW GBONHI.jpeg",
-  import.meta.url
-).href;
-const watchThroneUrl = new URL(
-  "./assets/WATCH THE THRONE.jpeg",
-  import.meta.url
-).href;
 
 export default {
   name: "AboutPage",
@@ -144,46 +138,30 @@ export default {
     return {
       logoUrl,
       cartOpen: false,
-      timeline: [
+      dropSpecs: [
         {
-          date: "Phase 01",
-          title: "Sketch & direction",
-          text: "Moodboard, typographies, and silhouettes for Drop 01.",
+          title: "Cut",
+          text: "Silhouette street relax: epaules legerement descendues, buste droit.",
         },
         {
-          date: "Phase 02",
-          title: "Print tests",
-          text: "Prototype prints to validate texture and contrast.",
+          title: "Fabric",
+          text: "Jersey coton majoritaire avec toucher sec et tenue stable.",
         },
         {
-          date: "Phase 03",
-          title: "Sampling",
-          text: "Fit checks, sizing, and wear tests.",
+          title: "Weight",
+          text: "Grammage moyen pour equilibrer confort, tenue et resistance.",
         },
         {
-          date: "Phase 04",
-          title: "Launch",
-          text: "48h window, limited release, and restock planning.",
-        },
-      ],
-      artStories: [
-        {
-          src: youngWildUrl,
-          title: "YOUNG WILD & FREE",
-          text:
-            "Espace pour raconter l'histoire: l'inspiration, le lieu, et le moment ou ce visuel est ne.",
+          title: "Print",
+          text: "Impression graphique a contraste eleve pour lecture nette.",
         },
         {
-          src: brightArtUrl,
-          title: "BRIGHT ART NEW GBONHI",
-          text:
-            "Espace pour expliquer le processus creatif, les essais, et l'idee derriere la piece.",
+          title: "Finish",
+          text: "Col et coutures renforces sur les zones de tension.",
         },
         {
-          src: watchThroneUrl,
-          title: "WATCH THE THRONE",
-          text:
-            "Espace pour raconter la vision artistique et la symbolique derriere ce drop.",
+          title: "Colorway",
+          text: "Base noir/blanc avec accents visuels NewGbonhi.",
         },
       ],
     };
@@ -363,7 +341,7 @@ export default {
 .hero-sub {
   margin: 0;
   color: var(--muted);
-  max-width: 420px;
+  max-width: 500px;
 }
 
 .hero-panel {
@@ -394,18 +372,19 @@ export default {
   color: #fff;
 }
 
-.about-section {
-  margin-top: 32px;
-  padding: 28px;
+.drop-specs,
+.fit-section,
+.story-section {
+  margin-top: 28px;
+  padding: 24px;
   border: 1px solid var(--line);
   border-radius: 18px;
   background: #fff;
-  display: grid;
-  gap: 16px;
-  animation: rise 0.78s ease both;
 }
 
-.about-head p {
+.specs-head p,
+.fit-head p,
+.story-head p {
   margin: 0;
   text-transform: uppercase;
   letter-spacing: 0.3em;
@@ -413,143 +392,55 @@ export default {
   color: var(--muted);
 }
 
-.about-head h2 {
+.specs-head h2,
+.fit-head h2,
+.story-head h2 {
   margin: 8px 0 0;
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
 
-.about-content {
-  color: var(--muted);
-  max-width: 720px;
-}
-
-.about-content p {
-  margin: 0 0 12px;
-}
-
-.timeline {
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  border-radius: 16px;
-  padding: 16px;
-  background: #f9f9f9;
-  display: grid;
-  gap: 12px;
-}
-
-.timeline-head p {
-  margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 0.3em;
-  font-size: 10px;
-  color: var(--muted);
-}
-
-.timeline-head h3 {
-  margin: 8px 0 0;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  font-size: 16px;
-}
-
-.timeline-grid {
+.specs-grid,
+.fit-grid {
+  margin-top: 18px;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 12px;
+  gap: 14px;
 }
 
-.timeline-card {
-  border: 1px solid rgba(0, 0, 0, 0.2);
+.spec-card,
+.fit-card {
+  border: 1px solid rgba(0, 0, 0, 0.16);
   border-radius: 14px;
-  padding: 12px;
-  background: #fff;
-  display: grid;
-  gap: 8px;
+  padding: 14px;
+  background: #fafafa;
 }
 
-.timeline-date {
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
-  font-size: 10px;
-  color: var(--muted);
-}
-
-.timeline-card h4 {
-  margin: 0;
+.spec-card h3,
+.fit-card h3 {
+  margin: 0 0 8px;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  font-size: 12px;
+  font-size: 11px;
 }
 
-.timeline-card p {
+.spec-card p,
+.fit-card p {
   margin: 0;
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 1.5;
-}
-
-.art-section {
-  display: grid;
-  gap: 16px;
-}
-
-.art-head p {
-  margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 0.3em;
-  font-size: 10px;
-  color: var(--muted);
-}
-
-.art-head h3 {
-  margin: 8px 0 0;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  font-size: 16px;
-}
-
-.art-grid {
-  display: grid;
-  gap: 16px;
-}
-
-.art-card {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 16px;
-  border: 1px solid rgba(0, 0, 0, 0.35);
-  border-radius: 16px;
-  background: #f7f7f7;
-  overflow: hidden;
-}
-
-.art-card img {
-  width: 100%;
-  height: 100%;
-  min-height: 200px;
-  object-fit: cover;
-  display: block;
-}
-
-.art-text {
-  padding: 16px;
-  display: grid;
-  gap: 8px;
-  align-content: start;
-}
-
-.art-text h4 {
-  margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  font-size: 12px;
-}
-
-.art-text p {
-  margin: 0;
-  color: var(--muted);
   font-size: 13px;
-  line-height: 1.5;
+  color: var(--muted);
+}
+
+.story-copy {
+  margin-top: 14px;
+  display: grid;
+  gap: 12px;
+  max-width: 760px;
+}
+
+.story-copy p {
+  margin: 0;
+  color: var(--muted);
 }
 
 .shop-footer {
@@ -592,10 +483,6 @@ export default {
   .about-hero {
     grid-template-columns: 1fr;
   }
-
-  .art-card {
-    grid-template-columns: 1fr;
-  }
 }
 
 @media (max-width: 700px) {
@@ -609,6 +496,10 @@ export default {
 
   .shop-cta {
     width: 100%;
+  }
+
+  .footer-links {
+    flex-direction: column;
   }
 }
 </style>
