@@ -5,7 +5,7 @@
         <img class="brand-logo" :src="logoUrl" alt="NewGbonhi logo" />
         <div class="brand-meta">
           <p class="brand-name">NewGbonhi</p>
-          <p class="brand-tagline">Drop 01 // Street uniform</p>
+          <p class="brand-tagline">Drop 02 // En preparation</p>
         </div>
       </div>
       <nav class="shop-nav" aria-label="Primary">

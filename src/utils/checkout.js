@@ -1,6 +1,10 @@
 export const SHIPPING_OPTIONS = [
-  { id: "abidjan", label: "Abidjan", fee: 2000, eta: "24-48h" },
-  { id: "outside", label: "Hors Abidjan", fee: 4000, eta: "2-4 jours" },
+  {
+    id: "yango_distance",
+    label: "Yango Livraison",
+    fee: 0,
+    eta: "Selon disponibilite",
+  },
 ];
 
 export const formatPrice = (value) => {

@@ -8,7 +8,7 @@
     "imageKey": "safeZoneBlack",
     "category": "t-shirts",
     "sizes": ["S", "M", "L", "XL", "XXL"],
-    "tags": ["restock"],
+    "tags": ["restock", "drop02"],
     "variants": [
       { "id": "black", "label": "Black", "imageKey": "safeZoneBlack" },
       { "id": "white", "label": "White", "imageKey": "safeZoneWhite" }
@@ -16,14 +16,14 @@
   },
   {
     "id": 2,
-    "title": "BLACK CAMELEON",
+    "title": "CAMELEON",
     "slug": "cameleon",
-    "description": "T-shirt graphique CAMELEON, base monochrome.",
+    "description": "Piece signature du Drop 02 en preparation, disponible en noir et en blanc.",
     "price": 10000,
-    "imageKey": "whiteCameleon",
+    "imageKey": "blackCameleon",
     "category": "t-shirts",
     "sizes": ["S", "M", "L", "XL", "XXL"],
-    "tags": ["restock"],
+    "tags": ["new", "drop02"],
     "variants": [
       { "id": "black", "label": "Black", "imageKey": "blackCameleon" },
       { "id": "white", "label": "White", "imageKey": "whiteCameleon" }
@@ -34,11 +34,12 @@
     "title": "NG ON TOP BLACK CAMELEON",
     "slug": "cameleon-crop-top-black",
     "description": "Crop top CAMELEON en noir, coupe courte et nette.",
-    "price": 10000,
+    "price": 5000,
     "imageKey": "newGbonhiOnTop",
     "category": "crop-tops",
     "sizes": ["XS", "S", "M", "L"],
-    "tags": ["new"]
+    "tags": [""],
+    "soldOut": true
   },
   {
     "id": 4,
@@ -49,7 +50,7 @@
     "imageKey": "safeBabiGirl",
     "category": "t-shirts",
     "sizes": ["S", "M", "L", "XL", "XXL"],
-    "tags": ["new"],
+    "tags": ["new", "drop02"],
     "variants": [
       { "id": "black", "label": "Black", "imageKey": "safeBabiGirlBlack" },
       { "id": "white", "label": "White", "imageKey": "safeBabiGirl" }
@@ -60,10 +61,11 @@
     "title": "NG ON TOP BGAB",
     "slug": "crop-top-bgab",
     "description": "Crop top BGAB, edition claire et coupe courte.",
-    "price": 10000,
+    "price": 5000,
     "imageKey": "newGbonhiOnTopBgab",
     "category": "crop-tops",
     "sizes": ["XS", "S", "M", "L"],
-    "tags": ["new"]
+    "tags": [],
+    "soldOut": true
   }
 ]

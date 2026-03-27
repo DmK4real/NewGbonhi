@@ -5,7 +5,7 @@
         <img class="brand-logo" :src="logoUrl" alt="NewGbonhi logo" />
         <div class="brand-meta">
           <p class="brand-name">NewGbonhi</p>
-          <p class="brand-tagline">Drop 01 // Street uniform</p>
+          <p class="brand-tagline">Drop 02 // En preparation</p>
         </div>
       </div>
       <nav class="shop-nav" aria-label="Primary">
@@ -93,47 +93,26 @@
 
           <div class="notice">
             <p>Steps</p>
-            <p>1. Choisis la livraison.</p>
-            <p>2. Paye via Mobile Money (numeros ci-dessous).</p>
-            <p>3. Envoie la preuve + recap sur WhatsApp.</p>
+            <p>1. Confirme ta commande avec ton adresse exacte.</p>
+            <p>2. Paiement de l'article sur mobile money.</p> 
+            <p>3. On lance la course Yango depuis notre adresse vers la votre.</p>
+            <p>4. Vous payez à l'arrivée du livreur (livraison).</p>
           </div>
 
           <div class="delivery-box">
-            <h3>Livraison</h3>
-            <div class="delivery-options">
-              <label
-                v-for="option in shippingOptions"
-                :key="option.id"
-                class="delivery-option"
-              >
-                <input
-                  type="radio"
-                  name="delivery"
-                  :value="option.id"
-                  v-model="selectedShippingId"
-                />
-                <span>
-                  {{ option.label }} - {{ formatPrice(option.fee) }}
-                </span>
-                <small v-if="option.eta">{{ option.eta }}</small>
-              </label>
-            </div>
+            <h3>Livraison Yango</h3>
+            <p class="delivery-copy">
+              Le livreur recupère les t-shirts à notre adresse puis les livre chez vous.
+            </p>
+            <p class="delivery-copy">
+              Les frais de livraison varient selon la distance.
+            </p>
           </div>
 
           <div class="payment-box">
-            <h3>Mobile Money</h3>
-            <ul class="payment-list">
-              <li v-for="method in paymentMethods" :key="method.label">
-                <span>{{ method.label }}</span>
-                <strong>{{ method.display || "A renseigner" }}</strong>
-              </li>
-            </ul>
-            <p v-if="!hasPaymentNumbers" class="payment-note">
-              Ajoute tes numéros Mobile Money dans le fichier `.env`.
-            </p>
-            <p v-else-if="paymentNote" class="payment-note">
-              {{ paymentNote }}
-            </p>
+            <h3>Paiement</h3>
+            <p class="payment-note">
+              A l'arrivée du livreur vous ne payez que la livraison et récuperez votre colis.            </p>
           </div>
 
           <div class="checkout-actions">
@@ -145,7 +124,7 @@
               {{
                 isSubmitting
                   ? "Envoi en cours..."
-                  : "Envoyer la commande (" + formatPrice(totalWithShipping) + ")"
+                  : "Envoyer la commande (" + formatPrice(cartTotal) + " hors livraison)"
               }}
             </button>
             <button
@@ -201,11 +180,15 @@
           </div>
           <div class="summary-row">
             <span>Livraison</span>
-            <strong>{{ formatPrice(shippingFee) }}</strong>
+            <strong>Selon distance (Yango)</strong>
           </div>
           <div class="summary-total">
-            <span>Total</span>
-            <strong>{{ formatPrice(totalWithShipping) }}</strong>
+            <span>Total articles</span>
+            <strong>{{ formatPrice(cartTotal) }}</strong>
+          </div>
+          <div class="summary-row">
+            <span>Total final</span>
+            <strong>Articles + livraison Yango</strong>
           </div>
         </div>
       </aside>
@@ -251,11 +234,6 @@ const logoUrl = new URL("./assets/newgbonhi-logo.png", import.meta.url).href;
 
 const WHATSAPP_NUMBER = import.meta.env.VITE_WHATSAPP_NUMBER || "";
 const CONTACT_EMAIL = import.meta.env.VITE_CONTACT_EMAIL || "";
-const PAYMENT_WAVE = import.meta.env.VITE_MOMO_WAVE || "";
-const PAYMENT_ORANGE = import.meta.env.VITE_MOMO_ORANGE || "";
-const PAYMENT_MTN = import.meta.env.VITE_MOMO_MTN || "";
-const PAYMENT_MOOV = import.meta.env.VITE_MOMO_MOOV || "";
-const PAYMENT_NOTE = import.meta.env.VITE_PAYMENT_NOTE || "";
 
 export default {
   name: "CheckoutPage",
@@ -273,7 +251,6 @@ export default {
       isReportingPayment: false,
       lastOrderId: "",
       lastOrderMessage: "",
-      selectedShippingId: "abidjan",
       shippingOptions: SHIPPING_OPTIONS,
       customer: {
         firstName: "",
@@ -297,47 +274,13 @@ export default {
       return cartStore.cartTotal.value;
     },
     selectedShipping() {
-      return (
-        this.shippingOptions.find(
-          (option) => option.id === this.selectedShippingId
-        ) || this.shippingOptions[0]
-      );
+      return this.shippingOptions[0] || null;
     },
     shippingFee() {
       return this.selectedShipping?.fee || 0;
     },
     totalWithShipping() {
       return this.cartTotal + this.shippingFee;
-    },
-    paymentMethods() {
-      return [
-        {
-          label: "Wave",
-          value: PAYMENT_WAVE,
-          display: this.formatPhoneDisplay(PAYMENT_WAVE),
-        },
-        {
-          label: "Orange Money",
-          value: PAYMENT_ORANGE,
-          display: this.formatPhoneDisplay(PAYMENT_ORANGE),
-        },
-        {
-          label: "MTN MoMo",
-          value: PAYMENT_MTN,
-          display: this.formatPhoneDisplay(PAYMENT_MTN),
-        },
-        {
-          label: "Moov Money",
-          value: PAYMENT_MOOV,
-          display: this.formatPhoneDisplay(PAYMENT_MOOV),
-        },
-      ];
-    },
-    hasPaymentNumbers() {
-      return this.paymentMethods.some((method) => Boolean(method.value));
-    },
-    paymentNote() {
-      return PAYMENT_NOTE;
     },
     contactEmail() {
       return CONTACT_EMAIL;
@@ -418,11 +361,6 @@ export default {
 
       if (!this.isFormValid) {
         this.error = "Please complete the customer details.";
-        return;
-      }
-
-      if (!this.selectedShipping) {
-        this.error = "Please select a delivery option.";
         return;
       }
 
@@ -752,27 +690,10 @@ export default {
   font-size: 11px;
 }
 
-.delivery-options {
-  display: grid;
-  gap: 10px;
-}
-
-.delivery-option {
-  display: grid;
-  gap: 4px;
+.delivery-copy {
+  margin: 0 0 8px;
   font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-}
-
-.delivery-option input {
-  margin-right: 8px;
-}
-
-.delivery-option small {
-  font-size: 11px;
   color: var(--muted);
-  letter-spacing: 0.08em;
 }
 
 .payment-box {
@@ -788,27 +709,6 @@ export default {
   text-transform: uppercase;
   letter-spacing: 0.18em;
   font-size: 11px;
-}
-
-.payment-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 8px;
-}
-
-.payment-list li {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-}
-
-.payment-list strong {
-  font-weight: 600;
 }
 
 .payment-note {

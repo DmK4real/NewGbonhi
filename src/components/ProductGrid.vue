@@ -35,7 +35,7 @@
         </div>
         <div class="pg-badges">
           <span v-if="product.soldOut" class="pg-badge pg-badge-soldout">
-            Sold Out
+            Out of stock
           </span>
           <span
             v-for="badge in getBadges(product)"
@@ -56,10 +56,6 @@
 
       <p class="pg-price">
         {{ formatPrice(product.price) }}
-        <template v-if="product.soldOut">
-          {" - "}
-          <strong class="pg-sold-out">Sold Out</strong>
-        </template>
       </p>
 
       <button
@@ -68,7 +64,7 @@
         :disabled="product.soldOut"
         @click="$emit('add-to-cart', product)"
       >
-        {{ product.soldOut ? "Sold out" : "Add to cart" }}
+        {{ product.soldOut ? "Out of stock" : "Add to cart" }}
       </button>
     </article>
   </div>
@@ -112,6 +108,7 @@ export default {
       const map = {
         new: "New",
         restock: "Restock",
+        drop02: "Drop 02",
       };
       return product.tags
         .map((tag) => map[tag] || "")

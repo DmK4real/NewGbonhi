@@ -5,7 +5,7 @@
         <img class="brand-logo" :src="logoUrl" alt="NewGbonhi logo" />
         <div class="brand-meta">
           <p class="brand-name">NewGbonhi</p>
-          <p class="brand-tagline">Drop 01 // Street uniform</p>
+          <p class="brand-tagline">Drop 02 // En preparation</p>
         </div>
       </div>
       <nav class="shop-nav" aria-label="Primary">
@@ -56,7 +56,7 @@
         <h1>{{ product.title }}</h1>
         <p class="product-price">{{ formatPrice(product.price) }}</p>
         <p class="product-description">
-          {{ product.description || "Signature NewGbonhi piece for Drop 01." }}
+          {{ product.description || "Signature NewGbonhi piece for Drop 02." }}
         </p>
 
         <div v-if="colorOptions.length" class="color-picker">
@@ -96,12 +96,12 @@
             :disabled="product.soldOut"
             @click="addProductToCart"
           >
-            {{ product.soldOut ? "Sold out" : "Add to cart" }}
+            {{ product.soldOut ? "Out of stock" : "Add to cart" }}
           </button>
           <RouterLink class="ghost" to="/">Back to shop</RouterLink>
         </div>
         <p v-if="product.soldOut" class="product-soldout">
-          Sold out. Restock soon.
+          Out of stock. Restock soon.
         </p>
       </div>
     </section>
@@ -197,7 +197,7 @@ export default {
         "crop-tops": "Crop tops",
         pants: "Pants",
       };
-      return labels[this.product?.category] || "Drop 01";
+      return labels[this.product?.category] || "Drop 02";
     },
   },
   watch: {

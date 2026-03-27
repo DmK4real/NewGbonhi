@@ -5,7 +5,7 @@
         <img class="brand-logo" :src="logoUrl" alt="NewGbonhi logo" />
         <div class="brand-meta">
           <p class="brand-name">NewGbonhi</p>
-          <p class="brand-tagline">Drop 01 // Street uniform</p>
+          <p class="brand-tagline">Drop 02 // En preparation</p>
         </div>
       </div>
       <nav class="shop-nav" aria-label="Primary">
@@ -50,7 +50,7 @@
 
     <section class="drop-specs">
       <div class="specs-head">
-        <p>Drop 01 details</p>
+        <p>Drop 02 details</p>
         <h2>Cut, fabric, finish</h2>
       </div>
       <div class="specs-grid">
