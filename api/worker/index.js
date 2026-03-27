@@ -35,6 +35,13 @@ const safeInteger = (value, fallback = 0) => {
 };
 
 const normalizePathname = (pathname) => pathname.replace(/\/+$/, "") || "/";
+const toApiPathname = (pathname) => {
+  const cleaned = normalizePathname(pathname);
+  if (cleaned === "/" || cleaned.startsWith("/api")) {
+    return cleaned;
+  }
+  return `/api${cleaned}`;
+};
 
 const parseOrderIdFromPath = (pathname, suffix = "") => {
   const escapedSuffix = suffix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -254,7 +261,7 @@ export class OrdersStore {
   async fetch(request) {
     const method = request.method || "GET";
     const url = new URL(request.url);
-    const pathname = normalizePathname(url.pathname);
+    const pathname = toApiPathname(url.pathname);
 
     if (method === "OPTIONS") {
       return noContent();
@@ -382,9 +389,9 @@ export class OrdersStore {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
-    const pathname = normalizePathname(url.pathname);
+    const pathname = toApiPathname(url.pathname);
 
-    if (!pathname.startsWith("/api")) {
+    if (pathname === "/") {
       return json(404, { error: "Route not found." });
     }
 

@@ -56,6 +56,14 @@ const safeInteger = (value, fallback = 0) => {
   return Math.max(0, Math.round(parsed));
 };
 
+const toApiPathname = (pathname) => {
+  const cleaned = String(pathname || "").replace(/\/+$/, "") || "/";
+  if (cleaned === "/" || cleaned.startsWith("/api")) {
+    return cleaned;
+  }
+  return `/api${cleaned}`;
+};
+
 const readJsonBody = (req) =>
   new Promise((resolve, reject) => {
     let body = "";
@@ -308,7 +316,7 @@ function loadEnvFile(filePath) {
 const server = createServer(async (req, res) => {
   const method = req.method || "GET";
   const url = new URL(req.url || "/", "http://localhost");
-  const pathname = url.pathname.replace(/\/+$/, "") || "/";
+  const pathname = toApiPathname(url.pathname);
 
   if (method === "OPTIONS") {
     respondNoContent(res);
