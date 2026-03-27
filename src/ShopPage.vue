@@ -5,7 +5,7 @@
         <img class="brand-logo" :src="logoUrl" alt="NewGbonhi logo" />
         <div class="brand-meta">
           <p class="brand-name">NewGbonhi</p>
-          <p class="brand-tagline">Drop 01 // Street uniform</p>
+          <p class="brand-tagline">Drop 02 // En preparation</p>
         </div>
       </div>
       <nav class="shop-nav" aria-label="Primary">
@@ -38,8 +38,8 @@
         <p class="hero-kicker">Prochain drop</p>
         <h1>Drop 02 en preparation</h1>
         <p class="hero-sub">
-          Le shop reste focus sur les pieces du prochain drop: coupes propres,
-          graphiques forts, stock limite.
+          La premiere piece en avant-premiere est le CAMELEON NOIR: coupe
+          propre, visuel fort, stock limite.
         </p>
         <div class="hero-actions">
           <button class="hero-button" type="button" @click="scrollToProducts">
@@ -63,20 +63,20 @@
     <section class="drop-details">
       <div class="details-head">
         <p>Drop focus</p>
-        <h2>Uniquement le prochain drop et les articles</h2>
+        <h2>Drop 02 en preparation avec CAMELEON NOIR en tete</h2>
       </div>
       <div class="details-grid">
         <article class="detail-card">
-          <h3>Selection limitee</h3>
-          <p>Pieces essentielles du drop, sans sections annexes.</p>
+          <h3>Piece en avant</h3>
+          <p>CAMELEON NOIR ouvre la nouvelle collection du drop.</p>
         </article>
         <article class="detail-card">
-          <h3>Coupe street</h3>
-          <p>Silhouettes relax avec fit propre et lisible.</p>
+          <h3>Direction visuelle</h3>
+          <p>Base noire et graphisme central pour une lecture directe.</p>
         </article>
         <article class="detail-card">
-          <h3>Sortie rapide</h3>
-          <p>Disponibilite courte, restock selon la demande.</p>
+          <h3>Drop en preparation</h3>
+          <p>Sortie progressive, disponibilite courte selon la demande.</p>
         </article>
       </div>
     </section>
@@ -138,7 +138,7 @@
 
         <div class="content-head">
           <div>
-            <p class="content-kicker">Articles du drop</p>
+            <p class="content-kicker">Selection Drop 02</p>
             <h2>Shop</h2>
           </div>
           <p class="content-count">{{ filteredProducts.length }} article(s)</p>
@@ -221,7 +221,7 @@ import { products } from "./data/products.js";
 import { cartStore } from "./data/cart.js";
 
 const logoUrl = new URL("./assets/newgbonhi-logo.png", import.meta.url).href;
-const heroImage = new URL("./assets/BLACK SAFE zone 4 BOY.png", import.meta.url).href;
+const heroImage = new URL("./assets/BLACK CAMELEON.png", import.meta.url).href;
 
 export default {
   name: "ShopPage",
@@ -233,15 +233,16 @@ export default {
     return {
       logoUrl,
       heroImage,
-      nextDropAt: new Date("2026-04-18T18:00:00+00:00").getTime(),
+      nextDropAt: new Date("2026-04-04T18:00:00+00:00").getTime(),
       countdown: "",
       toastMessage: "",
       toastVisible: false,
       cartOpen: false,
       filtersOpen: false,
       filters: [
+        { id: "drop02", label: "Drop 02" },
         { id: "new", label: "Nouveau" },
-        { id: "soldOut", label: "Sold out" },
+        { id: "soldOut", label: "Out of stock" },
         { id: "restock", label: "Restock" },
       ],
       activeCategory: "all",
@@ -324,6 +325,8 @@ export default {
 
         if (this.activeFilter === "soldOut") {
           filterMatch = Boolean(product.soldOut);
+        } else if (this.activeFilter === "drop02") {
+          filterMatch = tagList.includes("drop02");
         } else if (this.activeFilter === "new") {
           filterMatch = tagList.includes("new");
         } else if (this.activeFilter === "restock") {

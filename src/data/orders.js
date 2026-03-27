@@ -1,7 +1,34 @@
-const API_BASE = import.meta.env.VITE_API_BASE || "/api";
+const RAW_API_BASE = import.meta.env.VITE_API_BASE || "/api";
 const DEFAULT_ERROR = "Orders service unavailable.";
 const isGitHubPages =
   typeof window !== "undefined" && window.location.hostname.endsWith("github.io");
+
+const trimTrailingSlash = (value) => String(value || "").replace(/\/+$/, "");
+const stripEndpointSuffix = (value) =>
+  String(value || "").replace(/\/(orders(?:\/.*)?|admin\/login)$/i, "");
+
+const buildApiBaseCandidates = (rawBase) => {
+  const cleaned = trimTrailingSlash(rawBase || "/api") || "/api";
+  const stripped = trimTrailingSlash(stripEndpointSuffix(cleaned)) || cleaned;
+  const candidates = new Set([cleaned, stripped]);
+
+  if (!/\/api$/i.test(cleaned)) {
+    candidates.add(`${cleaned}/api`);
+  }
+
+  if (!/\/api$/i.test(stripped)) {
+    candidates.add(`${stripped}/api`);
+  }
+
+  // Local fallback for vite proxy when env is misconfigured.
+  if (!/^https?:\/\//i.test(cleaned)) {
+    candidates.add("/api");
+  }
+
+  return Array.from(candidates);
+};
+
+const API_BASE_CANDIDATES = buildApiBaseCandidates(RAW_API_BASE);
 
 const ensureApiConfigured = () => {
   if (isGitHubPages && !import.meta.env.VITE_API_BASE) {
@@ -19,6 +46,7 @@ const parseResponse = async (response) => {
 
 const request = async (path, options = {}, token = "") => {
   ensureApiConfigured();
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
 
   const headers = {
     "Content-Type": "application/json",
@@ -29,22 +57,44 @@ const request = async (path, options = {}, token = "") => {
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_BASE}${path}`, {
-    ...options,
-    headers,
-  });
+  let lastError = null;
 
-  const payload = await parseResponse(response);
+  for (const base of API_BASE_CANDIDATES) {
+    let response;
+    try {
+      response = await fetch(`${base}${normalizedPath}`, {
+        ...options,
+        headers,
+      });
+    } catch (error) {
+      lastError = error;
+      continue;
+    }
 
-  if (!response.ok) {
+    const payload = await parseResponse(response);
+    if (response.ok) {
+      return payload || {};
+    }
+
     const message =
       payload && typeof payload.error === "string" && payload.error
         ? payload.error
         : DEFAULT_ERROR;
+
+    // Try next candidate if backend says route mismatch.
+    if (response.status === 404 && message === "Route not found.") {
+      lastError = new Error(message);
+      continue;
+    }
+
     throw new Error(message);
   }
 
-  return payload || {};
+  throw new Error(
+    lastError instanceof Error && lastError.message
+      ? lastError.message
+      : DEFAULT_ERROR
+  );
 };
 
 export const createOrder = async (orderDraft) => {
