@@ -5,7 +5,7 @@
         <img class="brand-logo" :src="logoUrl" alt="NewGbonhi logo" />
         <div class="brand-meta">
           <p class="brand-name">NewGbonhi</p>
-          <p class="brand-tagline">Drop 02 // En preparation</p>
+          <p class="brand-tagline">Drop 02 // In preparation</p>
         </div>
       </div>
       <nav class="shop-nav" aria-label="Primary">
@@ -36,10 +36,10 @@
     <section class="lookbook-hero">
       <div class="hero-copy">
         <p class="hero-kicker">Lookbook</p>
-        <h1>Galerie des looks portes</h1>
+        <h1>Gallery of worn looks</h1>
         <p class="hero-sub">
-          Les pieces NewGbonhi en situation reelle: rue, mouvement, quotidien.
-          Chaque look montre le fit et l'attitude du drop.
+          NewGbonhi pieces in real-life use: street, movement, and everyday
+          wear. Each look shows the fit and attitude of the drop.
         </p>
       </div>
       <div class="hero-panel">
@@ -50,8 +50,8 @@
 
     <section class="looks-gallery">
       <div class="gallery-head">
-        <p>Looks portes</p>
-        <h2>Selection editoriale</h2>
+        <p>Worn looks</p>
+        <h2>Editorial selection</h2>
       </div>
       <div class="gallery-grid">
         <article v-for="look in wornLooks" :key="look.title" class="look-card">
@@ -70,20 +70,20 @@
     <section class="styling-notes">
       <div class="notes-head">
         <p>Styling</p>
-        <h2>Comment porter le drop</h2>
+        <h2>How to style the drop</h2>
       </div>
       <div class="notes-grid">
         <article class="note-card">
-          <h3>Oversize propre</h3>
-          <p>Prends une taille au-dessus pour une silhouette plus large.</p>
+          <h3>Clean oversized fit</h3>
+          <p>Go one size up for a wider silhouette.</p>
         </article>
         <article class="note-card">
           <h3>Monochrome + accent</h3>
-          <p>Base noire ou blanche, puis un visuel fort pour le contraste.</p>
+          <p>Start with black or white, then add a strong graphic contrast.</p>
         </article>
         <article class="note-card">
-          <h3>Layering leger</h3>
-          <p>Ajoute une surcouche simple pour garder la lecture du print.</p>
+          <h3>Light layering</h3>
+          <p>Add a simple outer layer while keeping the print readable.</p>
         </article>
       </div>
     </section>
@@ -157,49 +157,49 @@ export default {
           src: safeZoneBlackUrl,
           title: "SAFE zone 4 BOY / Black",
           scene: "Look 01 / Daywear",
-          note: "Fit droit et visuel frontal pour un look quotidien net.",
+          note: "Straight fit with a front graphic for a clean daily look.",
         },
         {
           src: safeZoneWhiteUrl,
           title: "SAFE zone 4 BOY / White",
           scene: "Look 02 / Daylight",
-          note: "Version claire pour une silhouette plus lumineuse.",
+          note: "Light version for a brighter silhouette.",
         },
         {
           src: safeBabiGirlBlackUrl,
           title: "SAFE BABI GIRL / Black",
           scene: "Look 03 / City run",
-          note: "Look ancre, contraste fort et lecture directe du print.",
+          note: "Anchored look, strong contrast, clear print readability.",
         },
         {
           src: safeBabiGirlWhiteUrl,
           title: "SAFE BABI GIRL / White",
           scene: "Look 04 / Street light",
-          note: "Approche minimaliste avec base blanche et graphisme centre.",
+          note: "Minimal approach with a white base and centered graphic.",
         },
         {
           src: blackCameleonUrl,
-          title: "CAMELEON NOIR",
+          title: "BLACK CAMELEON",
           scene: "Look 05 / Night move",
-          note: "Piece statement, portee oversize avec bas sobre.",
+          note: "Statement piece, worn oversized with a clean lower half.",
         },
         {
           src: whiteCameleonUrl,
           title: "WHITE CAMELEON",
           scene: "Look 06 / Clean mode",
-          note: "Version claire pour une lecture plus graphique des details.",
+          note: "Light version with sharper graphic readability in details.",
         },
         {
           src: onTopCameleonUrl,
           title: "NG ON TOP CAMELEON",
           scene: "Look 07 / Crop set",
-          note: "Crop top central du drop, stylee avec denim ou cargo.",
+          note: "Core crop top of the drop, styled with denim or cargo.",
         },
         {
           src: onTopBgabUrl,
           title: "NG ON TOP BGAB",
           scene: "Look 08 / Crop set",
-          note: "Look porte court et nerveux, construit pour l'ete urbain.",
+          note: "Short and sharp look built for urban summer.",
         },
       ],
     };

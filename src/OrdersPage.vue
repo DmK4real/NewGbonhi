@@ -5,7 +5,7 @@
         <img class="brand-logo" :src="logoUrl" alt="NewGbonhi logo" />
         <div class="brand-meta">
           <p class="brand-name">NewGbonhi</p>
-          <p class="brand-tagline">Drop 02 // En preparation</p>
+          <p class="brand-tagline">Drop 02 // In preparation</p>
         </div>
       </div>
       <nav class="shop-nav" aria-label="Primary">
@@ -85,7 +85,7 @@
               {{ order.customer.firstName }} {{ order.customer.lastName }}
             </p>
             <p class="order-contact">
-              {{ order.customer.phone }} · {{ order.customer.email }}
+              {{ order.customer.phone }} - {{ order.customer.email }}
             </p>
             <p class="order-address">
               {{ order.customer.address }}, {{ order.customer.city }}
@@ -280,7 +280,7 @@ export default {
       });
 
       lines.push(`Total: ${this.formatPrice(order.total)}`);
-      lines.push("Merci.");
+      lines.push("Thank you.");
       return lines.join("\n");
     },
     async copyOrder(order) {

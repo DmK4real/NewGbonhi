@@ -5,7 +5,7 @@
         <img class="brand-logo" :src="logoUrl" alt="NewGbonhi logo" />
         <div class="brand-meta">
           <p class="brand-name">NewGbonhi</p>
-          <p class="brand-tagline">Drop 02 // En preparation</p>
+          <p class="brand-tagline">Drop 02 // In preparation</p>
         </div>
       </div>
       <nav class="shop-nav" aria-label="Primary">
@@ -38,8 +38,8 @@
         <p class="hero-kicker">About</p>
         <h1>Drop details</h1>
         <p class="hero-sub">
-          Fiche technique du drop: coupe, tissu, finition et recommandations de
-          port. Tout est pense pour un usage quotidien durable.
+          Technical sheet for the drop: fit, fabric, finish, and wear
+          recommendations. Built for durable daily use.
         </p>
       </div>
       <div class="hero-panel">
@@ -64,20 +64,20 @@
     <section class="fit-section">
       <div class="fit-head">
         <p>Fit guide</p>
-        <h2>Tailles & recommandations</h2>
+        <h2>Sizes & recommendations</h2>
       </div>
       <div class="fit-grid">
         <article class="fit-card">
           <h3>T-shirts</h3>
-          <p>Coupe droite relax. Taille habituelle pour fit standard.</p>
+          <p>Relaxed straight fit. Take your usual size for a standard fit.</p>
         </article>
         <article class="fit-card">
           <h3>Crop tops</h3>
-          <p>Coupe courte pres du corps. Prends une taille au-dessus pour plus d'aisance.</p>
+          <p>Close and cropped fit. Go one size up for more ease.</p>
         </article>
         <article class="fit-card">
-          <h3>Entretien</h3>
-          <p>Lavage a froid, a l'envers. Repassage doux hors visuel.</p>
+          <h3>Care</h3>
+          <p>Cold wash inside out. Low-heat ironing away from the print.</p>
         </article>
       </div>
     </section>
@@ -85,17 +85,16 @@
     <section class="story-section">
       <div class="story-head">
         <p>Vision</p>
-        <h2>Pourquoi ce drop</h2>
+        <h2>Why this drop</h2>
       </div>
       <div class="story-copy">
         <p>
-          NewGbonhi construit un vestiaire street clair: peu de bruit visuel,
-          des pieces qui tournent facilement, et des graphiques qui signent
-          l'identite.
+          NewGbonhi builds a clean streetwear wardrobe: less visual noise,
+          easy-to-rotate pieces, and graphics that define the identity.
         </p>
         <p>
-          Chaque article du drop est pense pour etre porte souvent, combine
-          simplement, et garder sa lecture dans le temps.
+          Every item is designed to be worn often, styled easily, and remain
+          clear over time.
         </p>
       </div>
     </section>
@@ -141,27 +140,27 @@ export default {
       dropSpecs: [
         {
           title: "Cut",
-          text: "Silhouette street relax: epaules legerement descendues, buste droit.",
+          text: "Relaxed street silhouette: slightly dropped shoulders, straight torso.",
         },
         {
           title: "Fabric",
-          text: "Jersey coton majoritaire avec toucher sec et tenue stable.",
+          text: "Cotton-dominant jersey with a dry hand feel and stable structure.",
         },
         {
           title: "Weight",
-          text: "Grammage moyen pour equilibrer confort, tenue et resistance.",
+          text: "Medium weight to balance comfort, structure, and durability.",
         },
         {
           title: "Print",
-          text: "Impression graphique a contraste eleve pour lecture nette.",
+          text: "High-contrast graphic print for a clean visual read.",
         },
         {
           title: "Finish",
-          text: "Col et coutures renforces sur les zones de tension.",
+          text: "Reinforced collar and stitching on high-tension areas.",
         },
         {
           title: "Colorway",
-          text: "Base noir/blanc avec accents visuels NewGbonhi.",
+          text: "Black/white base with NewGbonhi visual accents.",
         },
       ],
     };

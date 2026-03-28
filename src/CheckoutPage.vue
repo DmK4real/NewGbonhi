@@ -5,7 +5,7 @@
         <img class="brand-logo" :src="logoUrl" alt="NewGbonhi logo" />
         <div class="brand-meta">
           <p class="brand-name">NewGbonhi</p>
-          <p class="brand-tagline">Drop 02 // En preparation</p>
+          <p class="brand-tagline">Drop 02 // In preparation</p>
         </div>
       </div>
       <nav class="shop-nav" aria-label="Primary">
@@ -41,12 +41,12 @@
         </div>
 
         <div v-if="orderSent" class="confirmation">
-          <p class="confirmation-kicker">Commande envoyee</p>
-          <h2>Merci. Votre commande est en attente de paiement.</h2>
+          <p class="confirmation-kicker">Order sent</p>
+          <h2>Thank you. Your order is pending payment.</h2>
           <p class="confirmation-id">Order ID: {{ lastOrderId }}</p>
           <div class="confirmation-actions">
             <button class="ghost-button" type="button" @click="openWhatsApp">
-              Ouvrir WhatsApp
+              Open WhatsApp
             </button>
             <button
               class="pay-button"
@@ -54,7 +54,7 @@
               @click="markAsPaid"
               :disabled="isReportingPayment"
             >
-              {{ isReportingPayment ? "Verification..." : "J'ai paye" }}
+              {{ isReportingPayment ? "Verification..." : "I've paid" }}
             </button>
           </div>
         </div>
@@ -93,26 +93,29 @@
 
           <div class="notice">
             <p>Steps</p>
-            <p>1. Confirme ta commande avec ton adresse exacte.</p>
-            <p>2. Paiement de l'article sur mobile money.</p> 
-            <p>3. On lance la course Yango depuis notre adresse vers la votre.</p>
-            <p>4. Vous payez à l'arrivée du livreur (livraison).</p>
+            <p>1. Confirm your order with your exact address.</p>
+            <p>2. Pay for the item via mobile money.</p>
+            <p>3. We dispatch the Yango trip from our address to yours.</p>
+            <p>4. You pay upon courier arrival (delivery fee).</p>
           </div>
 
           <div class="delivery-box">
-            <h3>Livraison Yango</h3>
+            <h3>Yango Delivery</h3>
             <p class="delivery-copy">
-              Le livreur recupère les t-shirts à notre adresse puis les livre chez vous.
+              The courier picks up the t-shirts from our address and delivers
+              them to you.
             </p>
             <p class="delivery-copy">
-              Les frais de livraison varient selon la distance.
+              Delivery fees vary based on distance.
             </p>
           </div>
 
           <div class="payment-box">
-            <h3>Paiement</h3>
+            <h3>Payment</h3>
             <p class="payment-note">
-              A l'arrivée du livreur vous ne payez que la livraison et récuperez votre colis.            </p>
+              When the courier arrives, you only pay the delivery fee and
+              receive your parcel.
+            </p>
           </div>
 
           <div class="checkout-actions">
@@ -123,8 +126,8 @@
             >
               {{
                 isSubmitting
-                  ? "Envoi en cours..."
-                  : "Envoyer la commande (" + formatPrice(cartTotal) + " hors livraison)"
+                  ? "Sending..."
+                  : "Send order (" + formatPrice(cartTotal) + " excluding delivery)"
               }}
             </button>
             <button
@@ -133,7 +136,7 @@
               @click="copyOrder"
               :disabled="!cartItems.length || isSubmitting"
             >
-              Copier le recap
+              Copy summary
             </button>
           </div>
 
@@ -175,20 +178,20 @@
             <strong>{{ formatPrice(item.qty * item.price) }}</strong>
           </article>
           <div class="summary-row">
-            <span>Sous-total</span>
+            <span>Subtotal</span>
             <strong>{{ formatPrice(cartTotal) }}</strong>
           </div>
           <div class="summary-row">
-            <span>Livraison</span>
-            <strong>Selon distance (Yango)</strong>
+            <span>Delivery</span>
+            <strong>Based on distance (Yango)</strong>
           </div>
           <div class="summary-total">
-            <span>Total articles</span>
+            <span>Items total</span>
             <strong>{{ formatPrice(cartTotal) }}</strong>
           </div>
           <div class="summary-row">
-            <span>Total final</span>
-            <strong>Articles + livraison Yango</strong>
+            <span>Final total</span>
+            <strong>Items + Yango delivery</strong>
           </div>
         </div>
       </aside>
@@ -415,7 +418,7 @@ export default {
       try {
         await reportOrderPaid(this.lastOrderId);
         cartStore.clearCart();
-        this.success = "Merci. Paiement en attente de verification.";
+        this.success = "Thank you. Payment pending verification.";
       } catch (error) {
         this.error =
           error instanceof Error
@@ -905,3 +908,4 @@ export default {
   }
 }
 </style>
+
