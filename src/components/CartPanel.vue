@@ -316,9 +316,18 @@ export default {
 }
 
 @media (max-width: 700px) {
+  .cart-panel {
+    width: 100vw;
+    max-width: 100vw;
+  }
+
   .cart-item {
     grid-template-columns: 64px 1fr;
     grid-template-rows: auto auto;
+  }
+
+  .cart-item-body h4 {
+    overflow-wrap: anywhere;
   }
 
   .cart-remove {

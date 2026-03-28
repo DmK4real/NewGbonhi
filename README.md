@@ -21,7 +21,7 @@ npm run dev
 ```
 
 By default:
-- frontend runs on Vite (`http://localhost:5173`)
+- frontend runs on Vite (`http://localhost:4000`)
 - API runs on `http://localhost:8787`
 - Vite proxies `/api` requests to the API server
 
@@ -83,6 +83,7 @@ ADMIN_PASSWORD=change-me
 Optional API settings for local Node API:
 
 ```env
+VITE_PORT=4000
 API_PORT=8787
 ADMIN_TOKEN_TTL_MS=28800000
 VITE_API_BASE=/api

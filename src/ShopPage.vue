@@ -527,7 +527,7 @@ export default {
   border: 1px solid var(--line);
   border-radius: 20px;
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 24px;
   background: #fff;
   animation: rise 0.7s ease both;
@@ -588,14 +588,18 @@ export default {
   color: #fff;
   overflow: hidden;
   display: grid;
+  min-height: 340px;
 }
 
 .hero-photo {
   width: 100%;
   height: 100%;
-  min-height: 240px;
+  min-height: 300px;
   object-fit: cover;
-  opacity: 0.92;
+  opacity: 1;
+  filter: contrast(1.04) saturate(1.04);
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: auto;
 }
 
 .hero-countdown {
@@ -958,6 +962,36 @@ export default {
     padding: 24px 16px 40px;
   }
 
+  .hero {
+    padding: 18px;
+    gap: 16px;
+  }
+
+  .hero-copy h1 {
+    font-size: 28px;
+  }
+
+  .hero-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .hero-button {
+    width: 100%;
+  }
+
+  .hero-panel {
+    min-height: 0;
+  }
+
+  .hero-photo {
+    min-height: 240px;
+  }
+
+  .drop-details {
+    padding: 18px;
+  }
+
   .shop-header {
     align-items: flex-start;
   }
@@ -977,6 +1011,22 @@ export default {
 
   .shop-sidebar {
     display: none;
+  }
+
+  .filter-drawer {
+    max-height: min(72vh, 560px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .drawer-body {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .drawer-body .pill {
+    width: 100%;
+    margin-bottom: 0;
   }
 
   .footer-links {

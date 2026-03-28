@@ -895,6 +895,11 @@ export default {
     padding: 24px 16px 40px;
   }
 
+  .checkout-form,
+  .checkout-summary {
+    padding: 18px;
+  }
+
   .shop-header {
     align-items: flex-start;
   }
@@ -905,6 +910,22 @@ export default {
 
   .form-grid {
     grid-template-columns: 1fr;
+  }
+
+  .summary-item {
+    grid-template-columns: 64px 1fr;
+  }
+
+  .summary-item strong {
+    grid-column: 2;
+    justify-self: start;
+    margin-top: 6px;
+  }
+
+  .summary-total,
+  .summary-row {
+    gap: 8px;
+    flex-wrap: wrap;
   }
 }
 </style>
