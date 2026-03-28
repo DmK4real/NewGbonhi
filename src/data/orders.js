@@ -32,7 +32,7 @@ const API_BASE_CANDIDATES = buildApiBaseCandidates(RAW_API_BASE);
 
 const ensureApiConfigured = () => {
   if (isGitHubPages && !import.meta.env.VITE_API_BASE) {
-    throw new Error("API non configuree. Definis VITE_API_BASE dans GitHub.");
+    throw new Error("API is not configured. Set VITE_API_BASE in GitHub.");
   }
 };
 

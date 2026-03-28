@@ -1,9 +1,9 @@
 export const SHIPPING_OPTIONS = [
   {
     id: "yango_distance",
-    label: "Yango Livraison",
+    label: "Yango Delivery",
     fee: 0,
-    eta: "Selon disponibilite",
+    eta: "Subject to availability",
   },
 ];
 
@@ -83,6 +83,6 @@ export const buildOrderMessage = ({
   });
 
   lines.push(`Total: ${formatPrice(totalWithShipping)}`);
-  lines.push("Merci.");
+  lines.push("Thank you.");
   return lines.filter(Boolean).join("\n");
 };

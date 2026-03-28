@@ -5,7 +5,7 @@
         <img class="brand-logo" :src="logoUrl" alt="NewGbonhi logo" />
         <div class="brand-meta">
           <p class="brand-name">NewGbonhi</p>
-          <p class="brand-tagline">Drop 02 // En preparation</p>
+          <p class="brand-tagline">Drop 02 // In preparation</p>
         </div>
       </div>
       <nav class="shop-nav" aria-label="Primary">
@@ -35,15 +35,15 @@
 
     <section class="hero">
       <div class="hero-copy">
-        <p class="hero-kicker">Prochain drop</p>
-        <h1>Drop 02 en preparation</h1>
+        <p class="hero-kicker">Next drop</p>
+        <h1>Drop 02 in preparation</h1>
         <p class="hero-sub">
-          La premiere piece en avant-premiere est le CAMELEON NOIR: coupe
-          propre, visuel fort, stock limite.
+          The first preview piece is BLACK CAMELEON: clean fit, strong visual,
+          limited stock.
         </p>
         <div class="hero-actions">
           <button class="hero-button" type="button" @click="scrollToProducts">
-            Voir les articles
+            View items
           </button>
           <RouterLink class="hero-button ghost" to="/about">
             Drop details
@@ -53,7 +53,7 @@
       <div class="hero-panel">
         <img class="hero-photo" :src="heroImage" alt="Next drop preview" />
         <div class="hero-countdown">
-          <p>Lancement dans</p>
+          <p>Launch in</p>
           <strong>{{ countdown }}</strong>
           <small>{{ nextDropLabel }}</small>
         </div>
@@ -63,20 +63,20 @@
     <section class="drop-details">
       <div class="details-head">
         <p>Drop focus</p>
-        <h2>Drop 02 en preparation avec CAMELEON NOIR en tete</h2>
+        <h2>Drop 02 in preparation with BLACK CAMELEON up front</h2>
       </div>
       <div class="details-grid">
         <article class="detail-card">
-          <h3>Piece en avant</h3>
-          <p>CAMELEON NOIR ouvre la nouvelle collection du drop.</p>
+          <h3>Featured piece</h3>
+          <p>BLACK CAMELEON opens the new drop collection.</p>
         </article>
         <article class="detail-card">
-          <h3>Direction visuelle</h3>
-          <p>Base noire et graphisme central pour une lecture directe.</p>
+          <h3>Visual direction</h3>
+          <p>Black base and centered graphic for direct readability.</p>
         </article>
         <article class="detail-card">
-          <h3>Drop en preparation</h3>
-          <p>Sortie progressive, disponibilite courte selon la demande.</p>
+          <h3>Drop in preparation</h3>
+          <p>Progressive release, short availability based on demand.</p>
         </article>
       </div>
     </section>
@@ -97,7 +97,7 @@
           </button>
         </div>
         <div class="sidebar-block">
-          <h2>Filtres</h2>
+          <h2>Filters</h2>
           <button
             v-for="filter in filters"
             :key="filter.id"
@@ -132,16 +132,16 @@
             :aria-expanded="filtersOpen"
             @click="toggleFilters"
           >
-            Filtres
+            Filters
           </button>
         </div>
 
         <div class="content-head">
           <div>
-            <p class="content-kicker">Selection Drop 02</p>
+            <p class="content-kicker">Drop 02 selection</p>
             <h2>Shop</h2>
           </div>
-          <p class="content-count">{{ filteredProducts.length }} article(s)</p>
+          <p class="content-count">{{ filteredProducts.length }} item(s)</p>
         </div>
 
         <ProductGrid
@@ -188,9 +188,9 @@
       aria-label="Quick filters"
     >
       <div class="drawer-head">
-        <h3>Filtres rapides</h3>
+        <h3>Quick filters</h3>
         <button type="button" class="drawer-close" @click="closeFilters">
-          Fermer
+          Close
         </button>
       </div>
       <div class="drawer-body">
@@ -241,7 +241,7 @@ export default {
       filtersOpen: false,
       filters: [
         { id: "drop02", label: "Drop 02" },
-        { id: "new", label: "Nouveau" },
+        { id: "new", label: "New" },
         { id: "soldOut", label: "Out of stock" },
         { id: "restock", label: "Restock" },
       ],
@@ -267,7 +267,7 @@ export default {
       return cartStore.cartCount.value;
     },
     nextDropLabel() {
-      return new Intl.DateTimeFormat("fr-CI", {
+      return new Intl.DateTimeFormat("en-GB", {
         dateStyle: "long",
         timeStyle: "short",
       }).format(this.nextDropAt);
@@ -379,7 +379,7 @@ export default {
       const days = Math.floor(remaining / (1000 * 60 * 60 * 24));
       const hours = Math.floor((remaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
       const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
-      this.countdown = `${days}j ${hours}h ${minutes}m`;
+      this.countdown = `${days}d ${hours}h ${minutes}m`;
     },
     scrollToProducts() {
       const target = this.$refs.productsSection;
