@@ -4,7 +4,7 @@
     "title": "SAFE zone 4 BOY",
     "slug": "safe-zone-4-boy",
     "description": "Straight-cut T-shirt with SAFE zone 4 BOY graphic.",
-    "price": 10000,
+    "price": 15000,
     "imageKey": "safeZoneBlack",
     "category": "t-shirts",
     "sizes": ["S", "M", "L", "XL", "XXL"],
@@ -19,7 +19,7 @@
     "title": "CAMELEON",
     "slug": "cameleon",
     "description": "Signature piece from Drop 02 in preparation, available in black and white.",
-    "price": 10000,
+    "price": 15000,
     "imageKey": "blackCameleon",
     "category": "t-shirts",
     "sizes": ["S", "M", "L", "XL", "XXL"],
@@ -30,23 +30,11 @@
     ]
   },
   {
-    "id": 3,
-    "title": "NG ON TOP BLACK CAMELEON",
-    "slug": "cameleon-crop-top-black",
-    "description": "Black CAMELEON crop top with a short, clean cut.",
-    "price": 5000,
-    "imageKey": "newGbonhiOnTop",
-    "category": "crop-tops",
-    "sizes": ["XS", "S", "M", "L"],
-    "tags": [""],
-    "soldOut": true
-  },
-  {
     "id": 4,
     "title": "SAFE BABI GIRL",
     "slug": "safe-babi-girl",
     "description": "SAFE BABI GIRL T-shirt, light edition.",
-    "price": 10000,
+    "price": 15000,
     "imageKey": "safeBabiGirl",
     "category": "t-shirts",
     "sizes": ["S", "M", "L", "XL", "XXL"],
@@ -61,11 +49,23 @@
     "title": "NG ON TOP BGAB",
     "slug": "crop-top-bgab",
     "description": "BGAB crop top, light edition with a short cut.",
-    "price": 5000,
+    "price": 8000,
     "imageKey": "newGbonhiOnTopBgab",
     "category": "crop-tops",
     "sizes": ["XS", "S", "M", "L"],
     "tags": [],
+    "soldOut": true
+  },
+  {
+    "id": 3,
+    "title": "NG ON TOP BLACK CAMELEON",
+    "slug": "cameleon-crop-top-black",
+    "description": "Black CAMELEON crop top with a short, clean cut.",
+    "price": 8000,
+    "imageKey": "newGbonhiOnTop",
+    "category": "crop-tops",
+    "sizes": ["XS", "S", "M", "L"],
+    "tags": [""],
     "soldOut": true
   }
 ]

@@ -638,6 +638,31 @@ export default {
     padding: 24px 16px 40px;
   }
 
+  .product-hero {
+    padding: 18px;
+    gap: 18px;
+  }
+
+  .product-media {
+    min-height: 280px;
+    padding: 12px;
+  }
+
+  .product-info h1 {
+    font-size: 26px;
+    overflow-wrap: anywhere;
+  }
+
+  .product-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .product-actions .primary,
+  .product-actions .ghost {
+    width: 100%;
+  }
+
   .shop-header {
     align-items: flex-start;
   }

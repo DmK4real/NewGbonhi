@@ -788,5 +788,28 @@ export default {
   .order-item {
     grid-template-columns: 1fr;
   }
+
+  .order-contact,
+  .order-address,
+  .order-item span,
+  .order-item strong {
+    overflow-wrap: anywhere;
+  }
+
+  .order-summary div {
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .order-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .order-actions .pay-button,
+  .order-actions .ghost-button,
+  .order-actions .delete-button {
+    width: 100%;
+  }
 }
 </style>
