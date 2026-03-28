@@ -981,11 +981,21 @@ export default {
   }
 
   .hero-panel {
+    display: flex;
+    flex-direction: column;
     min-height: 0;
   }
 
   .hero-photo {
-    min-height: 240px;
+    height: clamp(240px, 78vw, 340px);
+    min-height: 0;
+    object-fit: contain;
+    display: block;
+  }
+
+  .hero-countdown {
+    position: relative;
+    z-index: 1;
   }
 
   .drop-details {
