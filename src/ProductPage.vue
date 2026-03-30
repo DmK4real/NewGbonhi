@@ -44,6 +44,7 @@
           <img
             :src="activeImagePrimary"
             :alt="product.title"
+            :style="activeImageStyle"
             loading="lazy"
             decoding="async"
           />
@@ -184,6 +185,26 @@ export default {
     },
     activeImageWebp() {
       return this.activeVariant?.imageWebp || this.product?.imageWebp || "";
+    },
+    activeImageZoom() {
+      const zoom = Number(this.activeVariant?.imageZoom);
+      if (!Number.isFinite(zoom) || zoom <= 0) {
+        return 1;
+      }
+      return zoom;
+    },
+    activeImageStyle() {
+      return {
+        "--variant-image-zoom": String(this.activeImageZoom),
+        "--variant-image-offset-x": this.activeImageOffsetX,
+        "--variant-image-offset-y": this.activeImageOffsetY,
+      };
+    },
+    activeImageOffsetX() {
+      return this.activeVariant?.imageOffsetX || "0%";
+    },
+    activeImageOffsetY() {
+      return this.activeVariant?.imageOffsetY || "0%";
     },
     sizeOptions() {
       if (this.product?.sizes?.length) {
@@ -417,6 +438,15 @@ export default {
   object-fit: contain;
   display: block;
   max-height: 420px;
+  transform:
+    translate(var(--variant-image-offset-x, 0%), var(--variant-image-offset-y, 0%))
+    scale(var(--variant-image-zoom, 1));
+  transform-origin: center center;
+  transition: transform 0.2s ease;
+}
+
+.product-picture {
+  overflow: hidden;
 }
 
 .product-placeholder {

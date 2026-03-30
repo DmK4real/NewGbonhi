@@ -41,7 +41,13 @@
     "tags": ["new", "drop02"],
     "variants": [
       { "id": "black", "label": "Black", "imageKey": "safeBabiGirlBlack" },
-      { "id": "white", "label": "White", "imageKey": "safeBabiGirl" }
+      {
+        "id": "white",
+        "label": "White",
+        "imageKey": "safeBabiGirl",
+        "imageZoom": 1.34,
+        "imageOffsetY": "-5%"
+      }
     ]
   },
   {
