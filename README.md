@@ -32,6 +32,18 @@ npm run build
 npm run preview
 ```
 
+SEO files are generated automatically during build:
+- `public/sitemap.xml`
+- `public/robots.txt`
+
+Optional: set canonical site URL before build:
+
+```bash
+# PowerShell
+$env:SITE_URL="https://dmk4real.github.io/NewGbonhi"
+npm run build
+```
+
 ## Product Data
 
 Build `src/data/products.json` from an HTML export:
@@ -111,8 +123,9 @@ Expected public URL:
 
 Notes:
 - Pages build uses `--base=/NewGbonhi/`
-- router uses hash mode on Pages (`VITE_USE_HASH_ROUTER=true`) to avoid 404 on refresh
+- router uses HTML5 history mode and the workflow copies `index.html` to `404.html` as SPA fallback
 - frontend API URL is injected from repository variable `VITE_API_BASE`
+- optional repository variable `SITE_URL` is used to generate canonical `sitemap.xml` / `robots.txt`
 
 ### Cloudflare API (Free URL)
 
@@ -137,6 +150,21 @@ After the Worker is deployed, set GitHub repository variable:
 - `VITE_API_BASE=https://<your-workers-url>/api`
 
 Then re-run the Pages workflow to rebuild the frontend with the API URL.
+
+## Google Indexing (Free)
+
+1. Deploy latest `main` branch (GitHub Pages workflow).
+2. Confirm these URLs are live:
+   - `https://dmk4real.github.io/NewGbonhi/`
+   - `https://dmk4real.github.io/NewGbonhi/robots.txt`
+   - `https://dmk4real.github.io/NewGbonhi/sitemap.xml`
+3. Open Google Search Console and add URL prefix property:
+   - `https://dmk4real.github.io/NewGbonhi/`
+4. In Search Console, submit sitemap:
+   - `https://dmk4real.github.io/NewGbonhi/sitemap.xml`
+5. Use URL Inspection on the home page and request indexing.
+
+After submission, indexing can take from a few days to a few weeks.
 
 ### Useful scripts
 

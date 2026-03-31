@@ -8,7 +8,7 @@
     "api:dev": "node api/server.js",
     "api:worker:dev": "npx wrangler dev",
     "api:worker:deploy": "npx wrangler deploy",
-    "build": "vite build",
+    "build": "node scripts/generate-seo-files.js && vite build",
     "preview": "vite preview",
     "products:build": "node scripts/build-products.js",
     "images:optimize": "node scripts/optimize-images.js"

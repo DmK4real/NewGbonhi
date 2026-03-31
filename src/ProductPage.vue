@@ -143,6 +143,7 @@
 import CartPanel from "./components/CartPanel.vue";
 import { cartStore } from "./data/cart.js";
 import { findProductBySlug } from "./data/products.js";
+import { applySeo } from "./utils/seo.js";
 
 const logoUrl = new URL("./assets/newgbonhi-logo.png", import.meta.url).href;
 
@@ -227,6 +228,22 @@ export default {
       handler(product) {
         this.selectedSize = product?.sizes?.[0] || null;
         this.selectedColor = product?.variants?.[0]?.id || null;
+        if (product) {
+          applySeo({
+            title: `${product.title} | New Gbonhi Shop`,
+            description:
+              product.description ||
+              "Produit New Gbonhi Shop: visuels, tailles disponibles et infos de commande.",
+            path: `/product/${product.slug}`,
+          });
+          return;
+        }
+        applySeo({
+          title: "Produit introuvable | New Gbonhi Shop",
+          description: "Ce produit New Gbonhi Shop est indisponible ou introuvable.",
+          robots: "noindex, nofollow",
+          path: this.$route.path,
+        });
       },
     },
   },
