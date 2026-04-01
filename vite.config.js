@@ -28,5 +28,8 @@ export default defineConfig(({ mode }) => {
       port: frontendPort,
       strictPort: true,
     },
+    test: {
+      environment: "node",
+    },
   };
 });

@@ -6,8 +6,35 @@ const state = reactive({
   items: [],
 });
 
+export const createCartItemKey = (product, fallback = "item") => {
+  if (!product) {
+    return fallback;
+  }
+  const base = product.id ?? product.slug ?? product.title ?? fallback;
+  const colorToken = product.selectedColorId || product.selectedColor;
+  const sizeToken = product.selectedSize;
+  return [base, colorToken, sizeToken].filter(Boolean).join("-");
+};
+
+export const calculateCartCount = (items) =>
+  (Array.isArray(items) ? items : []).reduce(
+    (total, item) => total + (item.qty || 0),
+    0
+  );
+
+export const calculateCartTotal = (items) =>
+  (Array.isArray(items) ? items : []).reduce(
+    (total, item) => total + (item.qty || 0) * (item.price || 0),
+    0
+  );
+
+const hasStorage = () => typeof localStorage !== "undefined";
+
 // Persistence logic
 const saveToStorage = () => {
+  if (!hasStorage()) {
+    return;
+  }
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state.items));
   } catch (e) {
@@ -16,6 +43,9 @@ const saveToStorage = () => {
 };
 
 const loadFromStorage = () => {
+  if (!hasStorage()) {
+    return;
+  }
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
@@ -41,27 +71,15 @@ watch(
   { deep: true }
 );
 
-const getItemKey = (product) => {
-  if (!product) return `item-${Date.now()}`;
-  const base = product.id ?? product.slug ?? product.title;
-  const colorToken = product.selectedColorId || product.selectedColor;
-  const sizeToken = product.selectedSize;
-  return [base, colorToken, sizeToken].filter(Boolean).join("-");
-};
+const cartCount = computed(() => calculateCartCount(state.items));
 
-const cartCount = computed(() =>
-  state.items.reduce((total, item) => total + (item.qty || 0), 0)
-);
-
-const cartTotal = computed(() =>
-  state.items.reduce((total, item) => total + (item.qty || 0) * (item.price || 0), 0)
-);
+const cartTotal = computed(() => calculateCartTotal(state.items));
 
 const addToCart = (product) => {
   if (!product || product.soldOut) {
     return;
   }
-  const key = getItemKey(product);
+  const key = createCartItemKey(product, `item-${state.items.length + 1}`);
   const existing = state.items.find((item) => item.key === key);
 
   if (existing) {

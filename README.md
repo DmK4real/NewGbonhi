@@ -30,6 +30,7 @@ By default:
 ```bash
 npm run build
 npm run preview
+npm test
 ```
 
 SEO files are generated automatically during build:
@@ -175,4 +176,5 @@ After submission, indexing can take from a few days to a few weeks.
 npm run api:dev          # Local Node API
 npm run api:worker:dev   # Local Worker dev (requires Wrangler)
 npm run api:worker:deploy
+npm test                 # Unit tests
 ```
