@@ -6,6 +6,7 @@ import ProductPage from "./ProductPage.vue";
 import CheckoutPage from "./CheckoutPage.vue";
 import OrdersPage from "./OrdersPage.vue";
 import { applySeo } from "./utils/seo.js";
+import { clearAppError } from "./utils/appError.js";
 
 const routes = [
   {
@@ -81,6 +82,7 @@ const router = createRouter({
 });
 
 router.afterEach((to) => {
+  clearAppError();
   applySeo({
     title: to.meta?.title,
     description: to.meta?.description,

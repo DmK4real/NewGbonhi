@@ -1,10 +1,33 @@
 <template>
-  <ScrollProgress />
-  <RouterView />
+  <ScrollProgress v-if="!appError.active" />
+  <main v-if="appError.active" class="app-error-shell">
+    <section class="app-error-panel" role="alert" aria-live="assertive">
+      <p class="app-error-kicker">NewGbonhi</p>
+      <h1>{{ appError.title }}</h1>
+      <p class="app-error-copy">{{ appError.message }}</p>
+      <p v-if="appError.source" class="app-error-source">
+        Source: {{ appError.source }}
+      </p>
+      <div class="app-error-actions">
+        <button type="button" class="app-error-button" @click="clearError">
+          Try again
+        </button>
+        <button
+          type="button"
+          class="app-error-button app-error-button-secondary"
+          @click="reloadPage"
+        >
+          Reload page
+        </button>
+      </div>
+    </section>
+  </main>
+  <RouterView v-else />
 </template>
 
 <script>
 import ScrollProgress from "./components/ScrollProgress.vue";
+import { appErrorState, clearAppError, reportAppError } from "./utils/appError.js";
 
 export default {
   name: "App",
@@ -16,7 +39,16 @@ export default {
       lastScrollY: 0,
       headerObserver: null,
       observedHeader: null,
+      appError: appErrorState,
     };
+  },
+  errorCaptured(error, instance, info) {
+    reportAppError(error, {
+      source: info || instance?.$options?.name || "component",
+      fallbackMessage:
+        "A page component failed to render. Please try again.",
+    });
+    return false;
   },
   mounted() {
     this.lastScrollY = window.scrollY || 0;
@@ -90,6 +122,12 @@ export default {
       }
       this.lastScrollY = currentY;
     },
+    clearError() {
+      clearAppError();
+    },
+    reloadPage() {
+      window.location.reload();
+    },
   },
 };
 </script>
@@ -105,6 +143,78 @@ html {
 
 body {
   padding-top: var(--header-height);
+}
+
+.app-error-shell {
+  min-height: calc(100vh - var(--header-height));
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    linear-gradient(180deg, rgba(225, 6, 0, 0.08), rgba(255, 255, 255, 0.96)),
+    #f5f5f5;
+}
+
+.app-error-panel {
+  width: min(560px, 100%);
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.96);
+  padding: 28px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.12);
+}
+
+.app-error-kicker {
+  margin: 0 0 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.28em;
+  font-size: 10px;
+  color: #606060;
+}
+
+.app-error-panel h1 {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: clamp(26px, 5vw, 38px);
+}
+
+.app-error-copy {
+  margin: 16px 0 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #303030;
+}
+
+.app-error-source {
+  margin: 12px 0 0;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #606060;
+}
+
+.app-error-actions {
+  margin-top: 22px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.app-error-button {
+  border: 1px solid #0b0b0b;
+  background: #0b0b0b;
+  color: #fff;
+  padding: 12px 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.app-error-button-secondary {
+  background: #fff;
+  color: #0b0b0b;
 }
 
 .shop-header {

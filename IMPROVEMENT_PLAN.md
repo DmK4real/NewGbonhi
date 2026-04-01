@@ -26,7 +26,7 @@ This document outlines a roadmap for technical and functional enhancements to th
 
 ## 5. Code Quality & Maintenance
 *   **[ ] TypeScript Migration:** Progressively migrate core business logic (`cart.js`, `products.js`, `checkout.js`) to TypeScript to ensure type safety in price and order calculations.
-*   **[ ] Global Error Handling:** Implement a robust error boundary in `App.vue` to handle API timeouts or network failures gracefully.
+*   **[x] Global Error Handling:** Implement a robust error boundary in `App.vue` to handle API timeouts or network failures gracefully.
 *   **[x] Automated Testing:** Add Vitest for unit testing critical logic like cart calculations and order ID generation.
 
 ---
