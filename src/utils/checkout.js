@@ -7,6 +7,15 @@ export const SHIPPING_OPTIONS = [
   },
 ];
 
+export const VITE_WHATSAPP_NUMBER = "0711115686";
+export const VITE_CONTACT_EMAIL = "kouadiobhegnino@gmail.com";
+export const VITE_MOMO_WAVE = "Wave 0700000000"; // Assuming from README example
+export const VITE_MOMO_ORANGE = "Orange 0700000000"; // Assuming from README example
+export const VITE_MOMO_MTN = "MTN 0500000000"; // Assuming from README example
+export const VITE_MOMO_MOOV = "Moov 0100000000"; // Assuming from README example
+export const VITE_MOMO_ADDITIONAL = "Mobile Money 0505201515"; // From user input
+export const VITE_PAYMENT_NOTE = "Carte sur demande via WhatsApp.";
+
 export const formatPrice = (value) => {
   if (typeof value !== "number" || Number.isNaN(value)) {
     return "";
@@ -41,13 +50,9 @@ export const formatPhoneDisplay = (value) => {
 };
 
 export const buildOrderId = () => {
-  const now = new Date();
-  const stamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(
-    2,
-    "0"
-  )}${String(now.getDate()).padStart(2, "0")}`;
-  const rand = Math.floor(1000 + Math.random() * 9000);
-  return `NG-${stamp}-${rand}`;
+  // Generate a shorter, more readable ID
+  const rand = Math.floor(100000 + Math.random() * 900000); // 6-digit random number
+  return `NG-${rand}`;
 };
 
 export const buildOrderMessage = ({
@@ -63,14 +68,15 @@ export const buildOrderMessage = ({
     : "Delivery: -";
   const orderIdLine = orderId ? `Order ID: ${orderId}` : "";
   const lines = [
-    "NewGbonhi Order",
+    "*NewGbonhi Order Summary*\n",
     orderIdLine,
+    `*Customer Details*`,
     `Name: ${customer.firstName} ${customer.lastName}`,
     `Phone: ${customer.phone}`,
     `Email: ${customer.email}`,
     `Address: ${customer.address}, ${customer.city}`,
     shippingLine,
-    "Items:",
+    "\n*Order Items*:",
   ];
 
   cartItems.forEach((item) => {
@@ -82,7 +88,18 @@ export const buildOrderMessage = ({
     );
   });
 
-  lines.push(`Total: ${formatPrice(totalWithShipping)}`);
-  lines.push("Thank you.");
+  lines.push(`\n*Total: ${formatPrice(totalWithShipping)}*`);
+
+  // Add payment instructions
+  lines.push("\n*Payment Instructions:*");
+  lines.push("Please make your payment via Mobile Money to one of the following numbers:");
+  lines.push(`- ${VITE_MOMO_WAVE.replace('Wave ', 'Wave: ')}`);
+  lines.push(`- ${VITE_MOMO_ORANGE.replace('Orange ', 'Orange: ')}`);
+  lines.push(`- ${VITE_MOMO_MTN.replace('MTN ', 'MTN: ')}`);
+  lines.push(`- ${VITE_MOMO_MOOV.replace('Moov ', 'Moov: ')}`);
+  lines.push(`- ${VITE_MOMO_ADDITIONAL.replace('Mobile Money ', 'Mobile Money: ')}`);
+  lines.push(`\n${VITE_PAYMENT_NOTE}`);
+  lines.push("Thank you for your order!");
+
   return lines.filter(Boolean).join("\n");
 };

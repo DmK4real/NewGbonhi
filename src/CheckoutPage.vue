@@ -231,12 +231,21 @@ import {
   formatPhoneDisplay,
   formatPrice,
   normalizeNumber,
+  VITE_WHATSAPP_NUMBER,
+  VITE_CONTACT_EMAIL,
+  VITE_MOMO_WAVE,
+  VITE_MOMO_ORANGE,
+  VITE_MOMO_MTN,
+  VITE_MOMO_MOOV,
+  VITE_MOMO_ADDITIONAL,
+  VITE_PAYMENT_NOTE,
 } from "./utils/checkout.js";
 
 const logoUrl = new URL("./assets/newgbonhi-logo.png", import.meta.url).href;
 
-const WHATSAPP_NUMBER = import.meta.env.VITE_WHATSAPP_NUMBER || "";
-const CONTACT_EMAIL = import.meta.env.VITE_CONTACT_EMAIL || "";
+// These are now imported from checkout.js
+// const WHATSAPP_NUMBER = import.meta.env.VITE_WHATSAPP_NUMBER || "";
+// const CONTACT_EMAIL = import.meta.env.VITE_CONTACT_EMAIL || "";
 
 export default {
   name: "CheckoutPage",
@@ -286,13 +295,13 @@ export default {
       return this.cartTotal + this.shippingFee;
     },
     contactEmail() {
-      return CONTACT_EMAIL;
+      return VITE_CONTACT_EMAIL;
     },
     whatsappNumberDisplay() {
-      return this.formatPhoneDisplay(WHATSAPP_NUMBER);
+      return this.formatPhoneDisplay(VITE_WHATSAPP_NUMBER);
     },
     whatsappUrl() {
-      const normalized = normalizeNumber(WHATSAPP_NUMBER);
+      const normalized = normalizeNumber(VITE_WHATSAPP_NUMBER);
       if (!normalized) {
         return "";
       }
@@ -344,6 +353,7 @@ export default {
       });
     },
     buildOrderId() {
+      // This now comes from utils/checkout.js
       return buildOrderId();
     },
     openWhatsApp() {
@@ -395,7 +405,7 @@ export default {
           throw new Error("Unable to create order.");
         }
 
-        this.lastOrderId = createdOrder.id || this.buildOrderId();
+        this.lastOrderId = createdOrder.id || buildOrderId(); // Use imported buildOrderId
         this.lastOrderMessage = this.buildOrderMessage();
 
         this.openWhatsApp();
