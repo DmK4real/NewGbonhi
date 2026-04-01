@@ -1,5 +1,6 @@
 import { defineConfig, loadEnv } from "vite";
 import vue from "@vitejs/plugin-vue";
+import { ViteImageOptimizer } from "vite-plugin-image-optimizer";
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
@@ -7,7 +8,12 @@ export default defineConfig(({ mode }) => {
   const frontendPort = Number(env.VITE_PORT || 4000);
 
   return {
-    plugins: [vue()],
+    plugins: [
+      vue(),
+      ViteImageOptimizer({
+        /* no default options */
+      }),
+    ],
     server: {
       port: frontendPort,
       strictPort: true,

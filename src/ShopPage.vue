@@ -136,6 +136,17 @@
           </button>
         </div>
 
+        <div class="search-input-wrap">
+          <label for="search" class="sr-only">Search products</label>
+          <input
+            id="search"
+            v-model="searchQuery"
+            type="search"
+            placeholder="Search products..."
+            class="search-input"
+          />
+        </div>
+
         <div class="content-head">
           <div>
             <p class="content-kicker">Drop 02 selection</p>
@@ -248,6 +259,7 @@ export default {
       activeCategory: "all",
       activeFilter: null,
       products,
+      searchQuery: "", // New search query data property
     };
   },
   mounted() {
@@ -314,6 +326,9 @@ export default {
       const activeCategory = available.has(this.activeCategory)
         ? this.activeCategory
         : "all";
+
+      const query = this.searchQuery.toLowerCase(); // New search query processing
+
       return this.products.filter((product) => {
         const productCategory = String(product?.category || "")
           .trim()
@@ -333,11 +348,16 @@ export default {
           filterMatch = tagList.includes("restock");
         }
 
-        return categoryMatch && filterMatch;
+        // New search logic
+        const searchMatch =
+          !query ||
+          (product.title && product.title.toLowerCase().includes(query)) ||
+          (product.description && product.description.toLowerCase().includes(query));
+
+        return categoryMatch && filterMatch && searchMatch;
       });
     },
-  },
-  methods: {
+  },  methods: {
     setCategory(categoryId) {
       this.activeCategory = categoryId;
     },
@@ -789,13 +809,29 @@ export default {
   white-space: nowrap;
 }
 
+.search-input-wrap {
+  margin-top: 10px;
+}
+
+.search-input {
+  width: 100%;
+  border: 1px solid var(--line);
+  padding: 10px 14px;
+  font-size: 14px;
+  font-family: inherit;
+  border-radius: 8px;
+}
+
+.search-input::placeholder {
+  color: var(--muted);
+}
+
 .content-head {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
   gap: 16px;
 }
-
 .content-kicker {
   margin: 0;
   text-transform: uppercase;
