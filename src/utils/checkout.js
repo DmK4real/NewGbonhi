@@ -1,19 +1,49 @@
 export const SHIPPING_OPTIONS = [
   {
-    id: "yango_distance",
-    label: "Yango Delivery",
-    fee: 0,
-    eta: "Subject to availability",
+    id: "abidjan-cocody",
+    label: "Cocody",
+    fee: 2000,
+    eta: "45 to 75 min",
+  },
+  {
+    id: "abidjan-plateau",
+    label: "Plateau",
+    fee: 2500,
+    eta: "35 to 60 min",
+  },
+  {
+    id: "abidjan-yopougon",
+    label: "Yopougon",
+    fee: 3000,
+    eta: "60 to 90 min",
+  },
+  {
+    id: "abidjan-marcory",
+    label: "Marcory",
+    fee: 2000,
+    eta: "35 to 60 min",
+  },
+  {
+    id: "abidjan-bingerville",
+    label: "Bingerville",
+    fee: 3500,
+    eta: "60 to 90 min",
+  },
+  {
+    id: "abidjan-other",
+    label: "Other area in Abidjan",
+    fee: 4000,
+    eta: "Quote confirmed on WhatsApp",
   },
 ];
 
 export const VITE_WHATSAPP_NUMBER = "0711115686";
 export const VITE_CONTACT_EMAIL = "kouadiobhegnino@gmail.com";
-export const VITE_MOMO_WAVE = "Wave 0700000000"; // Assuming from README example
-export const VITE_MOMO_ORANGE = "Orange 0700000000"; // Assuming from README example
-export const VITE_MOMO_MTN = "MTN 0500000000"; // Assuming from README example
-export const VITE_MOMO_MOOV = "Moov 0100000000"; // Assuming from README example
-export const VITE_MOMO_ADDITIONAL = "Mobile Money 0505201515"; // From user input
+export const VITE_MOMO_WAVE = "Wave 0700000000";
+export const VITE_MOMO_ORANGE = "Orange 0700000000";
+export const VITE_MOMO_MTN = "MTN 0500000000";
+export const VITE_MOMO_MOOV = "Moov 0100000000";
+export const VITE_MOMO_ADDITIONAL = "Mobile Money 0505201515";
 export const VITE_PAYMENT_NOTE = "Carte sur demande via WhatsApp.";
 
 export const formatPrice = (value) => {
@@ -64,7 +94,7 @@ export const buildOrderMessage = ({
   totalWithShipping,
 }) => {
   const shippingLine = selectedShipping
-    ? `Delivery: ${selectedShipping.label} (${formatPrice(shippingFee)})`
+    ? `Delivery: ${selectedShipping.label} (${formatPrice(shippingFee)}) - ETA: ${selectedShipping.eta}`
     : "Delivery: -";
   const orderIdLine = orderId ? `Order ID: ${orderId}` : "";
   const lines = [
@@ -93,11 +123,11 @@ export const buildOrderMessage = ({
   // Add payment instructions
   lines.push("\n*Payment Instructions:*");
   lines.push("Please make your payment via Mobile Money to one of the following numbers:");
-  lines.push(`- ${VITE_MOMO_WAVE.replace('Wave ', 'Wave: ')}`);
-  lines.push(`- ${VITE_MOMO_ORANGE.replace('Orange ', 'Orange: ')}`);
-  lines.push(`- ${VITE_MOMO_MTN.replace('MTN ', 'MTN: ')}`);
-  lines.push(`- ${VITE_MOMO_MOOV.replace('Moov ', 'Moov: ')}`);
-  lines.push(`- ${VITE_MOMO_ADDITIONAL.replace('Mobile Money ', 'Mobile Money: ')}`);
+  lines.push(`- ${VITE_MOMO_WAVE.replace("Wave ", "Wave: ")}`);
+  lines.push(`- ${VITE_MOMO_ORANGE.replace("Orange ", "Orange: ")}`);
+  lines.push(`- ${VITE_MOMO_MTN.replace("MTN ", "MTN: ")}`);
+  lines.push(`- ${VITE_MOMO_MOOV.replace("Moov ", "Moov: ")}`);
+  lines.push(`- ${VITE_MOMO_ADDITIONAL.replace("Mobile Money ", "Mobile Money: ")}`);
   lines.push(`\n${VITE_PAYMENT_NOTE}`);
   lines.push("Thank you for your order!");
 

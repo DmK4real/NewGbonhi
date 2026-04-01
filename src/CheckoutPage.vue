@@ -105,8 +105,27 @@
               The courier picks up the t-shirts from our address and delivers
               them to you.
             </p>
-            <p class="delivery-copy">
-              Delivery fees vary based on distance.
+            <label class="delivery-select-label" for="delivery-zone">
+              Delivery zone
+            </label>
+            <select
+              id="delivery-zone"
+              v-model="shippingOptionId"
+              class="delivery-select"
+            >
+              <option
+                v-for="option in shippingOptions"
+                :key="option.id"
+                :value="option.id"
+              >
+                {{ option.label }} - {{ formatPrice(option.fee) }}
+              </option>
+            </select>
+            <p v-if="selectedShipping" class="delivery-copy">
+              Estimated Yango fee: {{ formatPrice(shippingFee) }}
+            </p>
+            <p v-if="selectedShipping" class="delivery-copy">
+              Delivery window: {{ selectedShipping.eta }}
             </p>
           </div>
 
@@ -183,15 +202,11 @@
           </div>
           <div class="summary-row">
             <span>Delivery</span>
-            <strong>Based on distance (Yango)</strong>
+            <strong>{{ selectedShipping ? formatPrice(shippingFee) : "-" }}</strong>
           </div>
           <div class="summary-total">
-            <span>Items total</span>
-            <strong>{{ formatPrice(cartTotal) }}</strong>
-          </div>
-          <div class="summary-row">
             <span>Final total</span>
-            <strong>Items + Yango delivery</strong>
+            <strong>{{ formatPrice(totalWithShipping) }}</strong>
           </div>
         </div>
       </aside>
@@ -264,6 +279,7 @@ export default {
       lastOrderId: "",
       lastOrderMessage: "",
       shippingOptions: SHIPPING_OPTIONS,
+      shippingOptionId: SHIPPING_OPTIONS[0]?.id || "",
       customer: {
         firstName: "",
         lastName: "",
@@ -286,7 +302,11 @@ export default {
       return cartStore.cartTotal.value;
     },
     selectedShipping() {
-      return this.shippingOptions[0] || null;
+      return (
+        this.shippingOptions.find((option) => option.id === this.shippingOptionId) ||
+        this.shippingOptions[0] ||
+        null
+      );
     },
     shippingFee() {
       return this.selectedShipping?.fee || 0;
@@ -703,6 +723,23 @@ export default {
   font-size: 11px;
 }
 
+.delivery-select-label {
+  display: block;
+  margin: 12px 0 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 10px;
+}
+
+.delivery-select {
+  width: 100%;
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  background: #fff;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
 .delivery-copy {
   margin: 0 0 8px;
   font-size: 12px;
@@ -939,4 +976,3 @@ export default {
   }
 }
 </style>
-

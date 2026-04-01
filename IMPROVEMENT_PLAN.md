@@ -16,7 +16,7 @@ This document outlines a roadmap for technical and functional enhancements to th
 
 ## 3. Checkout & Payment Enhancements
 *   **[x] Automated Order ID:** Generate a unique, human-readable order ID (e.g., `NG-2026-XXXX`) upon checkout to simplify tracking in the WhatsApp message and admin dashboard.
-*   **[ ] Delivery Zone Selector:** Add a dropdown in `CheckoutPage.vue` for common delivery areas (Cocody, Plateau, etc.) with pre-configured fees to automate total price calculation.
+*   **[x] Delivery Zone Selector:** Add a dropdown in `CheckoutPage.vue` for common delivery areas (Cocody, Plateau, etc.) with pre-configured fees to automate total price calculation.
 *   **[x] WhatsApp Message Templates:** Refine the `src/utils/checkout.js` logic to create a more professional, structured order summary for the merchant.
 
 ## 4. Admin & Security
