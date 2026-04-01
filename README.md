@@ -70,6 +70,7 @@ VITE_MOMO_WAVE=Wave 07 00 00 00 00
 VITE_MOMO_ORANGE=Orange 07 00 00 00 00
 VITE_MOMO_MTN=MTN 05 00 00 00 00
 VITE_MOMO_MOOV=Moov 01 00 00 00 00
+VITE_MOMO_ADDITIONAL=Mobile Money 05 05 20 15 15
 VITE_PAYMENT_NOTE=Carte sur demande via WhatsApp.
 ```
 
@@ -77,6 +78,7 @@ Notes:
 - Use the international WhatsApp format without spaces or `+` (example: `2250700000000`).
 - The customer pays via Mobile Money and sends proof on WhatsApp.
 - Delivery fees are defined in `src/utils/checkout.js`.
+- The frontend logs config warnings if `VITE_WHATSAPP_NUMBER` or `VITE_CONTACT_EMAIL` is missing, or if no Mobile Money number is configured.
 
 ## Orders API & Admin Access
 
@@ -103,6 +105,7 @@ VITE_API_BASE=/api
 
 Compatibility note:
 - if `ADMIN_PASSWORD` is not set, the API falls back to `VITE_ADMIN_PASSWORD`.
+- the local Node API logs a startup warning if `ADMIN_PASSWORD` is missing, and also warns when the deprecated `VITE_ADMIN_PASSWORD` fallback is being used.
 
 ## Orders History
 

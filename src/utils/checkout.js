@@ -1,3 +1,5 @@
+import { checkoutConfig, validateFrontendConfig } from "./config.js";
+
 export const SHIPPING_OPTIONS = [
   {
     id: "abidjan-cocody",
@@ -37,14 +39,16 @@ export const SHIPPING_OPTIONS = [
   },
 ];
 
-export const VITE_WHATSAPP_NUMBER = "0711115686";
-export const VITE_CONTACT_EMAIL = "kouadiobhegnino@gmail.com";
-export const VITE_MOMO_WAVE = "Wave 0700000000";
-export const VITE_MOMO_ORANGE = "Orange 0700000000";
-export const VITE_MOMO_MTN = "MTN 0500000000";
-export const VITE_MOMO_MOOV = "Moov 0100000000";
-export const VITE_MOMO_ADDITIONAL = "Mobile Money 0505201515";
-export const VITE_PAYMENT_NOTE = "Carte sur demande via WhatsApp.";
+validateFrontendConfig();
+
+export const VITE_WHATSAPP_NUMBER = checkoutConfig.whatsappNumber;
+export const VITE_CONTACT_EMAIL = checkoutConfig.contactEmail;
+export const VITE_MOMO_WAVE = checkoutConfig.momoWave;
+export const VITE_MOMO_ORANGE = checkoutConfig.momoOrange;
+export const VITE_MOMO_MTN = checkoutConfig.momoMtn;
+export const VITE_MOMO_MOOV = checkoutConfig.momoMoov;
+export const VITE_MOMO_ADDITIONAL = checkoutConfig.momoAdditional;
+export const VITE_PAYMENT_NOTE = checkoutConfig.paymentNote;
 
 export const formatPrice = (value) => {
   if (typeof value !== "number" || Number.isNaN(value)) {
@@ -121,13 +125,22 @@ export const buildOrderMessage = ({
   lines.push(`\n*Total: ${formatPrice(totalWithShipping)}*`);
 
   // Add payment instructions
+  const paymentLines = [
+    VITE_MOMO_WAVE && `- ${VITE_MOMO_WAVE.replace("Wave ", "Wave: ")}`,
+    VITE_MOMO_ORANGE && `- ${VITE_MOMO_ORANGE.replace("Orange ", "Orange: ")}`,
+    VITE_MOMO_MTN && `- ${VITE_MOMO_MTN.replace("MTN ", "MTN: ")}`,
+    VITE_MOMO_MOOV && `- ${VITE_MOMO_MOOV.replace("Moov ", "Moov: ")}`,
+    VITE_MOMO_ADDITIONAL &&
+      `- ${VITE_MOMO_ADDITIONAL.replace("Mobile Money ", "Mobile Money: ")}`,
+  ].filter(Boolean);
+
   lines.push("\n*Payment Instructions:*");
-  lines.push("Please make your payment via Mobile Money to one of the following numbers:");
-  lines.push(`- ${VITE_MOMO_WAVE.replace("Wave ", "Wave: ")}`);
-  lines.push(`- ${VITE_MOMO_ORANGE.replace("Orange ", "Orange: ")}`);
-  lines.push(`- ${VITE_MOMO_MTN.replace("MTN ", "MTN: ")}`);
-  lines.push(`- ${VITE_MOMO_MOOV.replace("Moov ", "Moov: ")}`);
-  lines.push(`- ${VITE_MOMO_ADDITIONAL.replace("Mobile Money ", "Mobile Money: ")}`);
+  if (paymentLines.length > 0) {
+    lines.push("Please make your payment via Mobile Money to one of the following numbers:");
+    lines.push(...paymentLines);
+  } else {
+    lines.push("Payment details will be confirmed on WhatsApp.");
+  }
   lines.push(`\n${VITE_PAYMENT_NOTE}`);
   lines.push("Thank you for your order!");
 

@@ -21,7 +21,7 @@ This document outlines a roadmap for technical and functional enhancements to th
 
 ## 4. Admin & Security
 *   **[ ] Enhanced Authentication:** Transition from simple password checks to **JSON Web Tokens (JWT)** for securing `OrdersPage.vue` and API endpoints.
-*   **[ ] Config Validation:** Add a startup utility to verify required environment variables (`VITE_WHATSAPP_NUMBER`, `ADMIN_PASSWORD`, etc.) and log warnings if missing.
+*   **[x] Config Validation:** Add a startup utility to verify required environment variables (`VITE_WHATSAPP_NUMBER`, `ADMIN_PASSWORD`, etc.) and log warnings if missing.
 *   **[ ] Audit Logs:** (Optional) Implement basic logging for order status changes in the Cloudflare Worker/Durable Object.
 
 ## 5. Code Quality & Maintenance

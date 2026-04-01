@@ -35,6 +35,8 @@ const ADMIN_PASSWORD =
 const sessions = new Map();
 let writeLock = Promise.resolve();
 
+logConfigWarnings();
+
 const respondJson = (res, statusCode, payload) => {
   res.writeHead(statusCode, DEFAULT_HEADERS);
   res.end(JSON.stringify(payload));
@@ -310,6 +312,18 @@ function loadEnvFile(filePath) {
       value = value.slice(1, -1);
     }
     process.env[key] = value;
+  }
+}
+
+function logConfigWarnings() {
+  if (!ADMIN_PASSWORD) {
+    console.warn(
+      "[config] ADMIN_PASSWORD is not configured. Admin login will be unavailable."
+    );
+  } else if (!process.env.ADMIN_PASSWORD && process.env.VITE_ADMIN_PASSWORD) {
+    console.warn(
+      "[config] Using deprecated VITE_ADMIN_PASSWORD fallback for the API. Set ADMIN_PASSWORD instead."
+    );
   }
 }
 
