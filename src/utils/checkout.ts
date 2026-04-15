@@ -1,6 +1,38 @@
 import { checkoutConfig, validateFrontendConfig } from "./config.js";
 
-export const SHIPPING_OPTIONS = [
+export type ShippingOption = {
+  id: string;
+  label: string;
+  fee: number;
+  eta: string;
+};
+
+export type OrderCustomer = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+};
+
+export type OrderItem = {
+  title: string;
+  qty: number;
+  price: number;
+  selectedSize?: string | null;
+};
+
+export type BuildOrderMessageInput = {
+  orderId?: string;
+  customer: OrderCustomer;
+  cartItems: OrderItem[];
+  selectedShipping?: ShippingOption | null;
+  shippingFee: number;
+  totalWithShipping: number;
+};
+
+export const SHIPPING_OPTIONS: ShippingOption[] = [
   {
     id: "abidjan-cocody",
     label: "Cocody",
@@ -50,7 +82,7 @@ export const VITE_MOMO_MOOV = checkoutConfig.momoMoov;
 export const VITE_MOMO_ADDITIONAL = checkoutConfig.momoAdditional;
 export const VITE_PAYMENT_NOTE = checkoutConfig.paymentNote;
 
-export const formatPrice = (value) => {
+export const formatPrice = (value: number): string => {
   if (typeof value !== "number" || Number.isNaN(value)) {
     return "";
   }
@@ -61,12 +93,14 @@ export const formatPrice = (value) => {
   return `${formatted} FCFA`;
 };
 
-export const normalizeNumber = (value) =>
+export const normalizeNumber = (value: string | number | null | undefined): string =>
   String(value || "")
     .replace(/[^\d]/g, "")
     .replace(/^00/, "");
 
-export const formatPhoneDisplay = (value) => {
+export const formatPhoneDisplay = (
+  value: string | number | null | undefined
+): string => {
   const digits = normalizeNumber(value);
   if (!digits) {
     return "";
@@ -83,10 +117,10 @@ export const formatPhoneDisplay = (value) => {
   return grouped;
 };
 
-export const buildOrderId = () => {
-  // Generate a shorter, more readable ID
-  const rand = Math.floor(100000 + Math.random() * 900000); // 6-digit random number
-  return `NG-${rand}`;
+export const buildOrderId = (): string => {
+  const year = new Date().getFullYear();
+  const rand = Math.floor(1000 + Math.random() * 9000);
+  return `NG-${year}-${rand}`;
 };
 
 export const buildOrderMessage = ({
@@ -96,7 +130,7 @@ export const buildOrderMessage = ({
   selectedShipping,
   shippingFee,
   totalWithShipping,
-}) => {
+}: BuildOrderMessageInput): string => {
   const shippingLine = selectedShipping
     ? `Delivery: ${selectedShipping.label} (${formatPrice(shippingFee)}) - ETA: ${selectedShipping.eta}`
     : "Delivery: -";

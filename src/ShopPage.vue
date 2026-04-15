@@ -155,7 +155,27 @@
           <p class="content-count">{{ filteredProducts.length }} item(s)</p>
         </div>
 
+        <div
+          v-if="isProductsLoading"
+          class="skeleton-grid"
+          role="status"
+          aria-live="polite"
+          aria-label="Loading products"
+        >
+          <article
+            v-for="n in skeletonCount"
+            :key="`skeleton-${n}`"
+            class="skeleton-card"
+            aria-hidden="true"
+          >
+            <div class="skeleton-media"></div>
+            <div class="skeleton-line skeleton-line-title"></div>
+            <div class="skeleton-line skeleton-line-price"></div>
+            <div class="skeleton-line skeleton-line-button"></div>
+          </article>
+        </div>
         <ProductGrid
+          v-else
           :products="filteredProducts"
           currency="XOF"
           locale="fr-CI"
@@ -228,8 +248,8 @@
 <script>
 import ProductGrid from "./components/ProductGrid.vue";
 import CartPanel from "./components/CartPanel.vue";
-import { products } from "./data/products.js";
-import { cartStore } from "./data/cart.js";
+import { products } from "./data/products.ts";
+import { cartStore } from "./data/cart.ts";
 
 const logoUrl = new URL("./assets/newgbonhi-logo.png", import.meta.url).href;
 const heroImage = new URL("./assets/BLACK CAMELEON.png", import.meta.url).href;
@@ -259,16 +279,24 @@ export default {
       activeCategory: "all",
       activeFilter: null,
       products,
-      searchQuery: "", // New search query data property
+      searchQuery: "",
+      isProductsLoading: true,
+      skeletonCount: 8,
     };
   },
   mounted() {
     this.updateCountdown();
     this.countdownTimer = setInterval(this.updateCountdown, 1000);
+    this.loadingTimer = setTimeout(() => {
+      this.isProductsLoading = false;
+    }, 480);
   },
   beforeUnmount() {
     if (this.countdownTimer) {
       clearInterval(this.countdownTimer);
+    }
+    if (this.loadingTimer) {
+      clearTimeout(this.loadingTimer);
     }
     if (this.toastTimer) {
       clearTimeout(this.toastTimer);
@@ -854,6 +882,64 @@ export default {
   color: var(--muted);
 }
 
+.skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 26px 18px;
+}
+
+.skeleton-card {
+  display: grid;
+  gap: 10px;
+}
+
+.skeleton-media,
+.skeleton-line {
+  position: relative;
+  overflow: hidden;
+  background: #ececec;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.skeleton-media {
+  aspect-ratio: 3 / 4;
+  border-radius: 14px;
+}
+
+.skeleton-line {
+  height: 14px;
+  border-radius: 8px;
+}
+
+.skeleton-line-title {
+  width: 72%;
+}
+
+.skeleton-line-price {
+  width: 48%;
+}
+
+.skeleton-line-button {
+  width: 100%;
+  height: 36px;
+  border-radius: 10px;
+}
+
+.skeleton-media::after,
+.skeleton-line::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-120%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.72) 50%,
+    transparent 100%
+  );
+  animation: skeleton-shimmer 1s ease-in-out infinite;
+}
+
 .filter-backdrop {
   position: fixed;
   inset: 0;
@@ -979,6 +1065,12 @@ export default {
   }
 }
 
+@keyframes skeleton-shimmer {
+  100% {
+    transform: translateX(120%);
+  }
+}
+
 @media (max-width: 980px) {
   .hero {
     grid-template-columns: 1fr;
@@ -1049,6 +1141,11 @@ export default {
   .content-head {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .skeleton-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 20px 14px;
   }
 
   .mobile-filters {

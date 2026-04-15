@@ -78,7 +78,7 @@ VITE_PAYMENT_NOTE=Carte sur demande via WhatsApp.
 Notes:
 - Use the international WhatsApp format without spaces or `+` (example: `2250700000000`).
 - The customer pays via Mobile Money and sends proof on WhatsApp.
-- Delivery fees are defined in `src/utils/checkout.js`.
+- Delivery fees are defined in `src/utils/checkout.ts`.
 - The frontend logs config warnings if `VITE_WHATSAPP_NUMBER` or `VITE_CONTACT_EMAIL` is missing, or if no Mobile Money number is configured.
 
 ## Orders API & Admin Access

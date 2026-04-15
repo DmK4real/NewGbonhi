@@ -141,8 +141,8 @@
 
 <script>
 import CartPanel from "./components/CartPanel.vue";
-import { cartStore } from "./data/cart.js";
-import { findProductBySlug } from "./data/products.js";
+import { cartStore } from "./data/cart.ts";
+import { findProductBySlug } from "./data/products.ts";
 import { applySeo } from "./utils/seo.js";
 
 const logoUrl = new URL("./assets/newgbonhi-logo.png", import.meta.url).href;

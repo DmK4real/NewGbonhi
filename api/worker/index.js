@@ -1,7 +1,7 @@
 const STATUS_VALUES = new Set(["sent", "paid_reported", "paid", "delivered"]);
 const DEFAULT_TOKEN_TTL_MS = 1000 * 60 * 60 * 8;
 const ORDERS_KEY = "orders.v1";
-const SESSIONS_KEY = "sessions.v1";
+const AUDIT_KEY = "orders.audit.v1";
 
 const baseHeaders = {
   "content-type": "application/json; charset=utf-8",
@@ -34,6 +34,114 @@ const safeInteger = (value, fallback = 0) => {
   return Math.max(0, Math.round(parsed));
 };
 
+const textEncoder = new TextEncoder();
+const textDecoder = new TextDecoder();
+
+const bytesToBase64 = (bytes) => {
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += 1) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+};
+
+const base64ToBytes = (base64) => {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i += 1) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes;
+};
+
+const toBase64Url = (value) =>
+  bytesToBase64(textEncoder.encode(value))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/g, "");
+
+const fromBase64UrlJson = (value) => {
+  const normalized = String(value || "").replace(/-/g, "+").replace(/_/g, "/");
+  const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=");
+  try {
+    return JSON.parse(textDecoder.decode(base64ToBytes(padded)));
+  } catch (error) {
+    return null;
+  }
+};
+
+const importHmacKey = async (secret) =>
+  crypto.subtle.importKey(
+    "raw",
+    textEncoder.encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign", "verify"]
+  );
+
+const signJwt = async (payload, secret) => {
+  const header = { alg: "HS256", typ: "JWT" };
+  const encodedHeader = toBase64Url(JSON.stringify(header));
+  const encodedPayload = toBase64Url(JSON.stringify(payload));
+  const signingInput = `${encodedHeader}.${encodedPayload}`;
+  const key = await importHmacKey(secret);
+  const signatureBuffer = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    textEncoder.encode(signingInput)
+  );
+  const signature = bytesToBase64(new Uint8Array(signatureBuffer))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/g, "");
+  return `${signingInput}.${signature}`;
+};
+
+const verifyJwt = async (token, secret) => {
+  if (!secret || !token) {
+    return null;
+  }
+
+  const parts = String(token).split(".");
+  if (parts.length !== 3) {
+    return null;
+  }
+
+  const [encodedHeader, encodedPayload, providedSignature] = parts;
+  const header = fromBase64UrlJson(encodedHeader);
+  if (!header || header.alg !== "HS256" || header.typ !== "JWT") {
+    return null;
+  }
+
+  const payload = fromBase64UrlJson(encodedPayload);
+  if (!payload || typeof payload !== "object") {
+    return null;
+  }
+
+  const normalizedSignature = String(providedSignature || "")
+    .replace(/-/g, "+")
+    .replace(/_/g, "/")
+    .padEnd(Math.ceil(String(providedSignature || "").length / 4) * 4, "=");
+
+  const key = await importHmacKey(secret);
+  const isValid = await crypto.subtle.verify(
+    "HMAC",
+    key,
+    base64ToBytes(normalizedSignature),
+    textEncoder.encode(`${encodedHeader}.${encodedPayload}`)
+  );
+  if (!isValid) {
+    return null;
+  }
+
+  const expiresAt = Number(payload.exp);
+  if (!Number.isFinite(expiresAt) || expiresAt <= Math.floor(Date.now() / 1000)) {
+    return null;
+  }
+
+  return payload;
+};
+
 const normalizePathname = (pathname) => pathname.replace(/\/+$/, "") || "/";
 const toApiPathname = (pathname) => {
   const cleaned = normalizePathname(pathname);
@@ -57,10 +165,7 @@ const parseOrderIdFromPath = (pathname, suffix = "") => {
 
 const buildOrderId = () => {
   const now = new Date();
-  const stamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(
-    2,
-    "0"
-  )}${String(now.getDate()).padStart(2, "0")}`;
+  const stamp = String(now.getFullYear());
   const rand = Math.floor(1000 + Math.random() * 9000);
   return `NG-${stamp}-${rand}`;
 };
@@ -204,6 +309,10 @@ export class OrdersStore {
     return this.env.ADMIN_PASSWORD || this.env.VITE_ADMIN_PASSWORD || "";
   }
 
+  get jwtSecret() {
+    return this.env.ADMIN_JWT_SECRET || this.adminPassword || "";
+  }
+
   async loadOrders() {
     const orders = await this.state.storage.get(ORDERS_KEY);
     return Array.isArray(orders) ? orders : [];
@@ -213,35 +322,19 @@ export class OrdersStore {
     await this.state.storage.put(ORDERS_KEY, orders);
   }
 
-  async loadSessions() {
-    const sessions = await this.state.storage.get(SESSIONS_KEY);
-    if (!sessions || typeof sessions !== "object" || Array.isArray(sessions)) {
-      return {};
-    }
-    return sessions;
+  async loadAuditEntries() {
+    const entries = await this.state.storage.get(AUDIT_KEY);
+    return Array.isArray(entries) ? entries : [];
   }
 
-  async saveSessions(sessions) {
-    await this.state.storage.put(SESSIONS_KEY, sessions);
-  }
-
-  async cleanupSessions() {
-    const sessions = await this.loadSessions();
-    const now = Date.now();
-    let changed = false;
-
-    for (const token of Object.keys(sessions)) {
-      if (!Number.isFinite(sessions[token]) || sessions[token] <= now) {
-        delete sessions[token];
-        changed = true;
-      }
-    }
-
-    if (changed) {
-      await this.saveSessions(sessions);
-    }
-
-    return sessions;
+  async appendAuditEntry(entry) {
+    const entries = await this.loadAuditEntries();
+    entries.push({
+      timestamp: new Date().toISOString(),
+      ...entry,
+    });
+    const trimmed = entries.slice(-500);
+    await this.state.storage.put(AUDIT_KEY, trimmed);
   }
 
   async isAuthorized(request) {
@@ -249,13 +342,8 @@ export class OrdersStore {
     if (!token) {
       return false;
     }
-
-    const sessions = await this.cleanupSessions();
-    const expiresAt = sessions[token];
-    if (!Number.isFinite(expiresAt)) {
-      return false;
-    }
-    return expiresAt > Date.now();
+    const payload = await verifyJwt(token, this.jwtSecret);
+    return Boolean(payload);
   }
 
   async fetch(request) {
@@ -276,17 +364,24 @@ export class OrdersStore {
         if (!this.adminPassword) {
           return json(500, { error: "Admin password is not configured." });
         }
+        if (!this.jwtSecret) {
+          return json(500, { error: "Admin JWT secret is not configured." });
+        }
 
         const payload = await parseJsonBody(request);
         if (!constantTimeEqual(payload.password, this.adminPassword)) {
           return json(401, { error: "Incorrect password." });
         }
 
-        const token = crypto.randomUUID();
         const expiresAt = Date.now() + this.tokenTtlMs;
-        const sessions = await this.cleanupSessions();
-        sessions[token] = expiresAt;
-        await this.saveSessions(sessions);
+        const token = await signJwt(
+          {
+            sub: "newgbonhi-admin",
+            iat: Math.floor(Date.now() / 1000),
+            exp: Math.floor(expiresAt / 1000),
+          },
+          this.jwtSecret
+        );
         return json(200, { token, expiresAt });
       }
 
@@ -314,9 +409,17 @@ export class OrdersStore {
           return json(404, { error: "Order not found." });
         }
 
-        if (order.status === "sent") {
+        const previousStatus = order.status;
+        if (previousStatus === "sent") {
           order.status = "paid_reported";
           await this.saveOrders(orders);
+          await this.appendAuditEntry({
+            orderId,
+            previousStatus,
+            nextStatus: order.status,
+            actor: "customer",
+            source: "report-payment",
+          });
         }
 
         return json(200, { order });
@@ -352,8 +455,18 @@ export class OrdersStore {
           return json(404, { error: "Order not found." });
         }
 
+        const previousStatus = orders[index].status;
         orders[index] = { ...orders[index], status };
         await this.saveOrders(orders);
+        if (previousStatus !== status) {
+          await this.appendAuditEntry({
+            orderId,
+            previousStatus,
+            nextStatus: status,
+            actor: "admin",
+            source: "admin-status-update",
+          });
+        }
         return json(200, { orders });
       }
 

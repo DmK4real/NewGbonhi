@@ -1,9 +1,23 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+const checkoutEnvKeys = [
+  "VITE_WHATSAPP_NUMBER",
+  "VITE_CONTACT_EMAIL",
+  "VITE_MOMO_WAVE",
+  "VITE_MOMO_ORANGE",
+  "VITE_MOMO_MTN",
+  "VITE_MOMO_MOOV",
+  "VITE_MOMO_ADDITIONAL",
+  "VITE_PAYMENT_NOTE",
+];
+
 describe("checkout utilities", () => {
   beforeEach(() => {
     vi.resetModules();
     vi.unstubAllEnvs();
+    checkoutEnvKeys.forEach((key) => {
+      vi.stubEnv(key, "");
+    });
     vi.spyOn(console, "warn").mockImplementation(() => {});
   });
 
@@ -12,17 +26,17 @@ describe("checkout utilities", () => {
   });
 
   it("builds an order id with the expected prefix and length", async () => {
-    const { buildOrderId } = await import("./checkout.js");
-    expect(buildOrderId()).toMatch(/^NG-\d{6}$/);
+    const { buildOrderId } = await import("./checkout.ts");
+    expect(buildOrderId()).toMatch(/^NG-\d{4}-\d{4}$/);
   });
 
   it("normalizes phone numbers to digits only", async () => {
-    const { normalizeNumber } = await import("./checkout.js");
+    const { normalizeNumber } = await import("./checkout.ts");
     expect(normalizeNumber("+225 07 11 11 56 86")).toBe("2250711115686");
   });
 
   it("falls back to a WhatsApp confirmation message when no payment env is set", async () => {
-    const { buildOrderMessage } = await import("./checkout.js");
+    const { buildOrderMessage } = await import("./checkout.ts");
     const message = buildOrderMessage({
       orderId: "NG-123456",
       customer: {

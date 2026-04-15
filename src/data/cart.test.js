@@ -3,7 +3,7 @@ import {
   calculateCartCount,
   calculateCartTotal,
   createCartItemKey,
-} from "./cart.js";
+} from "./cart.ts";
 
 describe("cart helpers", () => {
   it("builds a stable item key from product options", () => {

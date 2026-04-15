@@ -2,13 +2,14 @@ import fs from "node:fs";
 import { promises as fsp } from "node:fs";
 import path from "node:path";
 import { createServer } from "node:http";
-import { randomUUID, timingSafeEqual } from "node:crypto";
+import { createHmac, timingSafeEqual } from "node:crypto";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.resolve(__dirname, "..");
 const ENV_FILE = path.join(ROOT_DIR, ".env");
 const ORDERS_FILE = path.join(__dirname, "orders.json");
+const AUDIT_LOG_FILE = path.join(__dirname, "orders.audit.log");
 const STATUS_VALUES = new Set(["sent", "paid_reported", "paid", "delivered"]);
 const DEFAULT_HEADERS = {
   "Content-Type": "application/json; charset=utf-8",
@@ -32,7 +33,8 @@ const TOKEN_TTL_MS =
 
 const ADMIN_PASSWORD =
   process.env.ADMIN_PASSWORD || process.env.VITE_ADMIN_PASSWORD || "";
-const sessions = new Map();
+const ADMIN_JWT_SECRET = process.env.ADMIN_JWT_SECRET || "";
+const JWT_SECRET = ADMIN_JWT_SECRET || ADMIN_PASSWORD;
 let writeLock = Promise.resolve();
 
 logConfigWarnings();
@@ -56,6 +58,70 @@ const safeInteger = (value, fallback = 0) => {
     return fallback;
   }
   return Math.max(0, Math.round(parsed));
+};
+
+const toBase64Url = (value) => Buffer.from(value).toString("base64url");
+
+const fromBase64UrlJson = (value) => {
+  try {
+    return JSON.parse(Buffer.from(String(value || ""), "base64url").toString("utf8"));
+  } catch (error) {
+    return null;
+  }
+};
+
+const signJwt = (payload, secret) => {
+  const header = { alg: "HS256", typ: "JWT" };
+  const encodedHeader = toBase64Url(JSON.stringify(header));
+  const encodedPayload = toBase64Url(JSON.stringify(payload));
+  const signingInput = `${encodedHeader}.${encodedPayload}`;
+  const signature = createHmac("sha256", secret)
+    .update(signingInput)
+    .digest("base64url");
+  return `${signingInput}.${signature}`;
+};
+
+const verifyJwt = (token, secret) => {
+  if (!secret || !token) {
+    return null;
+  }
+
+  const parts = String(token).split(".");
+  if (parts.length !== 3) {
+    return null;
+  }
+
+  const [encodedHeader, encodedPayload, providedSignature] = parts;
+  const header = fromBase64UrlJson(encodedHeader);
+  if (!header || header.alg !== "HS256" || header.typ !== "JWT") {
+    return null;
+  }
+
+  const payload = fromBase64UrlJson(encodedPayload);
+  if (!payload || typeof payload !== "object") {
+    return null;
+  }
+
+  const signingInput = `${encodedHeader}.${encodedPayload}`;
+  const expectedSignature = createHmac("sha256", secret)
+    .update(signingInput)
+    .digest("base64url");
+
+  const expectedBuffer = Buffer.from(expectedSignature);
+  const providedBuffer = Buffer.from(String(providedSignature || ""));
+  if (expectedBuffer.length !== providedBuffer.length) {
+    return null;
+  }
+  if (!timingSafeEqual(expectedBuffer, providedBuffer)) {
+    return null;
+  }
+
+  const expiresAt = Number(payload.exp);
+  if (!Number.isFinite(expiresAt) || expiresAt <= Math.floor(Date.now() / 1000)) {
+    return null;
+  }
+
+  return payload;
 };
 
 const toApiPathname = (pathname) => {
@@ -126,12 +192,21 @@ const withWriteLock = async (work) => {
 
 const buildOrderId = () => {
   const now = new Date();
-  const stamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(
-    2,
-    "0"
-  )}${String(now.getDate()).padStart(2, "0")}`;
+  const stamp = String(now.getFullYear());
   const rand = Math.floor(1000 + Math.random() * 9000);
   return `NG-${stamp}-${rand}`;
+};
+
+const appendAuditLog = async (entry) => {
+  const payload = {
+    timestamp: new Date().toISOString(),
+    ...entry,
+  };
+  try {
+    await fsp.appendFile(AUDIT_LOG_FILE, `${JSON.stringify(payload)}\n`, "utf8");
+  } catch (error) {
+    console.warn("[audit] unable to write audit log entry");
+  }
 };
 
 const normalizeCustomer = (customer) => {
@@ -236,27 +311,9 @@ const extractBearerToken = (req) => {
   return authorization.slice("Bearer ".length).trim();
 };
 
-const cleanupSessions = () => {
-  const now = Date.now();
-  for (const [token, expiresAt] of sessions.entries()) {
-    if (expiresAt <= now) {
-      sessions.delete(token);
-    }
-  }
-};
-
 const isAuthorized = (req) => {
-  cleanupSessions();
   const token = extractBearerToken(req);
-  if (!token) {
-    return false;
-  }
-  const expiresAt = sessions.get(token);
-  if (!expiresAt || expiresAt <= Date.now()) {
-    sessions.delete(token);
-    return false;
-  }
-  return true;
+  return Boolean(verifyJwt(token, JWT_SECRET));
 };
 
 const passwordsMatch = (providedPassword) => {
@@ -325,6 +382,12 @@ function logConfigWarnings() {
       "[config] Using deprecated VITE_ADMIN_PASSWORD fallback for the API. Set ADMIN_PASSWORD instead."
     );
   }
+
+  if (!ADMIN_JWT_SECRET) {
+    console.warn(
+      "[config] ADMIN_JWT_SECRET is not configured. Falling back to ADMIN_PASSWORD for JWT signing. Set ADMIN_JWT_SECRET for stronger key separation."
+    );
+  }
 }
 
 const server = createServer(async (req, res) => {
@@ -348,6 +411,10 @@ const server = createServer(async (req, res) => {
         respondJson(res, 500, { error: "Admin password is not configured." });
         return;
       }
+      if (!JWT_SECRET) {
+        respondJson(res, 500, { error: "Admin JWT secret is not configured." });
+        return;
+      }
 
       const payload = await readJsonBody(req);
       if (!passwordsMatch(payload.password)) {
@@ -355,9 +422,15 @@ const server = createServer(async (req, res) => {
         return;
       }
 
-      const token = randomUUID();
       const expiresAt = Date.now() + TOKEN_TTL_MS;
-      sessions.set(token, expiresAt);
+      const token = signJwt(
+        {
+          sub: "newgbonhi-admin",
+          iat: Math.floor(Date.now() / 1000),
+          exp: Math.floor(expiresAt / 1000),
+        },
+        JWT_SECRET
+      );
       respondJson(res, 200, { token, expiresAt });
       return;
     }
@@ -389,9 +462,17 @@ const server = createServer(async (req, res) => {
         if (!order) {
           return null;
         }
-        if (order.status === "sent") {
+        const previousStatus = order.status;
+        if (previousStatus === "sent") {
           order.status = "paid_reported";
           await writeOrders(orders);
+          await appendAuditLog({
+            orderId,
+            previousStatus,
+            nextStatus: order.status,
+            actor: "customer",
+            source: "report-payment",
+          });
         }
         return order;
       });
@@ -440,8 +521,18 @@ const server = createServer(async (req, res) => {
         if (index < 0) {
           return null;
         }
+        const previousStatus = orders[index].status;
         orders[index] = { ...orders[index], status };
         await writeOrders(orders);
+        if (previousStatus !== status) {
+          await appendAuditLog({
+            orderId,
+            previousStatus,
+            nextStatus: status,
+            actor: "admin",
+            source: "admin-status-update",
+          });
+        }
         return orders;
       });
 

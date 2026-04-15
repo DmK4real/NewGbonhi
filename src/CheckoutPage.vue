@@ -237,7 +237,7 @@
 
 <script>
 import CartPanel from "./components/CartPanel.vue";
-import { cartStore } from "./data/cart.js";
+import { cartStore } from "./data/cart.ts";
 import { createOrder, reportOrderPaid } from "./data/orders.js";
 import {
   SHIPPING_OPTIONS,
@@ -254,11 +254,11 @@ import {
   VITE_MOMO_MOOV,
   VITE_MOMO_ADDITIONAL,
   VITE_PAYMENT_NOTE,
-} from "./utils/checkout.js";
+} from "./utils/checkout.ts";
 
 const logoUrl = new URL("./assets/newgbonhi-logo.png", import.meta.url).href;
 
-// These are now imported from checkout.js
+// These are now imported from checkout.ts
 // const WHATSAPP_NUMBER = import.meta.env.VITE_WHATSAPP_NUMBER || "";
 // const CONTACT_EMAIL = import.meta.env.VITE_CONTACT_EMAIL || "";
 
@@ -373,7 +373,7 @@ export default {
       });
     },
     buildOrderId() {
-      // This now comes from utils/checkout.js
+      // This now comes from utils/checkout.ts
       return buildOrderId();
     },
     openWhatsApp() {

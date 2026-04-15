@@ -168,7 +168,7 @@
 
 <script>
 import CartPanel from "./components/CartPanel.vue";
-import { cartStore } from "./data/cart.js";
+import { cartStore } from "./data/cart.ts";
 import {
   adminLogin,
   deleteOrder,

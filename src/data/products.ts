@@ -1,6 +1,42 @@
 import productsData from "./products.json";
 
-const imageKeyToFile = {
+type ProductVariant = {
+  imageKey?: string;
+  imagePrimary?: string;
+  imageWebp?: string;
+  [key: string]: unknown;
+};
+
+export type ProductRecord = {
+  id?: string;
+  slug: string;
+  title?: string;
+  url: string;
+  imageKey?: string;
+  imagePrimary: string;
+  imageSecondary: string;
+  imageWebp: string;
+  category?: string;
+  tags?: string[];
+  soldOut?: boolean;
+  variants: ProductVariant[] | null;
+  [key: string]: unknown;
+};
+
+type RawProduct = {
+  id?: string;
+  slug?: string;
+  title?: string;
+  url?: string;
+  imageKey?: string;
+  imagePrimary?: string;
+  imageSecondary?: string;
+  imageWebp?: string;
+  variants?: ProductVariant[];
+  [key: string]: unknown;
+};
+
+const imageKeyToFile: Record<string, string> = {
   safeZoneBlack: "BLACK SAFE zone 4 BOY.png",
   whiteCameleon: "WHITE CAMELEON.png",
   safeBabiGirlBlack: "BLACK SAFE BABI GIRL.png",
@@ -16,31 +52,32 @@ const imageKeyMap = Object.fromEntries(
     key,
     new URL(`../assets/${fileName}`, import.meta.url).href,
   ])
-);
+) as Record<string, string>;
 
 const webpModules = import.meta.glob("../assets/webp/*.webp", {
   eager: true,
   import: "default",
-});
+}) as Record<string, string>;
+
 const webpMap = Object.fromEntries(
   Object.entries(webpModules).map(([path, url]) => [path.split("/").pop(), url])
-);
+) as Record<string, string>;
 
-const slugify = (value) =>
+const slugify = (value: string | undefined) =>
   String(value || "")
     .toLowerCase()
     .replace(/&/g, "and")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-+|-+$)/g, "");
 
-const resolveImageByKey = (imageKey) => {
+const resolveImageByKey = (imageKey?: string): string => {
   if (!imageKey) {
     return "";
   }
   return imageKeyMap[imageKey] || "";
 };
 
-const resolveWebpByKey = (imageKey) => {
+const resolveWebpByKey = (imageKey?: string): string => {
   if (!imageKey) {
     return "";
   }
@@ -52,7 +89,7 @@ const resolveWebpByKey = (imageKey) => {
   return webpMap[webpName] || "";
 };
 
-const resolveImagePrimary = (product) => {
+const resolveImagePrimary = (product: RawProduct): string => {
   if (Array.isArray(product.variants) && product.variants.length) {
     return resolveImageByKey(product.variants[0].imageKey);
   }
@@ -62,7 +99,7 @@ const resolveImagePrimary = (product) => {
   return product.imagePrimary || "";
 };
 
-const resolveImageWebp = (product) => {
+const resolveImageWebp = (product: RawProduct): string => {
   if (Array.isArray(product.variants) && product.variants.length) {
     return resolveWebpByKey(product.variants[0].imageKey);
   }
@@ -80,10 +117,14 @@ const resolveImageWebp = (product) => {
   return webpMap[webpName] || "";
 };
 
-export const products = productsData.map((product, index) => {
+const rawProducts: RawProduct[] = Array.isArray(productsData)
+  ? (productsData as RawProduct[])
+  : [];
+
+export const products: ProductRecord[] = rawProducts.map((product, index) => {
   const slug = product.slug || slugify(product.title || `product-${index + 1}`);
   const variants = Array.isArray(product.variants)
-    ? product.variants.map((variant) => ({
+    ? product.variants.map((variant: ProductVariant) => ({
         ...variant,
         imagePrimary: resolveImageByKey(variant.imageKey),
         imageWebp: resolveWebpByKey(variant.imageKey),
@@ -102,5 +143,7 @@ export const products = productsData.map((product, index) => {
   };
 });
 
-export const findProductBySlug = (slug) =>
+export const findProductBySlug = (
+  slug: string | undefined
+): ProductRecord | undefined =>
   products.find((product) => product.slug === slug);

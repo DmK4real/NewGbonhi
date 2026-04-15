@@ -80,7 +80,7 @@
 </template>
 
 <script>
-import { cartStore } from "../data/cart.js";
+import { cartStore } from "../data/cart.ts";
 
 export default {
   name: "CartPanel",
