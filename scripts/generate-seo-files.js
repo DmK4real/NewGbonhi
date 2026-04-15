@@ -57,6 +57,23 @@ const buildSitemapXml = (siteUrl, routes) => {
   ].join("\n");
 };
 
+const buildSitemapIndexXml = (siteUrl, sitemapPaths) => {
+  const nodes = sitemapPaths
+    .map((sitemapPath) => {
+      const loc = makeAbsoluteUrl(siteUrl, sitemapPath);
+      return ["  <sitemap>", `    <loc>${loc}</loc>`, "  </sitemap>"].join("\n");
+    })
+    .join("\n");
+
+  return [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    nodes,
+    "</sitemapindex>",
+    "",
+  ].join("\n");
+};
+
 const buildRobotsTxt = (siteUrl) =>
   [
     "User-agent: *",
@@ -97,10 +114,12 @@ const main = async () => {
     }, new Map()).values()
   );
 
-  const sitemapXml = buildSitemapXml(siteUrl, uniqueRoutes);
+  const sitemapMainXml = buildSitemapXml(siteUrl, uniqueRoutes);
+  const sitemapXml = buildSitemapIndexXml(siteUrl, ["/sitemap-main.xml"]);
   const robotsTxt = buildRobotsTxt(siteUrl);
 
   await fs.mkdir(publicDir, { recursive: true });
+  await fs.writeFile(path.join(publicDir, "sitemap-main.xml"), sitemapMainXml, "utf8");
   await fs.writeFile(path.join(publicDir, "sitemap.xml"), sitemapXml, "utf8");
   await fs.writeFile(path.join(publicDir, "robots.txt"), robotsTxt, "utf8");
 

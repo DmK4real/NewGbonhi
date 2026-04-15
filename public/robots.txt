@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://dmk4real.github.io/NewGbonhi/sitemap.xml
+Sitemap: https://newgbonhi.pages.dev/sitemap.xml
