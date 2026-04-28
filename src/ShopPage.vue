@@ -632,8 +632,8 @@ export default {
 
 .hero-panel {
   border-radius: 16px;
-  background: #0b0b0b;
-  color: #fff;
+  background: #000000;
+  color: #0b0b0b;
   overflow: hidden;
   display: grid;
   min-height: 340px;
@@ -645,7 +645,7 @@ export default {
   min-height: 300px;
   object-fit: cover;
   opacity: 1;
-  filter: contrast(1.04) saturate(1.04);
+  filter: contrast(1.08) saturate(1.06) brightness(1.02);
   image-rendering: -webkit-optimize-contrast;
   image-rendering: auto;
 }
