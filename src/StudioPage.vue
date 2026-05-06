@@ -901,7 +901,118 @@ export default {
       window.removeEventListener("pointerup", this.onGlobalPointerUp);
       window.removeEventListener("pointercancel", this.onGlobalPointerUp);
     },
+    loadImage(src) {
+      return new Promise((resolve, reject) => {
+        const image = new Image();
+        image.decoding = "async";
+        image.onload = () => resolve(image);
+        image.onerror = () => reject(new Error(`Unable to load image: ${src}`));
+        image.src = src;
+      });
+    },
+    async buildStudioPreviewImage() {
+      if (!this.selectedColor?.mockup) {
+        return "";
+      }
+      if (typeof document === "undefined") {
+        return this.selectedColor.mockup;
+      }
+      const designBox = this.selectedTemplate?.designBox;
+      if (!designBox) {
+        return this.selectedColor.mockup;
+      }
+
+      try {
+        const baseImage = await this.loadImage(this.selectedColor.mockup);
+        const baseWidth = baseImage.naturalWidth || baseImage.width;
+        const baseHeight = baseImage.naturalHeight || baseImage.height;
+        if (!baseWidth || !baseHeight) {
+          return this.selectedColor.mockup;
+        }
+
+        const maxDimension = 860;
+        const resizeRatio = Math.min(1, maxDimension / Math.max(baseWidth, baseHeight));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.max(420, Math.round(baseWidth * resizeRatio));
+        canvas.height = Math.max(420, Math.round(baseHeight * resizeRatio));
+
+        const context = canvas.getContext("2d");
+        if (!context) {
+          return this.selectedColor.mockup;
+        }
+
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
+
+        const zoneX = (designBox.xPct / 100) * canvas.width;
+        const zoneY = (designBox.yPct / 100) * canvas.height;
+        const zoneWidth = (designBox.wPct / 100) * canvas.width;
+        const zoneHeight = (designBox.hPct / 100) * canvas.height;
+        const sortedStickers = [...this.stickers].sort((a, b) => a.zIndex - b.zIndex);
+        const loadedDesigns = {};
+
+        for (const sticker of sortedStickers) {
+          const design = this.designById(sticker.designId);
+          if (!design?.imagePrimary) {
+            continue;
+          }
+
+          if (!loadedDesigns[design.id]) {
+            try {
+              loadedDesigns[design.id] = await this.loadImage(design.imagePrimary);
+            } catch (error) {
+              loadedDesigns[design.id] = null;
+            }
+          }
+
+          const designImage = loadedDesigns[design.id];
+          if (!designImage) {
+            continue;
+          }
+
+          const visualSize = clamp(sticker.scale ?? 100, 40, 220) * 0.36;
+          const stickerWidth = zoneWidth * (visualSize / 100);
+          const stickerHeight = zoneHeight * (visualSize / 100);
+          const centerX = zoneX + zoneWidth * (sticker.xPct / 100);
+          const centerY = zoneY + zoneHeight * (sticker.yPct / 100);
+          const rotation = ((sticker.rotation || 0) * Math.PI) / 180;
+
+          context.save();
+          context.translate(centerX, centerY);
+          context.rotate(rotation);
+
+          if (this.stickerRenderMode === "print") {
+            context.globalAlpha = clamp(0.74 + this.printBlendRatio * 0.2, 0.68, 0.96);
+          } else if (this.stickerRenderMode === "puff") {
+            context.globalAlpha = clamp(0.76 + this.printBlendRatio * 0.18, 0.7, 0.98);
+            context.shadowColor = "rgba(0, 0, 0, 0.28)";
+            context.shadowBlur = Math.max(1.4, stickerWidth * 0.015);
+            context.shadowOffsetY = Math.max(0.8, stickerWidth * 0.006);
+          } else {
+            context.globalAlpha = 1;
+          }
+
+          context.drawImage(
+            designImage,
+            -stickerWidth / 2,
+            -stickerHeight / 2,
+            stickerWidth,
+            stickerHeight
+          );
+          context.restore();
+        }
+
+        return canvas.toDataURL("image/webp", 0.92);
+      } catch (error) {
+        return this.selectedColor.mockup;
+      }
+    },
     buildCompositionFingerprint() {
+      const renderToken = [
+        this.stickerRenderMode,
+        this.selectedRenderProfileId,
+        Math.round(this.printBlendStrength),
+      ].join(":");
       const payload = this.stickers
         .map((item) => {
           const x = Math.round(item.xPct);
@@ -913,25 +1024,27 @@ export default {
         .sort()
         .join("|");
       let hash = 0;
-      for (let index = 0; index < payload.length; index += 1) {
-        hash = (hash * 31 + payload.charCodeAt(index)) >>> 0;
+      const seed = `${renderToken}|${payload}`;
+      for (let index = 0; index < seed.length; index += 1) {
+        hash = (hash * 31 + seed.charCodeAt(index)) >>> 0;
       }
       return hash.toString(36);
     },
-    addStudioItemToCart() {
+    async addStudioItemToCart() {
       if (!this.selectedTemplate || !this.selectedColor || this.stickers.length === 0) {
         return;
       }
 
       const compositionId = this.buildCompositionFingerprint();
       const designSummary = this.compositionSummary || "Custom composition";
+      const composedPreview = await this.buildStudioPreviewImage();
 
       cartStore.addToCart({
         id: `studio-${this.selectedTemplate.id}`,
         slug: `studio-${this.selectedTemplate.id}-${this.selectedColor.id}`,
         title: `Custom ${this.selectedTemplate.label}`,
         price: this.basePrice,
-        imagePrimary: this.selectedColor.mockup,
+        imagePrimary: composedPreview || this.selectedColor.mockup,
         url: "/studio",
         selectedSize: this.selectedSize,
         selectedColor: this.selectedColor.label,

@@ -14,7 +14,12 @@
       </p>
 
       <div v-else class="cart-items">
-        <article v-for="item in cartItems" :key="item.key" class="cart-item">
+        <article
+          v-for="item in cartItems"
+          :key="item.key"
+          class="cart-item"
+          :class="{ 'is-custom-studio': item.isCustomStudio }"
+        >
           <img
             v-if="item.imagePrimary"
             :src="item.imagePrimary"
@@ -23,6 +28,7 @@
             decoding="async"
           />
           <div class="cart-item-body">
+            <p v-if="item.isCustomStudio" class="cart-badge">Custom studio</p>
             <h4>{{ item.title }}</h4>
             <p v-if="item.selectedSize" class="cart-size">
               Size: {{ item.selectedSize }}
@@ -210,9 +216,21 @@ export default {
 .cart-item img {
   width: 72px;
   height: 72px;
-  object-fit: cover;
+  object-fit: contain;
   border-radius: 10px;
   background: #fff;
+}
+
+.cart-item.is-custom-studio {
+  background:
+    linear-gradient(140deg, rgba(225, 6, 0, 0.06), rgba(225, 6, 0, 0)),
+    #fff;
+  border-color: rgba(225, 6, 0, 0.28);
+}
+
+.cart-item.is-custom-studio img {
+  border: 1px solid rgba(225, 6, 0, 0.22);
+  background: #f7f7f7;
 }
 
 .cart-item-body h4 {
@@ -220,6 +238,19 @@ export default {
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.12em;
+}
+
+.cart-badge {
+  margin: 0 0 6px;
+  display: inline-block;
+  padding: 2px 8px;
+  border: 1px solid rgba(225, 6, 0, 0.55);
+  border-radius: 999px;
+  background: rgba(225, 6, 0, 0.08);
+  color: #a00000;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 9px;
 }
 
 .cart-size {

@@ -184,7 +184,12 @@
           Your cart is empty.
         </div>
         <div v-else class="summary-items">
-          <article v-for="item in cartItems" :key="item.key" class="summary-item">
+          <article
+            v-for="item in cartItems"
+            :key="item.key"
+            class="summary-item"
+            :class="{ 'is-custom-studio': item.isCustomStudio }"
+          >
             <img
               v-if="item.imagePrimary"
               :src="item.imagePrimary"
@@ -193,6 +198,7 @@
               decoding="async"
             />
             <div>
+              <p v-if="item.isCustomStudio" class="summary-badge">Custom studio</p>
               <h3>{{ item.title }}</h3>
               <p v-if="item.selectedSize">Size: {{ item.selectedSize }}</p>
               <p v-if="item.selectedColor">Color: {{ item.selectedColor }}</p>
@@ -862,9 +868,21 @@ export default {
 .summary-item img {
   width: 64px;
   height: 64px;
-  object-fit: cover;
+  object-fit: contain;
   border-radius: 10px;
   background: #fff;
+}
+
+.summary-item.is-custom-studio {
+  border-color: rgba(225, 6, 0, 0.28);
+  background:
+    linear-gradient(145deg, rgba(225, 6, 0, 0.06), rgba(225, 6, 0, 0)),
+    #fff;
+}
+
+.summary-item.is-custom-studio img {
+  border: 1px solid rgba(225, 6, 0, 0.22);
+  background: #f7f7f7;
 }
 
 .summary-item h3 {
@@ -878,6 +896,19 @@ export default {
   margin: 0;
   font-size: 12px;
   color: var(--muted);
+}
+
+.summary-badge {
+  margin: 0 0 6px;
+  display: inline-block;
+  padding: 2px 8px;
+  border: 1px solid rgba(225, 6, 0, 0.55);
+  border-radius: 999px;
+  background: rgba(225, 6, 0, 0.08);
+  color: #a00000;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
 }
 
 .summary-total {

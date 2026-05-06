@@ -53,6 +53,13 @@ const designSources: StudioDesignSource[] = [
     fileName: "NEW GBONHI OVAL.png",
     tags: ["newgbonhi", "oval", "logo"],
   },
+  {
+    id: "bla-bla-bla",
+    title: "BLA BLA BLA",
+    category: "sticker",
+    fileName: "BLA BLA BLA.png",
+    tags: ["graffiti", "typography", "street"],
+  },
 ];
 
 export const studioDesigns: StudioDesign[] = designSources.map((source) => ({
