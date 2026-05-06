@@ -18,6 +18,9 @@
         >
           Lookbook
         </RouterLink>
+        <RouterLink :class="{ 'is-active': $route.name === 'studio' }" to="/studio">
+          Studio
+        </RouterLink>
         <RouterLink :class="{ 'is-active': $route.name === 'about' }" to="/about">
           About
         </RouterLink>
@@ -97,6 +100,8 @@
               <span>
                 {{ item.title }}
                 <em v-if="item.selectedSize">({{ item.selectedSize }})</em>
+                <em v-if="item.selectedColor"> - {{ item.selectedColor }}</em>
+                <em v-if="item.selectedDesignName"> - {{ item.selectedDesignName }}</em>
               </span>
               <span>x{{ item.qty }}</span>
               <strong>{{ formatPrice(item.qty * item.price) }}</strong>
@@ -271,9 +276,14 @@ export default {
       ];
 
       order.items.forEach((item) => {
-        const sizeText = item.selectedSize ? ` (${item.selectedSize})` : "";
+        const details = [
+          item.selectedSize || "",
+          item.selectedColor ? `Color: ${item.selectedColor}` : "",
+          item.selectedDesignName ? `Design: ${item.selectedDesignName}` : "",
+        ].filter(Boolean);
+        const detailText = details.length ? ` (${details.join(" | ")})` : "";
         lines.push(
-          `- ${item.title}${sizeText} x${item.qty} = ${this.formatPrice(
+          `- ${item.title}${detailText} x${item.qty} = ${this.formatPrice(
             item.qty * item.price
           )}`
         );

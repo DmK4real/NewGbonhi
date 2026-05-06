@@ -1,0 +1,1396 @@
+{
+  "templates": [
+    {
+      "id": "classic-t-shirt-back",
+      "label": "Classic T-shirt (Back)",
+      "family": "t-shirt",
+      "view": "back",
+      "designBox": {
+        "xPct": 25.65,
+        "yPct": 13.9,
+        "wPct": 48.71,
+        "hPct": 57.99
+      },
+      "colors": [
+        {
+          "id": "white",
+          "label": "White",
+          "swatch": "#f7f7f7",
+          "asset": "classic-t-shirt-back--white.png"
+        },
+        {
+          "id": "slate",
+          "label": "Slate",
+          "swatch": "#5f646c",
+          "asset": "classic-t-shirt-back--slate.png"
+        },
+        {
+          "id": "silver",
+          "label": "Silver",
+          "swatch": "#b3b3b3",
+          "asset": "classic-t-shirt-back--silver.png"
+        },
+        {
+          "id": "royal-blue",
+          "label": "Royal Blue",
+          "swatch": "#2f56cf",
+          "asset": "classic-t-shirt-back--royal-blue.png"
+        },
+        {
+          "id": "red",
+          "label": "Red",
+          "swatch": "#be1d2e",
+          "asset": "classic-t-shirt-back--red.png"
+        },
+        {
+          "id": "purple",
+          "label": "Purple",
+          "swatch": "#6e4e9e",
+          "asset": "classic-t-shirt-back--purple.png"
+        },
+        {
+          "id": "pink",
+          "label": "Pink",
+          "swatch": "#d08cac",
+          "asset": "classic-t-shirt-back--pink.png"
+        },
+        {
+          "id": "orange",
+          "label": "Orange",
+          "swatch": "#d56d33",
+          "asset": "classic-t-shirt-back--orange.png"
+        },
+        {
+          "id": "olive",
+          "label": "Olive",
+          "swatch": "#566145",
+          "asset": "classic-t-shirt-back--olive.png"
+        },
+        {
+          "id": "navy",
+          "label": "Navy",
+          "swatch": "#1f2e56",
+          "asset": "classic-t-shirt-back--navy.png"
+        },
+        {
+          "id": "lemon",
+          "label": "Lemon",
+          "swatch": "#ebd35f",
+          "asset": "classic-t-shirt-back--lemon.png"
+        },
+        {
+          "id": "kelly-green",
+          "label": "Kelly Green",
+          "swatch": "#3ea145",
+          "asset": "classic-t-shirt-back--kelly-green.png"
+        },
+        {
+          "id": "heather-gray",
+          "label": "Heather Gray",
+          "swatch": "#9a9a9a",
+          "asset": "classic-t-shirt-back--heather-gray.png"
+        },
+        {
+          "id": "heather-blue",
+          "label": "Heather Blue",
+          "swatch": "#7fa2c7",
+          "asset": "classic-t-shirt-back--heather-blue.png"
+        },
+        {
+          "id": "grass",
+          "label": "Grass",
+          "swatch": "#53a15a",
+          "asset": "classic-t-shirt-back--grass.png"
+        },
+        {
+          "id": "dark-heather-grey",
+          "label": "Dark Heather Grey",
+          "swatch": "#5e5e62",
+          "asset": "classic-t-shirt-back--dark-heather-grey.png"
+        },
+        {
+          "id": "cranberry",
+          "label": "Cranberry",
+          "swatch": "#8f2c41",
+          "asset": "classic-t-shirt-back--cranberry.png"
+        },
+        {
+          "id": "brown",
+          "label": "Brown",
+          "swatch": "#6b4a36",
+          "asset": "classic-t-shirt-back--brown.png"
+        },
+        {
+          "id": "black",
+          "label": "Black",
+          "swatch": "#111111",
+          "asset": "classic-t-shirt-back--black.png"
+        },
+        {
+          "id": "baby-blue",
+          "label": "Baby Blue",
+          "swatch": "#9fc4eb",
+          "asset": "classic-t-shirt-back--baby-blue.png"
+        },
+        {
+          "id": "asphalt",
+          "label": "Asphalt",
+          "swatch": "#4b4b50",
+          "asset": "classic-t-shirt-back--asphalt.png"
+        }
+      ]
+    },
+    {
+      "id": "classic-t-shirt-front",
+      "label": "Classic T-shirt (Front)",
+      "family": "t-shirt",
+      "view": "front",
+      "designBox": {
+        "xPct": 25.24,
+        "yPct": 20.44,
+        "wPct": 49.52,
+        "hPct": 58.8
+      },
+      "colors": [
+        {
+          "id": "white",
+          "label": "White",
+          "swatch": "#f7f7f7",
+          "asset": "classic-t-shirt-front--white.png"
+        },
+        {
+          "id": "slate",
+          "label": "Slate",
+          "swatch": "#5f646c",
+          "asset": "classic-t-shirt-front--slate.png"
+        },
+        {
+          "id": "silver",
+          "label": "Silver",
+          "swatch": "#b3b3b3",
+          "asset": "classic-t-shirt-front--silver.png"
+        },
+        {
+          "id": "royal-blue",
+          "label": "Royal Blue",
+          "swatch": "#2f56cf",
+          "asset": "classic-t-shirt-front--royal-blue.png"
+        },
+        {
+          "id": "red",
+          "label": "Red",
+          "swatch": "#be1d2e",
+          "asset": "classic-t-shirt-front--red.png"
+        },
+        {
+          "id": "purple",
+          "label": "Purple",
+          "swatch": "#6e4e9e",
+          "asset": "classic-t-shirt-front--purple.png"
+        },
+        {
+          "id": "pink",
+          "label": "Pink",
+          "swatch": "#d08cac",
+          "asset": "classic-t-shirt-front--pink.png"
+        },
+        {
+          "id": "orange",
+          "label": "Orange",
+          "swatch": "#d56d33",
+          "asset": "classic-t-shirt-front--orange.png"
+        },
+        {
+          "id": "olive",
+          "label": "Olive",
+          "swatch": "#566145",
+          "asset": "classic-t-shirt-front--olive.png"
+        },
+        {
+          "id": "navy",
+          "label": "Navy",
+          "swatch": "#1f2e56",
+          "asset": "classic-t-shirt-front--navy.png"
+        },
+        {
+          "id": "lemon",
+          "label": "Lemon",
+          "swatch": "#ebd35f",
+          "asset": "classic-t-shirt-front--lemon.png"
+        },
+        {
+          "id": "kelly-green",
+          "label": "Kelly Green",
+          "swatch": "#3ea145",
+          "asset": "classic-t-shirt-front--kelly-green.png"
+        },
+        {
+          "id": "heather-gray",
+          "label": "Heather Gray",
+          "swatch": "#9a9a9a",
+          "asset": "classic-t-shirt-front--heather-gray.png"
+        },
+        {
+          "id": "heather-blue",
+          "label": "Heather Blue",
+          "swatch": "#7fa2c7",
+          "asset": "classic-t-shirt-front--heather-blue.png"
+        },
+        {
+          "id": "grass",
+          "label": "Grass",
+          "swatch": "#53a15a",
+          "asset": "classic-t-shirt-front--grass.png"
+        },
+        {
+          "id": "dark-heather-grey",
+          "label": "Dark Heather Grey",
+          "swatch": "#5e5e62",
+          "asset": "classic-t-shirt-front--dark-heather-grey.png"
+        },
+        {
+          "id": "cranberry",
+          "label": "Cranberry",
+          "swatch": "#8f2c41",
+          "asset": "classic-t-shirt-front--cranberry.png"
+        },
+        {
+          "id": "brown",
+          "label": "Brown",
+          "swatch": "#6b4a36",
+          "asset": "classic-t-shirt-front--brown.png"
+        },
+        {
+          "id": "black",
+          "label": "Black",
+          "swatch": "#111111",
+          "asset": "classic-t-shirt-front--black.png"
+        },
+        {
+          "id": "baby-blue",
+          "label": "Baby Blue",
+          "swatch": "#9fc4eb",
+          "asset": "classic-t-shirt-front--baby-blue.png"
+        },
+        {
+          "id": "asphalt",
+          "label": "Asphalt",
+          "swatch": "#4b4b50",
+          "asset": "classic-t-shirt-front--asphalt.png"
+        }
+      ]
+    },
+    {
+      "id": "crew-sweatshirt-back",
+      "label": "Crew Sweatshirt (Back)",
+      "family": "sweatshirt",
+      "view": "back",
+      "designBox": {
+        "xPct": 21.76,
+        "yPct": 16.05,
+        "wPct": 58.32,
+        "hPct": 58.95
+      },
+      "colors": [
+        {
+          "id": "royal-blue",
+          "label": "Royal Blue",
+          "swatch": "#2f56cf",
+          "asset": "crew-sweatshirt-back--royal-blue.png"
+        },
+        {
+          "id": "navy",
+          "label": "Navy",
+          "swatch": "#1f2e56",
+          "asset": "crew-sweatshirt-back--navy.png"
+        },
+        {
+          "id": "dark-heather-grey",
+          "label": "Dark Heather Grey",
+          "swatch": "#5e5e62",
+          "asset": "crew-sweatshirt-back--dark-heather-grey.png"
+        },
+        {
+          "id": "heather-grey",
+          "label": "Heather Grey",
+          "swatch": "#9a9a9a",
+          "asset": "crew-sweatshirt-back--heather-grey.png"
+        },
+        {
+          "id": "black",
+          "label": "Black",
+          "swatch": "#111111",
+          "asset": "crew-sweatshirt-back--black.png"
+        }
+      ]
+    },
+    {
+      "id": "crew-sweatshirt-front",
+      "label": "Crew Sweatshirt (Front)",
+      "family": "sweatshirt",
+      "view": "front",
+      "designBox": {
+        "xPct": 20.92,
+        "yPct": 17.75,
+        "wPct": 60.0,
+        "hPct": 60.19
+      },
+      "colors": [
+        {
+          "id": "royal-blue",
+          "label": "Royal Blue",
+          "swatch": "#2f56cf",
+          "asset": "crew-sweatshirt-front--royal-blue.png"
+        },
+        {
+          "id": "navy",
+          "label": "Navy",
+          "swatch": "#1f2e56",
+          "asset": "crew-sweatshirt-front--navy.png"
+        },
+        {
+          "id": "dark-heather-grey",
+          "label": "Dark Heather Grey",
+          "swatch": "#5e5e62",
+          "asset": "crew-sweatshirt-front--dark-heather-grey.png"
+        },
+        {
+          "id": "heather-grey",
+          "label": "Heather Grey",
+          "swatch": "#9a9a9a",
+          "asset": "crew-sweatshirt-front--heather-grey.png"
+        },
+        {
+          "id": "black",
+          "label": "Black",
+          "swatch": "#111111",
+          "asset": "crew-sweatshirt-front--black.png"
+        }
+      ]
+    },
+    {
+      "id": "long-sleeve-t-shirt-back",
+      "label": "Long Sleeve T-shirt (Back)",
+      "family": "long-sleeve",
+      "view": "back",
+      "designBox": {
+        "xPct": 23.79,
+        "yPct": 14.62,
+        "wPct": 52.75,
+        "hPct": 59.1
+      },
+      "colors": [
+        {
+          "id": "royal-blue",
+          "label": "Royal Blue",
+          "swatch": "#2f56cf",
+          "asset": "long-sleeve-t-shirt-back--royal-blue.png"
+        },
+        {
+          "id": "navy",
+          "label": "Navy",
+          "swatch": "#1f2e56",
+          "asset": "long-sleeve-t-shirt-back--navy.png"
+        },
+        {
+          "id": "dark-heather-grey",
+          "label": "Dark Heather Grey",
+          "swatch": "#5e5e62",
+          "asset": "long-sleeve-t-shirt-back--dark-heather-grey.png"
+        },
+        {
+          "id": "heather-grey",
+          "label": "Heather Grey",
+          "swatch": "#9a9a9a",
+          "asset": "long-sleeve-t-shirt-back--heather-grey.png"
+        },
+        {
+          "id": "black",
+          "label": "Black",
+          "swatch": "#111111",
+          "asset": "long-sleeve-t-shirt-back--black.png"
+        }
+      ]
+    },
+    {
+      "id": "long-sleeve-t-shirt-front",
+      "label": "Long Sleeve T-shirt (Front)",
+      "family": "long-sleeve",
+      "view": "front",
+      "designBox": {
+        "xPct": 23.75,
+        "yPct": 21.6,
+        "wPct": 52.5,
+        "hPct": 59.88
+      },
+      "colors": [
+        {
+          "id": "royal-blue",
+          "label": "Royal Blue",
+          "swatch": "#2f56cf",
+          "asset": "long-sleeve-t-shirt-front--royal-blue.png"
+        },
+        {
+          "id": "navy",
+          "label": "Navy",
+          "swatch": "#1f2e56",
+          "asset": "long-sleeve-t-shirt-front--navy.png"
+        },
+        {
+          "id": "dark-heather-grey",
+          "label": "Dark Heather Grey",
+          "swatch": "#5e5e62",
+          "asset": "long-sleeve-t-shirt-front--dark-heather-grey.png"
+        },
+        {
+          "id": "heather-grey",
+          "label": "Heather Grey",
+          "swatch": "#9a9a9a",
+          "asset": "long-sleeve-t-shirt-front--heather-grey.png"
+        },
+        {
+          "id": "black",
+          "label": "Black",
+          "swatch": "#111111",
+          "asset": "long-sleeve-t-shirt-front--black.png"
+        }
+      ]
+    },
+    {
+      "id": "mens-raglan-back",
+      "label": "Men's Raglan (Back)",
+      "family": "raglan",
+      "view": "back",
+      "designBox": {
+        "xPct": 31.01,
+        "yPct": 20.73,
+        "wPct": 37.8,
+        "hPct": 39.79
+      },
+      "colors": [
+        {
+          "id": "heather-grey-black",
+          "label": "Heather Grey / Black",
+          "swatch": "#5d5d5d",
+          "asset": "mens-raglan-back--heather-grey-black.png"
+        },
+        {
+          "id": "heather-grey-navy",
+          "label": "Heather Grey / Navy",
+          "swatch": "#5f667a",
+          "asset": "mens-raglan-back--heather-grey-navy.png"
+        },
+        {
+          "id": "navy",
+          "label": "Navy",
+          "swatch": "#1f2e56",
+          "asset": "mens-raglan-back--navy.png"
+        },
+        {
+          "id": "black",
+          "label": "Black",
+          "swatch": "#111111",
+          "asset": "mens-raglan-back--black.png"
+        },
+        {
+          "id": "royal-blue",
+          "label": "Royal Blue",
+          "swatch": "#2f56cf",
+          "asset": "mens-raglan-back--royal-blue.png"
+        },
+        {
+          "id": "red",
+          "label": "Red",
+          "swatch": "#be1d2e",
+          "asset": "mens-raglan-back--red.png"
+        },
+        {
+          "id": "dark-heather-grey",
+          "label": "Dark Heather Grey",
+          "swatch": "#5e5e62",
+          "asset": "mens-raglan-back--dark-heather-grey.png"
+        }
+      ]
+    },
+    {
+      "id": "mens-raglan-front",
+      "label": "Men's Raglan (Front)",
+      "family": "raglan",
+      "view": "front",
+      "designBox": {
+        "xPct": 31.25,
+        "yPct": 19.51,
+        "wPct": 37.5,
+        "hPct": 39.48
+      },
+      "colors": [
+        {
+          "id": "heather-grey-black",
+          "label": "Heather Grey / Black",
+          "swatch": "#5d5d5d",
+          "asset": "mens-raglan-front--heather-grey-black.png"
+        },
+        {
+          "id": "heather-grey-navy",
+          "label": "Heather Grey / Navy",
+          "swatch": "#5f667a",
+          "asset": "mens-raglan-front--heather-grey-navy.png"
+        },
+        {
+          "id": "navy",
+          "label": "Navy",
+          "swatch": "#1f2e56",
+          "asset": "mens-raglan-front--navy.png"
+        },
+        {
+          "id": "black",
+          "label": "Black",
+          "swatch": "#111111",
+          "asset": "mens-raglan-front--black.png"
+        },
+        {
+          "id": "royal-blue",
+          "label": "Royal Blue",
+          "swatch": "#2f56cf",
+          "asset": "mens-raglan-front--royal-blue.png"
+        },
+        {
+          "id": "red",
+          "label": "Red",
+          "swatch": "#be1d2e",
+          "asset": "mens-raglan-front--red.png"
+        },
+        {
+          "id": "dark-heather-grey",
+          "label": "Dark Heather Grey",
+          "swatch": "#5e5e62",
+          "asset": "mens-raglan-front--dark-heather-grey.png"
+        }
+      ]
+    },
+    {
+      "id": "mens-tank-back",
+      "label": "Men's Tank (Back)",
+      "family": "tank",
+      "view": "back",
+      "designBox": {
+        "xPct": 24.94,
+        "yPct": 19.17,
+        "wPct": 50.12,
+        "hPct": 38.5
+      },
+      "colors": [
+        {
+          "id": "purple",
+          "label": "Purple",
+          "swatch": "#6e4e9e",
+          "asset": "mens-tank-back--purple.png"
+        },
+        {
+          "id": "sapphire",
+          "label": "Sapphire",
+          "swatch": "#2c4d98",
+          "asset": "mens-tank-back--sapphire.png"
+        },
+        {
+          "id": "red",
+          "label": "Red",
+          "swatch": "#be1d2e",
+          "asset": "mens-tank-back--red.png"
+        },
+        {
+          "id": "royal-blue",
+          "label": "Royal Blue",
+          "swatch": "#2f56cf",
+          "asset": "mens-tank-back--royal-blue.png"
+        },
+        {
+          "id": "navy",
+          "label": "Navy",
+          "swatch": "#1f2e56",
+          "asset": "mens-tank-back--navy.png"
+        },
+        {
+          "id": "heather-grey",
+          "label": "Heather Grey",
+          "swatch": "#9a9a9a",
+          "asset": "mens-tank-back--heather-grey.png"
+        },
+        {
+          "id": "dark-heather-grey",
+          "label": "Dark Heather Grey",
+          "swatch": "#5e5e62",
+          "asset": "mens-tank-back--dark-heather-grey.png"
+        },
+        {
+          "id": "white",
+          "label": "White",
+          "swatch": "#f7f7f7",
+          "asset": "mens-tank-back--white.png"
+        },
+        {
+          "id": "black",
+          "label": "Black",
+          "swatch": "#111111",
+          "asset": "mens-tank-back--black.png"
+        }
+      ]
+    },
+    {
+      "id": "mens-tank-front",
+      "label": "Men's Tank (Front)",
+      "family": "tank",
+      "view": "front",
+      "designBox": {
+        "xPct": 19.48,
+        "yPct": 27.53,
+        "wPct": 60.33,
+        "hPct": 45.99
+      },
+      "colors": [
+        {
+          "id": "purple",
+          "label": "Purple",
+          "swatch": "#6e4e9e",
+          "asset": "mens-tank-front--purple.png"
+        },
+        {
+          "id": "sapphire",
+          "label": "Sapphire",
+          "swatch": "#2c4d98",
+          "asset": "mens-tank-front--sapphire.png"
+        },
+        {
+          "id": "red",
+          "label": "Red",
+          "swatch": "#be1d2e",
+          "asset": "mens-tank-front--red.png"
+        },
+        {
+          "id": "royal-blue",
+          "label": "Royal Blue",
+          "swatch": "#2f56cf",
+          "asset": "mens-tank-front--royal-blue.png"
+        },
+        {
+          "id": "navy",
+          "label": "Navy",
+          "swatch": "#1f2e56",
+          "asset": "mens-tank-front--navy.png"
+        },
+        {
+          "id": "heather-grey",
+          "label": "Heather Grey",
+          "swatch": "#9a9a9a",
+          "asset": "mens-tank-front--heather-grey.png"
+        },
+        {
+          "id": "dark-heather-grey",
+          "label": "Dark Heather Grey",
+          "swatch": "#5e5e62",
+          "asset": "mens-tank-front--dark-heather-grey.png"
+        },
+        {
+          "id": "white",
+          "label": "White",
+          "swatch": "#f7f7f7",
+          "asset": "mens-tank-front--white.png"
+        },
+        {
+          "id": "black",
+          "label": "Black",
+          "swatch": "#111111",
+          "asset": "mens-tank-front--black.png"
+        }
+      ]
+    },
+    {
+      "id": "womens-classic-t-shirt-back",
+      "label": "Women's Classic T-shirt (Back)",
+      "family": "t-shirt",
+      "view": "back",
+      "designBox": {
+        "xPct": 28.3,
+        "yPct": 16.59,
+        "wPct": 44.1,
+        "hPct": 46.7
+      },
+      "colors": [
+        {
+          "id": "white",
+          "label": "White",
+          "swatch": "#f7f7f7",
+          "asset": "womens-classic-t-shirt-back--white.png"
+        },
+        {
+          "id": "slate",
+          "label": "Slate",
+          "swatch": "#5f646c",
+          "asset": "womens-classic-t-shirt-back--slate.png"
+        },
+        {
+          "id": "silver",
+          "label": "Silver",
+          "swatch": "#b3b3b3",
+          "asset": "womens-classic-t-shirt-back--silver.png"
+        },
+        {
+          "id": "royal-blue",
+          "label": "Royal Blue",
+          "swatch": "#2f56cf",
+          "asset": "womens-classic-t-shirt-back--royal-blue.png"
+        },
+        {
+          "id": "red",
+          "label": "Red",
+          "swatch": "#be1d2e",
+          "asset": "womens-classic-t-shirt-back--red.png"
+        },
+        {
+          "id": "purple",
+          "label": "Purple",
+          "swatch": "#6e4e9e",
+          "asset": "womens-classic-t-shirt-back--purple.png"
+        },
+        {
+          "id": "orange",
+          "label": "Orange",
+          "swatch": "#d56d33",
+          "asset": "womens-classic-t-shirt-back--orange.png"
+        },
+        {
+          "id": "olive",
+          "label": "Olive",
+          "swatch": "#566145",
+          "asset": "womens-classic-t-shirt-back--olive.png"
+        },
+        {
+          "id": "navy",
+          "label": "Navy",
+          "swatch": "#1f2e56",
+          "asset": "womens-classic-t-shirt-back--navy.png"
+        },
+        {
+          "id": "lemon",
+          "label": "Lemon",
+          "swatch": "#ebd35f",
+          "asset": "womens-classic-t-shirt-back--lemon.png"
+        },
+        {
+          "id": "kelly-green",
+          "label": "Kelly Green",
+          "swatch": "#3ea145",
+          "asset": "womens-classic-t-shirt-back--kelly-green.png"
+        },
+        {
+          "id": "heather-grey",
+          "label": "Heather Grey",
+          "swatch": "#9a9a9a",
+          "asset": "womens-classic-t-shirt-back--heather-grey.png"
+        },
+        {
+          "id": "heather-blue",
+          "label": "Heather Blue",
+          "swatch": "#7fa2c7",
+          "asset": "womens-classic-t-shirt-back--heather-blue.png"
+        },
+        {
+          "id": "grass",
+          "label": "Grass",
+          "swatch": "#53a15a",
+          "asset": "womens-classic-t-shirt-back--grass.png"
+        },
+        {
+          "id": "dark-heather-grey",
+          "label": "Dark Heather Grey",
+          "swatch": "#5e5e62",
+          "asset": "womens-classic-t-shirt-back--dark-heather-grey.png"
+        },
+        {
+          "id": "brown",
+          "label": "Brown",
+          "swatch": "#6b4a36",
+          "asset": "womens-classic-t-shirt-back--brown.png"
+        },
+        {
+          "id": "asphalt",
+          "label": "Asphalt",
+          "swatch": "#4b4b50",
+          "asset": "womens-classic-t-shirt-back--asphalt.png"
+        },
+        {
+          "id": "black",
+          "label": "Black",
+          "swatch": "#111111",
+          "asset": "womens-classic-t-shirt-back--black.png"
+        },
+        {
+          "id": "pink",
+          "label": "Pink",
+          "swatch": "#d08cac",
+          "asset": "womens-classic-t-shirt-back--pink.png"
+        },
+        {
+          "id": "cranberry",
+          "label": "Cranberry",
+          "swatch": "#8f2c41",
+          "asset": "womens-classic-t-shirt-back--cranberry.png"
+        },
+        {
+          "id": "baby-blue",
+          "label": "Baby Blue",
+          "swatch": "#9fc4eb",
+          "asset": "womens-classic-t-shirt-back--baby-blue.png"
+        }
+      ]
+    },
+    {
+      "id": "womens-classic-t-shirt-front",
+      "label": "Women's Classic T-shirt (Front)",
+      "family": "t-shirt",
+      "view": "front",
+      "designBox": {
+        "xPct": 27.63,
+        "yPct": 23.12,
+        "wPct": 44.39,
+        "hPct": 47.01
+      },
+      "colors": [
+        {
+          "id": "white",
+          "label": "White",
+          "swatch": "#f7f7f7",
+          "asset": "womens-classic-t-shirt-front--white.png"
+        },
+        {
+          "id": "slate",
+          "label": "Slate",
+          "swatch": "#5f646c",
+          "asset": "womens-classic-t-shirt-front--slate.png"
+        },
+        {
+          "id": "silver",
+          "label": "Silver",
+          "swatch": "#b3b3b3",
+          "asset": "womens-classic-t-shirt-front--silver.png"
+        },
+        {
+          "id": "royal-blue",
+          "label": "Royal Blue",
+          "swatch": "#2f56cf",
+          "asset": "womens-classic-t-shirt-front--royal-blue.png"
+        },
+        {
+          "id": "red",
+          "label": "Red",
+          "swatch": "#be1d2e",
+          "asset": "womens-classic-t-shirt-front--red.png"
+        },
+        {
+          "id": "purple",
+          "label": "Purple",
+          "swatch": "#6e4e9e",
+          "asset": "womens-classic-t-shirt-front--purple.png"
+        },
+        {
+          "id": "orange",
+          "label": "Orange",
+          "swatch": "#d56d33",
+          "asset": "womens-classic-t-shirt-front--orange.png"
+        },
+        {
+          "id": "olive",
+          "label": "Olive",
+          "swatch": "#566145",
+          "asset": "womens-classic-t-shirt-front--olive.png"
+        },
+        {
+          "id": "navy",
+          "label": "Navy",
+          "swatch": "#1f2e56",
+          "asset": "womens-classic-t-shirt-front--navy.png"
+        },
+        {
+          "id": "lemon",
+          "label": "Lemon",
+          "swatch": "#ebd35f",
+          "asset": "womens-classic-t-shirt-front--lemon.png"
+        },
+        {
+          "id": "kelly",
+          "label": "Kelly",
+          "swatch": "#4aa34a",
+          "asset": "womens-classic-t-shirt-front--kelly.png"
+        },
+        {
+          "id": "heather-grey",
+          "label": "Heather Grey",
+          "swatch": "#9a9a9a",
+          "asset": "womens-classic-t-shirt-front--heather-grey.png"
+        },
+        {
+          "id": "heather-blue",
+          "label": "Heather Blue",
+          "swatch": "#7fa2c7",
+          "asset": "womens-classic-t-shirt-front--heather-blue.png"
+        },
+        {
+          "id": "grass",
+          "label": "Grass",
+          "swatch": "#53a15a",
+          "asset": "womens-classic-t-shirt-front--grass.png"
+        },
+        {
+          "id": "dark-heather-grey",
+          "label": "Dark Heather Grey",
+          "swatch": "#5e5e62",
+          "asset": "womens-classic-t-shirt-front--dark-heather-grey.png"
+        },
+        {
+          "id": "brown",
+          "label": "Brown",
+          "swatch": "#6b4a36",
+          "asset": "womens-classic-t-shirt-front--brown.png"
+        },
+        {
+          "id": "black",
+          "label": "Black",
+          "swatch": "#111111",
+          "asset": "womens-classic-t-shirt-front--black.png"
+        },
+        {
+          "id": "asphalt",
+          "label": "Asphalt",
+          "swatch": "#4b4b50",
+          "asset": "womens-classic-t-shirt-front--asphalt.png"
+        },
+        {
+          "id": "pink",
+          "label": "Pink",
+          "swatch": "#d08cac",
+          "asset": "womens-classic-t-shirt-front--pink.png"
+        },
+        {
+          "id": "cranberry",
+          "label": "Cranberry",
+          "swatch": "#8f2c41",
+          "asset": "womens-classic-t-shirt-front--cranberry.png"
+        },
+        {
+          "id": "baby-blue",
+          "label": "Baby Blue",
+          "swatch": "#9fc4eb",
+          "asset": "womens-classic-t-shirt-front--baby-blue.png"
+        }
+      ]
+    },
+    {
+      "id": "womens-raglan-back",
+      "label": "Women's Raglan (Back)",
+      "family": "raglan",
+      "view": "back",
+      "designBox": {
+        "xPct": 26.74,
+        "yPct": 24.13,
+        "wPct": 45.83,
+        "hPct": 48.1
+      },
+      "colors": [
+        {
+          "id": "heather-grey-black",
+          "label": "Heather Grey / Black",
+          "swatch": "#5d5d5d",
+          "asset": "womens-raglan-back--heather-grey-black.png"
+        },
+        {
+          "id": "heather-grey-navy",
+          "label": "Heather Grey / Navy",
+          "swatch": "#5f667a",
+          "asset": "womens-raglan-back--heather-grey-navy.png"
+        },
+        {
+          "id": "dark-heather-grey",
+          "label": "Dark Heather Grey",
+          "swatch": "#5e5e62",
+          "asset": "womens-raglan-back--dark-heather-grey.png"
+        },
+        {
+          "id": "navy",
+          "label": "Navy",
+          "swatch": "#1f2e56",
+          "asset": "womens-raglan-back--navy.png"
+        },
+        {
+          "id": "royal-blue",
+          "label": "Royal Blue",
+          "swatch": "#2f56cf",
+          "asset": "womens-raglan-back--royal-blue.png"
+        },
+        {
+          "id": "pink",
+          "label": "Pink",
+          "swatch": "#d08cac",
+          "asset": "womens-raglan-back--pink.png"
+        },
+        {
+          "id": "red",
+          "label": "Red",
+          "swatch": "#be1d2e",
+          "asset": "womens-raglan-back--red.png"
+        },
+        {
+          "id": "black",
+          "label": "Black",
+          "swatch": "#111111",
+          "asset": "womens-raglan-back--black.png"
+        }
+      ]
+    },
+    {
+      "id": "womens-raglan-front",
+      "label": "Women's Raglan (Front)",
+      "family": "raglan",
+      "view": "front",
+      "designBox": {
+        "xPct": 30.1,
+        "yPct": 26.33,
+        "wPct": 43.91,
+        "hPct": 48.71
+      },
+      "colors": [
+        {
+          "id": "heather-grey-black",
+          "label": "Heather Grey / Black",
+          "swatch": "#5d5d5d",
+          "asset": "womens-raglan-front--heather-grey-black.png"
+        },
+        {
+          "id": "heather-grey-navy",
+          "label": "Heather Grey / Navy",
+          "swatch": "#5f667a",
+          "asset": "womens-raglan-front--heather-grey-navy.png"
+        },
+        {
+          "id": "dark-heather-grey",
+          "label": "Dark Heather Grey",
+          "swatch": "#5e5e62",
+          "asset": "womens-raglan-front--dark-heather-grey.png"
+        },
+        {
+          "id": "navy",
+          "label": "Navy",
+          "swatch": "#1f2e56",
+          "asset": "womens-raglan-front--navy.png"
+        },
+        {
+          "id": "royal-blue",
+          "label": "Royal Blue",
+          "swatch": "#2f56cf",
+          "asset": "womens-raglan-front--royal-blue.png"
+        },
+        {
+          "id": "pink",
+          "label": "Pink",
+          "swatch": "#d08cac",
+          "asset": "womens-raglan-front--pink.png"
+        },
+        {
+          "id": "red",
+          "label": "Red",
+          "swatch": "#be1d2e",
+          "asset": "womens-raglan-front--red.png"
+        },
+        {
+          "id": "black",
+          "label": "Black",
+          "swatch": "#111111",
+          "asset": "womens-raglan-front--black.png"
+        }
+      ]
+    },
+    {
+      "id": "womens-tank-back",
+      "label": "Women's Tank (Back)",
+      "family": "tank",
+      "view": "back",
+      "designBox": {
+        "xPct": 25.79,
+        "yPct": 19.94,
+        "wPct": 50.61,
+        "hPct": 37.9
+      },
+      "colors": [
+        {
+          "id": "neon-pink",
+          "label": "Neon Pink",
+          "swatch": "#ff4ca8",
+          "asset": "womens-tank-back--neon-pink.png"
+        },
+        {
+          "id": "purple",
+          "label": "Purple",
+          "swatch": "#6e4e9e",
+          "asset": "womens-tank-back--purple.png"
+        },
+        {
+          "id": "sapphire",
+          "label": "Sapphire",
+          "swatch": "#2c4d98",
+          "asset": "womens-tank-back--sapphire.png"
+        },
+        {
+          "id": "red",
+          "label": "Red",
+          "swatch": "#be1d2e",
+          "asset": "womens-tank-back--red.png"
+        },
+        {
+          "id": "royal-blue",
+          "label": "Royal Blue",
+          "swatch": "#2f56cf",
+          "asset": "womens-tank-back--royal-blue.png"
+        },
+        {
+          "id": "navy",
+          "label": "Navy",
+          "swatch": "#1f2e56",
+          "asset": "womens-tank-back--navy.png"
+        },
+        {
+          "id": "heather-grey",
+          "label": "Heather Grey",
+          "swatch": "#9a9a9a",
+          "asset": "womens-tank-back--heather-grey.png"
+        },
+        {
+          "id": "dark-heather-grey",
+          "label": "Dark Heather Grey",
+          "swatch": "#5e5e62",
+          "asset": "womens-tank-back--dark-heather-grey.png"
+        },
+        {
+          "id": "white",
+          "label": "White",
+          "swatch": "#f7f7f7",
+          "asset": "womens-tank-back--white.png"
+        },
+        {
+          "id": "black",
+          "label": "Black",
+          "swatch": "#111111",
+          "asset": "womens-tank-back--black.png"
+        }
+      ]
+    },
+    {
+      "id": "womens-tank-front",
+      "label": "Women's Tank (Front)",
+      "family": "tank",
+      "view": "front",
+      "designBox": {
+        "xPct": 18.98,
+        "yPct": 35.51,
+        "wPct": 62.53,
+        "hPct": 46.89
+      },
+      "colors": [
+        {
+          "id": "neon-pink",
+          "label": "Neon Pink",
+          "swatch": "#ff4ca8",
+          "asset": "womens-tank-front--neon-pink.png"
+        },
+        {
+          "id": "purple",
+          "label": "Purple",
+          "swatch": "#6e4e9e",
+          "asset": "womens-tank-front--purple.png"
+        },
+        {
+          "id": "sapphire",
+          "label": "Sapphire",
+          "swatch": "#2c4d98",
+          "asset": "womens-tank-front--sapphire.png"
+        },
+        {
+          "id": "red",
+          "label": "Red",
+          "swatch": "#be1d2e",
+          "asset": "womens-tank-front--red.png"
+        },
+        {
+          "id": "royal-blue",
+          "label": "Royal Blue",
+          "swatch": "#2f56cf",
+          "asset": "womens-tank-front--royal-blue.png"
+        },
+        {
+          "id": "navy",
+          "label": "Navy",
+          "swatch": "#1f2e56",
+          "asset": "womens-tank-front--navy.png"
+        },
+        {
+          "id": "heather-grey",
+          "label": "Heather Grey",
+          "swatch": "#9a9a9a",
+          "asset": "womens-tank-front--heather-grey.png"
+        },
+        {
+          "id": "dark-heather-grey",
+          "label": "Dark Heather Grey",
+          "swatch": "#5e5e62",
+          "asset": "womens-tank-front--dark-heather-grey.png"
+        },
+        {
+          "id": "white",
+          "label": "White",
+          "swatch": "#f7f7f7",
+          "asset": "womens-tank-front--white.png"
+        },
+        {
+          "id": "black",
+          "label": "Black",
+          "swatch": "#111111",
+          "asset": "womens-tank-front--black.png"
+        }
+      ]
+    },
+    {
+      "id": "womens-v-neck-back",
+      "label": "Women's V-Neck (Back)",
+      "family": "v-neck",
+      "view": "back",
+      "designBox": {
+        "xPct": 28.79,
+        "yPct": 16.29,
+        "wPct": 42.59,
+        "hPct": 46.27
+      },
+      "colors": [
+        {
+          "id": "black",
+          "label": "Black",
+          "swatch": "#111111",
+          "asset": "womens-v-neck-back--black.png"
+        },
+        {
+          "id": "red",
+          "label": "Red",
+          "swatch": "#be1d2e",
+          "asset": "womens-v-neck-back--red.png"
+        },
+        {
+          "id": "dark-heather-grey",
+          "label": "Dark Heather Grey",
+          "swatch": "#5e5e62",
+          "asset": "womens-v-neck-back--dark-heather-grey.png"
+        },
+        {
+          "id": "heather-grey",
+          "label": "Heather Grey",
+          "swatch": "#9a9a9a",
+          "asset": "womens-v-neck-back--heather-grey.png"
+        },
+        {
+          "id": "navy",
+          "label": "Navy",
+          "swatch": "#1f2e56",
+          "asset": "womens-v-neck-back--navy.png"
+        },
+        {
+          "id": "sapphire",
+          "label": "Sapphire",
+          "swatch": "#2c4d98",
+          "asset": "womens-v-neck-back--sapphire.png"
+        },
+        {
+          "id": "pink",
+          "label": "Pink",
+          "swatch": "#d08cac",
+          "asset": "womens-v-neck-back--pink.png"
+        },
+        {
+          "id": "green",
+          "label": "Green",
+          "swatch": "#3c6f3c",
+          "asset": "womens-v-neck-back--green.png"
+        },
+        {
+          "id": "purple",
+          "label": "Purple",
+          "swatch": "#6e4e9e",
+          "asset": "womens-v-neck-back--purple.png"
+        }
+      ]
+    },
+    {
+      "id": "womens-v-neck-front",
+      "label": "Women's V-Neck (Front)",
+      "family": "v-neck",
+      "view": "front",
+      "designBox": {
+        "xPct": 29.43,
+        "yPct": 34.04,
+        "wPct": 42.81,
+        "hPct": 46.66
+      },
+      "colors": [
+        {
+          "id": "black",
+          "label": "Black",
+          "swatch": "#111111",
+          "asset": "womens-v-neck-front--black.png"
+        },
+        {
+          "id": "red",
+          "label": "Red",
+          "swatch": "#be1d2e",
+          "asset": "womens-v-neck-front--red.png"
+        },
+        {
+          "id": "dark-heather-gray",
+          "label": "Dark Heather Gray",
+          "swatch": "#5e5e62",
+          "asset": "womens-v-neck-front--dark-heather-gray.png"
+        },
+        {
+          "id": "athletic-heather-gray",
+          "label": "Athletic Heather Gray",
+          "swatch": "#b1b1b1",
+          "asset": "womens-v-neck-front--athletic-heather-gray.png"
+        },
+        {
+          "id": "navy",
+          "label": "Navy",
+          "swatch": "#1f2e56",
+          "asset": "womens-v-neck-front--navy.png"
+        },
+        {
+          "id": "sapphire",
+          "label": "Sapphire",
+          "swatch": "#2c4d98",
+          "asset": "womens-v-neck-front--sapphire.png"
+        },
+        {
+          "id": "pink",
+          "label": "Pink",
+          "swatch": "#d08cac",
+          "asset": "womens-v-neck-front--pink.png"
+        },
+        {
+          "id": "green",
+          "label": "Green",
+          "swatch": "#3c6f3c",
+          "asset": "womens-v-neck-front--green.png"
+        },
+        {
+          "id": "purple",
+          "label": "Purple",
+          "swatch": "#6e4e9e",
+          "asset": "womens-v-neck-front--purple.png"
+        }
+      ]
+    }
+  ]
+}

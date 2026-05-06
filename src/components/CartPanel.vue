@@ -30,6 +30,9 @@
             <p v-if="item.selectedColor" class="cart-color">
               Color: {{ item.selectedColor }}
             </p>
+            <p v-if="item.selectedDesignName" class="cart-design">
+              Design: {{ item.selectedDesignName }}
+            </p>
             <div class="cart-qty">
               <button
                 type="button"
@@ -228,6 +231,14 @@ export default {
 }
 
 .cart-color {
+  margin: 0 0 6px;
+  font-size: 11px;
+  color: #606060;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.cart-design {
   margin: 0 0 6px;
   font-size: 11px;
   color: #606060;

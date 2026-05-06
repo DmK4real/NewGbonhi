@@ -93,6 +93,7 @@ const main = async () => {
     { path: "/", changefreq: "daily", priority: "1.0" },
     { path: "/about", changefreq: "weekly", priority: "0.7" },
     { path: "/lookbook", changefreq: "weekly", priority: "0.8" },
+    { path: "/studio", changefreq: "weekly", priority: "0.8" },
   ];
 
   const productRoutes = products

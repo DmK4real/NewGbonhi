@@ -5,6 +5,7 @@ import AboutPage from "./AboutPage.vue";
 import ProductPage from "./ProductPage.vue";
 import CheckoutPage from "./CheckoutPage.vue";
 import OrdersPage from "./OrdersPage.vue";
+import StudioPage from "./StudioPage.vue";
 import { applySeo } from "./utils/seo.js";
 import { clearAppError } from "./utils/appError.js";
 
@@ -26,6 +27,16 @@ const routes = [
     meta: {
       title: "Produit | New Gbonhi Shop",
       description: "Details produit New Gbonhi Shop: visuels, tailles et prix.",
+    },
+  },
+  {
+    path: "/studio",
+    name: "studio",
+    component: StudioPage,
+    meta: {
+      title: "Studio | New Gbonhi Shop",
+      description:
+        "Personnalise ton t-shirt unicolor New Gbonhi avec les logos et stickers disponibles.",
     },
   },
   {

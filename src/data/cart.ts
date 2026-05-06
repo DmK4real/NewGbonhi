@@ -13,6 +13,10 @@ export type ProductLike = {
   selectedSize?: string | null;
   selectedColor?: string | null;
   selectedColorId?: string | null;
+  selectedDesignId?: string | null;
+  selectedDesignName?: string | null;
+  selectedDesignCategory?: string | null;
+  isCustomStudio?: boolean;
 };
 
 export type CartItem = {
@@ -25,6 +29,11 @@ export type CartItem = {
   url: string;
   selectedSize: string | null;
   selectedColor: string | null;
+  selectedColorId: string | null;
+  selectedDesignId: string | null;
+  selectedDesignName: string | null;
+  selectedDesignCategory: string | null;
+  isCustomStudio: boolean;
   qty: number;
 };
 
@@ -46,7 +55,8 @@ export const createCartItemKey = (
   const base = product.id ?? product.slug ?? product.title ?? fallback;
   const colorToken = product.selectedColorId || product.selectedColor;
   const sizeToken = product.selectedSize;
-  return [base, colorToken, sizeToken].filter(Boolean).join("-");
+  const designToken = product.selectedDesignId || product.selectedDesignName;
+  return [base, colorToken, sizeToken, designToken].filter(Boolean).join("-");
 };
 
 export const calculateCartCount = (items: Array<{ qty?: number }> = []): number =>
@@ -83,6 +93,15 @@ const normalizeStoredItem = (item: unknown): CartItem | null => {
     url: String(record.url || ""),
     selectedSize: record.selectedSize ? String(record.selectedSize) : null,
     selectedColor: record.selectedColor ? String(record.selectedColor) : null,
+    selectedColorId: record.selectedColorId ? String(record.selectedColorId) : null,
+    selectedDesignId: record.selectedDesignId ? String(record.selectedDesignId) : null,
+    selectedDesignName: record.selectedDesignName
+      ? String(record.selectedDesignName)
+      : null,
+    selectedDesignCategory: record.selectedDesignCategory
+      ? String(record.selectedDesignCategory)
+      : null,
+    isCustomStudio: Boolean(record.isCustomStudio),
     qty: Math.max(1, Math.round(qtyValue)),
   };
 };
@@ -154,6 +173,11 @@ const addToCart = (product: ProductLike | null | undefined): void => {
     url: product.url || "",
     selectedSize: product.selectedSize || null,
     selectedColor: product.selectedColor || null,
+    selectedColorId: product.selectedColorId || null,
+    selectedDesignId: product.selectedDesignId || null,
+    selectedDesignName: product.selectedDesignName || null,
+    selectedDesignCategory: product.selectedDesignCategory || null,
+    isCustomStudio: Boolean(product.isCustomStudio),
     qty: 1,
   });
 };

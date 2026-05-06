@@ -18,6 +18,9 @@
         >
           Lookbook
         </RouterLink>
+        <RouterLink :class="{ 'is-active': $route.name === 'studio' }" to="/studio">
+          Studio
+        </RouterLink>
         <RouterLink :class="{ 'is-active': $route.name === 'about' }" to="/about">
           About
         </RouterLink>

@@ -18,6 +18,9 @@
         >
           Lookbook
         </RouterLink>
+        <RouterLink :class="{ 'is-active': $route.name === 'studio' }" to="/studio">
+          Studio
+        </RouterLink>
         <RouterLink :class="{ 'is-active': $route.name === 'about' }" to="/about">
           About
         </RouterLink>
@@ -192,6 +195,8 @@
             <div>
               <h3>{{ item.title }}</h3>
               <p v-if="item.selectedSize">Size: {{ item.selectedSize }}</p>
+              <p v-if="item.selectedColor">Color: {{ item.selectedColor }}</p>
+              <p v-if="item.selectedDesignName">Design: {{ item.selectedDesignName }}</p>
               <p>Qty: {{ item.qty }}</p>
             </div>
             <strong>{{ formatPrice(item.qty * item.price) }}</strong>
@@ -412,6 +417,12 @@ export default {
           qty: item.qty,
           price: item.price,
           selectedSize: item.selectedSize || null,
+          selectedColor: item.selectedColor || null,
+          selectedColorId: item.selectedColorId || null,
+          selectedDesignId: item.selectedDesignId || null,
+          selectedDesignName: item.selectedDesignName || null,
+          selectedDesignCategory: item.selectedDesignCategory || null,
+          isCustomStudio: Boolean(item.isCustomStudio),
         })),
         subtotal: this.cartTotal,
         shipping: {

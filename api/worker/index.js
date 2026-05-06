@@ -223,6 +223,12 @@ const normalizeItems = (items) => {
       qty,
       price,
       selectedSize: safeString(item.selectedSize, 32) || null,
+      selectedColor: safeString(item.selectedColor, 32) || null,
+      selectedColorId: safeString(item.selectedColorId, 32) || null,
+      selectedDesignId: safeString(item.selectedDesignId, 64) || null,
+      selectedDesignName: safeString(item.selectedDesignName, 120) || null,
+      selectedDesignCategory: safeString(item.selectedDesignCategory, 32) || null,
+      isCustomStudio: Boolean(item.isCustomStudio),
     };
   });
 };

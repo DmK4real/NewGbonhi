@@ -21,6 +21,8 @@ export type OrderItem = {
   qty: number;
   price: number;
   selectedSize?: string | null;
+  selectedColor?: string | null;
+  selectedDesignName?: string | null;
 };
 
 export type BuildOrderMessageInput = {
@@ -148,9 +150,14 @@ export const buildOrderMessage = ({
   ];
 
   cartItems.forEach((item) => {
-    const sizeText = item.selectedSize ? ` (${item.selectedSize})` : "";
+    const details = [
+      item.selectedSize || "",
+      item.selectedColor ? `Color: ${item.selectedColor}` : "",
+      item.selectedDesignName ? `Design: ${item.selectedDesignName}` : "",
+    ].filter(Boolean);
+    const detailText = details.length ? ` (${details.join(" | ")})` : "";
     lines.push(
-      `- ${item.title}${sizeText} x${item.qty} = ${formatPrice(
+      `- ${item.title}${detailText} x${item.qty} = ${formatPrice(
         item.qty * item.price
       )}`
     );
