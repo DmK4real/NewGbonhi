@@ -5,63 +5,117 @@
         <img class="brand-logo" :src="logoUrl" alt="NewGbonhi logo" />
         <div class="brand-meta">
           <p class="brand-name">NewGbonhi</p>
-          <p class="brand-tagline">Digital Atelier // Build your own fit</p>
+          <p class="brand-tagline">{{ $t("studioTagline") }}</p>
         </div>
       </div>
       <nav class="shop-nav" aria-label="Primary">
         <RouterLink :class="{ 'is-active': $route.name === 'shop' }" to="/">
-          Shop
+          {{ $t("navShop") }}
         </RouterLink>
         <RouterLink
           :class="{ 'is-active': $route.name === 'lookbook' }"
           to="/lookbook"
         >
-          Lookbook
+          {{ $t("navLookbook") }}
         </RouterLink>
         <RouterLink :class="{ 'is-active': $route.name === 'studio' }" to="/studio">
-          Studio
+          {{ $t("navStudio") }}
         </RouterLink>
         <RouterLink :class="{ 'is-active': $route.name === 'about' }" to="/about">
-          About
+          {{ $t("navAbout") }}
         </RouterLink>
         <RouterLink :class="{ 'is-active': $route.name === 'orders' }" to="/orders">
-          Orders
+          {{ $t("navOrders") }}
         </RouterLink>
-        <a href="#contact">Contact</a>
+        <a href="#contact">{{ $t("navContact") }}</a>
       </nav>
       <button class="shop-cta" type="button" @click="toggleCart">
-        Cart ({{ cartCount }})
+        {{ $t("cart") }} ({{ cartCount }})
       </button>
     </header>
 
     <CartPanel :open="cartOpen" @close="cartOpen = false" />
 
+    <section v-if="!studioUnlocked" class="studio-lock" aria-labelledby="studio-lock-title">
+      <div class="studio-lock-panel">
+        <p class="section-kicker">{{ $t("privateStudio") }}</p>
+        <h1 id="studio-lock-title">{{ $t("studioAccess") }}</h1>
+        <form class="studio-lock-form" @submit.prevent="unlockStudio">
+          <label for="studio-password">{{ $t("password") }}</label>
+          <input
+            id="studio-password"
+            v-model="studioPasswordInput"
+            type="password"
+            autocomplete="current-password"
+            :aria-invalid="studioPasswordError ? 'true' : 'false'"
+          />
+          <p v-if="studioPasswordError" class="studio-lock-error">
+            {{ studioPasswordError }}
+          </p>
+          <button class="add-button" type="submit">{{ $t("enterStudio") }}</button>
+        </form>
+      </div>
+    </section>
+
+    <template v-else>
     <section class="studio-hero">
       <div class="studio-copy">
-        <p class="studio-kicker">Digital Atelier</p>
-        <h1>Create freely, like a mini design studio</h1>
+        <p class="studio-kicker">{{ $t("digitalAtelier") }}</p>
+        <h1>{{ $t("studioHeroTitle") }}</h1>
         <p class="studio-sub">
-          Change template, change color, add multiple stickers, move them anywhere,
-          and build your final custom piece.
+          {{ $t("studioHeroSub") }}
         </p>
       </div>
       <div class="studio-count">
         <strong>{{ studioTemplates.length }}</strong>
-        <span>templates</span>
+        <span>{{ $t("templates") }}</span>
       </div>
     </section>
 
     <main class="studio-main">
       <section class="studio-preview">
-        <p class="section-kicker">Canvas</p>
+        <p class="section-kicker">{{ $t("canvas") }}</p>
         <div class="mockup-stage">
-          <div class="mockup-shirt">
+          <div
+            class="mockup-shirt"
+            :class="mockupShirtClasses"
+            :style="mockupShirtStyle"
+          >
             <img
               v-if="selectedColor?.mockup"
+              :key="selectedColor.mockup"
               class="mockup-base"
               :src="selectedColor.mockup"
               :alt="`${selectedTemplate?.label || 'Template'} ${selectedColor?.label || ''}`"
             />
+            <template v-if="selectedColor?.needsTint">
+              <span
+                v-if="selectedTemplate?.family === 'raglan'"
+                class="mockup-color-tint mockup-color-tint-left"
+                aria-hidden="true"
+              ></span>
+              <span
+                v-if="selectedTemplate?.family === 'raglan'"
+                class="mockup-color-tint mockup-color-tint-right"
+                aria-hidden="true"
+              ></span>
+              <span
+                v-if="selectedTemplate?.family === 'raglan'"
+                class="mockup-color-tint mockup-color-tint-neck"
+                aria-hidden="true"
+              ></span>
+              <span
+                v-if="selectedTemplate?.family !== 'raglan'"
+                class="mockup-color-tint mockup-color-tint-full"
+                aria-hidden="true"
+              ></span>
+              <img
+                class="mockup-color-texture"
+                :src="selectedColor.mockup"
+                alt=""
+                aria-hidden="true"
+              />
+            </template>
             <div
               ref="designZone"
               class="mockup-design-zone"
@@ -122,7 +176,7 @@
 
         <div class="canvas-actions">
           <button type="button" class="ghost-btn" @click="addSticker()">
-            Add sticker
+            {{ $t("addSticker") }}
           </button>
           <button
             type="button"
@@ -130,7 +184,7 @@
             :disabled="!selectedSticker"
             @click="duplicateSelectedSticker"
           >
-            Duplicate selected
+            {{ $t("duplicateSelected") }}
           </button>
           <button
             type="button"
@@ -138,7 +192,7 @@
             :disabled="!selectedSticker"
             @click="removeSelectedSticker"
           >
-            Remove selected
+            {{ $t("removeSelected") }}
           </button>
           <button
             type="button"
@@ -146,24 +200,24 @@
             :disabled="stickers.length === 0"
             @click="clearCanvas"
           >
-            Clear canvas
+            {{ $t("clearCanvas") }}
           </button>
         </div>
 
         <div class="preview-meta">
-          <p><strong>Template:</strong> {{ selectedTemplate?.label || "-" }}</p>
-          <p><strong>Color:</strong> {{ selectedColor?.label || "-" }}</p>
-          <p><strong>Size:</strong> {{ selectedSize }}</p>
-          <p><strong>Composition:</strong> {{ compositionSummary || "-" }}</p>
-          <p><strong>Price:</strong> {{ formatPrice(basePrice) }}</p>
+          <p><strong>{{ $t("template") }}:</strong> {{ selectedTemplate?.label || "-" }}</p>
+          <p><strong>{{ $t("color") }}:</strong> {{ selectedColor?.label || "-" }}</p>
+          <p><strong>{{ $t("size") }}:</strong> {{ selectedSize }}</p>
+          <p><strong>{{ $t("composition") }}:</strong> {{ compositionSummary || "-" }}</p>
+          <p><strong>{{ $t("price") }}:</strong> {{ formatPrice(basePrice) }}</p>
         </div>
       </section>
 
       <section class="studio-controls">
-        <p class="section-kicker">Controls</p>
+        <p class="section-kicker">{{ $t("controls") }}</p>
 
         <div class="control-block">
-          <h2>Template</h2>
+          <h2>{{ $t("template") }}</h2>
           <div class="template-grid">
             <button
               v-for="template in studioTemplates"
@@ -178,7 +232,7 @@
         </div>
 
         <div class="control-block">
-          <h2>Color</h2>
+          <h2>{{ $t("color") }}</h2>
           <div class="color-grid">
             <button
               v-for="color in availableColors"
@@ -194,7 +248,7 @@
         </div>
 
         <div class="control-block">
-          <h2>Size</h2>
+          <h2>{{ $t("size") }}</h2>
           <div class="size-grid">
             <button
               v-for="size in sizeOptions"
@@ -209,28 +263,28 @@
         </div>
 
         <div class="control-block">
-          <h2>Sticker render</h2>
+          <h2>{{ $t("stickerRender") }}</h2>
           <div class="render-mode-grid">
             <button
               type="button"
               :class="{ active: stickerRenderMode === 'sticker' }"
               @click="stickerRenderMode = 'sticker'"
             >
-              Classic sticker
+              {{ $t("classicSticker") }}
             </button>
             <button
               type="button"
               :class="{ active: stickerRenderMode === 'print' }"
               @click="stickerRenderMode = 'print'"
             >
-              Textile print
+              {{ $t("textilePrint") }}
             </button>
             <button
               type="button"
               :class="{ active: stickerRenderMode === 'puff' }"
               @click="stickerRenderMode = 'puff'"
             >
-              Puff print
+              {{ $t("puffPrint") }}
             </button>
           </div>
           <div v-if="stickerRenderMode !== 'sticker'" class="render-profile-grid">
@@ -241,11 +295,11 @@
               :class="{ active: selectedRenderProfileId === profile.id }"
               @click="selectedRenderProfileId = profile.id"
             >
-              {{ profile.label }}
+              {{ $t(profile.labelKey) }}
             </button>
           </div>
           <label v-if="stickerRenderMode !== 'sticker'" class="print-strength-control">
-            Print intensity
+            {{ $t("printIntensity") }}
             <input
               v-model.number="printBlendStrength"
               type="range"
@@ -259,13 +313,13 @@
         </div>
 
         <div class="control-block">
-          <h2>Selected sticker</h2>
+          <h2>{{ $t("selectedSticker") }}</h2>
           <div v-if="selectedSticker" class="sticker-edit">
             <p class="sticker-name">
               {{ designById(selectedSticker.designId)?.title || "Sticker" }}
             </p>
             <label>
-              Design
+              {{ $t("design") }}
               <select v-model="selectedSticker.designId">
                 <option
                   v-for="design in studioDesigns"
@@ -277,7 +331,7 @@
               </select>
             </label>
             <label>
-              Scale
+              {{ $t("scale") }}
               <input
                 v-model.number="selectedSticker.scale"
                 type="range"
@@ -288,7 +342,7 @@
               <span>{{ selectedSticker.scale }}%</span>
             </label>
             <label>
-              Rotation
+              {{ $t("rotation") }}
               <input
                 v-model.number="selectedSticker.rotation"
                 type="range"
@@ -300,20 +354,20 @@
             </label>
             <div class="layer-actions">
               <button type="button" class="ghost-btn" @click="bringSelectedToFront">
-                Layer to front
+                {{ $t("layerFront") }}
               </button>
               <button type="button" class="ghost-btn" @click="sendSelectedToBack">
-                Layer to back
+                {{ $t("layerBack") }}
               </button>
             </div>
           </div>
           <p v-else class="sticker-empty">
-            Select a sticker in the canvas to edit it.
+            {{ $t("selectStickerHelp") }}
           </p>
         </div>
 
         <div class="control-block">
-          <h2>Layout presets</h2>
+          <h2>{{ $t("layoutPresets") }}</h2>
           <div class="preset-grid">
             <button
               v-for="preset in layoutPresets"
@@ -323,11 +377,11 @@
               :disabled="stickers.length === 0"
               @click="applyLayoutPreset(preset.id)"
             >
-              {{ preset.label }}
+              {{ $t(preset.labelKey) }}
             </button>
           </div>
           <p class="preset-hint">
-            Double-click the shirt area to place the active sticker directly.
+            {{ $t("presetHint") }}
           </p>
         </div>
 
@@ -337,15 +391,15 @@
           :disabled="stickers.length === 0"
           @click="addStudioItemToCart"
         >
-          Add custom piece to cart
+          {{ $t("addCustomPiece") }}
         </button>
       </section>
     </main>
 
     <section class="design-catalog">
       <div class="catalog-head">
-        <p class="section-kicker">Sticker Library</p>
-        <h2>Pick and stack as many as you want</h2>
+        <p class="section-kicker">{{ $t("stickerLibrary") }}</p>
+        <h2>{{ $t("pickAndStack") }}</h2>
       </div>
       <div class="design-grid">
         <button
@@ -365,34 +419,16 @@
         </button>
       </div>
       <p class="catalog-hint">
-        Tip: click a design to select it, double-click to add it directly.
+        {{ $t("catalogHint") }}
       </p>
     </section>
 
-    <footer class="shop-footer" id="contact">
-      <p>Copyright 2026 NewGbonhi. All rights reserved.</p>
-      <div class="footer-links">
-        <a
-          href="https://www.instagram.com/new.gbonhi?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Instagram
-        </a>
-        <a
-          href="https://www.tiktok.com/@new_gbonhi0?is_from_webapp=1&sender_device=pc"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          TikTok
-        </a>
-        <a href="mailto:hello@newgbonhi.com">Email</a>
-      </div>
-    </footer>
+    <SiteFooter />
 
     <div class="toast" :class="{ show: toastVisible }" role="status">
       {{ toastMessage }}
     </div>
+    </template>
   </div>
 </template>
 
@@ -403,6 +439,8 @@ import { studioDesigns } from "./data/studioDesigns.ts";
 import studioMockups from "./data/studioMockups.json";
 
 const logoUrl = new URL("./assets/newgbonhi-logo.png", import.meta.url).href;
+const studioAccessStorageKey = "newgbonhi-studio-access";
+const studioPassword = import.meta.env.VITE_STUDIO_PASSWORD || "newgbonhi-studio";
 const mockupModules = import.meta.glob("./assets/studio/mockups/*.png", {
   eager: true,
   import: "default",
@@ -411,11 +449,71 @@ const mockupModules = import.meta.glob("./assets/studio/mockups/*.png", {
 const resolveMockup = (assetName) =>
   mockupModules[`./assets/studio/mockups/${assetName}`] || "";
 
+const mockupsNeedingTint = new Set(["raglan", "tank", "v-neck"]);
+const preTintedColorIds = new Set(["heather-grey-black", "heather-grey-navy"]);
+
+const shouldTintMockup = (template, color) =>
+  Boolean(
+    template?.family &&
+      mockupsNeedingTint.has(template.family) &&
+      color?.swatch &&
+      !preTintedColorIds.has(color.id)
+  );
+
+const hexToRgb = (hexColor) => {
+  const normalized = String(hexColor || "").replace("#", "").trim();
+  if (!/^[0-9a-f]{6}$/i.test(normalized)) {
+    return null;
+  }
+  return {
+    r: parseInt(normalized.slice(0, 2), 16),
+    g: parseInt(normalized.slice(2, 4), 16),
+    b: parseInt(normalized.slice(4, 6), 16),
+  };
+};
+
+const getTintProfile = (hexColor) => {
+  const rgb = hexToRgb(hexColor);
+  if (!rgb) {
+    return {
+      tintOpacity: 0.72,
+      textureOpacity: 0.28,
+      canvasTintAlpha: 0.72,
+      canvasTextureAlpha: 0.28,
+    };
+  }
+
+  const luminance = (0.2126 * rgb.r + 0.7152 * rgb.g + 0.0722 * rgb.b) / 255;
+  if (luminance >= 0.78) {
+    return {
+      tintOpacity: 0.82,
+      textureOpacity: 0.16,
+      canvasTintAlpha: 0.82,
+      canvasTextureAlpha: 0.16,
+    };
+  }
+  if (luminance <= 0.22) {
+    return {
+      tintOpacity: 0.88,
+      textureOpacity: 0.26,
+      canvasTintAlpha: 0.88,
+      canvasTextureAlpha: 0.26,
+    };
+  }
+  return {
+    tintOpacity: 0.74,
+    textureOpacity: 0.24,
+    canvasTintAlpha: 0.74,
+    canvasTextureAlpha: 0.24,
+  };
+};
+
 const studioTemplates = (studioMockups?.templates || []).map((template) => ({
   ...template,
   colors: (template.colors || []).map((color) => ({
     ...color,
     mockup: resolveMockup(color.asset),
+    needsTint: shouldTintMockup(template, color),
   })),
 }));
 
@@ -423,17 +521,17 @@ const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const renderProfiles = [
   {
     id: "ultra-realistic",
-    label: "Ultra realistic",
+    labelKey: "ultraRealistic",
     tuning: { ink: 1, depth: 1, highlight: 1, fiber: 1, puff: 1 },
   },
   {
     id: "clean-print",
-    label: "Clean print",
+    labelKey: "cleanPrint",
     tuning: { ink: 1.08, depth: 0.72, highlight: 0.82, fiber: 0.66, puff: 0.78 },
   },
   {
     id: "vintage-fade",
-    label: "Vintage fade",
+    labelKey: "vintageFade",
     tuning: { ink: 0.8, depth: 0.88, highlight: 0.7, fiber: 1.15, puff: 0.68 },
   },
 ];
@@ -449,6 +547,9 @@ export default {
       studioDesigns,
       studioTemplates,
       cartOpen: false,
+      studioUnlocked: false,
+      studioPasswordInput: "",
+      studioPasswordError: "",
       toastMessage: "",
       toastVisible: false,
       basePrice: 15000,
@@ -458,10 +559,10 @@ export default {
       sizeOptions: ["XS", "S", "M", "L", "XL", "XXL"],
       activeDesignId: studioDesigns[0]?.id || "",
       layoutPresets: [
-        { id: "center-stack", label: "Center stack" },
-        { id: "left-chest", label: "Left chest" },
-        { id: "top-row", label: "Top row" },
-        { id: "grid", label: "Grid" },
+        { id: "center-stack", labelKey: "centerStack" },
+        { id: "left-chest", labelKey: "leftChest" },
+        { id: "top-row", labelKey: "topRow" },
+        { id: "grid", labelKey: "grid" },
       ],
       stickers: [],
       selectedStickerId: "",
@@ -474,7 +575,12 @@ export default {
     };
   },
   mounted() {
-    this.addSticker();
+    this.studioUnlocked =
+      typeof window !== "undefined" &&
+      window.sessionStorage.getItem(studioAccessStorageKey) === "unlocked";
+    if (this.studioUnlocked) {
+      this.addSticker();
+    }
     window.addEventListener("keydown", this.onGlobalKeyDown);
   },
   beforeUnmount() {
@@ -505,6 +611,26 @@ export default {
         null
       );
     },
+    mockupShirtClasses() {
+      return {
+        "needs-color-tint": Boolean(this.selectedColor?.needsTint),
+        [`mockup-family-${this.selectedTemplate?.family || "default"}`]: true,
+        [`mockup-view-${this.selectedTemplate?.view || "front"}`]: true,
+      };
+    },
+    mockupShirtStyle() {
+      if (!this.selectedColor?.needsTint) {
+        return {};
+      }
+      const profile = getTintProfile(this.selectedColor.swatch);
+      return {
+        "--mockup-tint": this.selectedColor.swatch,
+        "--mockup-mask": `url("${this.selectedColor.mockup}")`,
+        "--mockup-tint-opacity": String(profile.tintOpacity),
+        "--mockup-neck-opacity": String(profile.tintOpacity * 0.9),
+        "--mockup-texture-opacity": String(profile.textureOpacity),
+      };
+    },
     selectedSticker() {
       return this.stickers.find((item) => item.id === this.selectedStickerId) || null;
     },
@@ -519,14 +645,16 @@ export default {
       );
     },
     renderModeHint() {
-      const profileLabel = this.activeRenderProfile?.label || "Ultra realistic";
+      const profileLabel = this.$t(
+        this.activeRenderProfile?.labelKey || "ultraRealistic"
+      );
       if (this.stickerRenderMode === "print") {
-        return `${profileLabel} preset keeps ink inside fabric folds with subtle grain.`;
+        return this.$t("renderHintPrint", { profile: profileLabel });
       }
       if (this.stickerRenderMode === "puff") {
-        return `${profileLabel} profile adds raised volume and soft edge shadow like thick screen ink.`;
+        return this.$t("renderHintPuff", { profile: profileLabel });
       }
-      return "Classic sticker keeps a clean flat overlay look.";
+      return this.$t("renderHintSticker");
     },
     designZoneStyle() {
       const box = this.selectedTemplate?.designBox;
@@ -583,6 +711,22 @@ export default {
     },
     toggleCart() {
       this.cartOpen = !this.cartOpen;
+    },
+    unlockStudio() {
+      if (this.studioPasswordInput !== studioPassword) {
+        this.studioPasswordError = this.$t("invalidPassword");
+        return;
+      }
+
+      this.studioPasswordError = "";
+      this.studioPasswordInput = "";
+      this.studioUnlocked = true;
+      if (typeof window !== "undefined") {
+        window.sessionStorage.setItem(studioAccessStorageKey, "unlocked");
+      }
+      if (!this.stickers.length) {
+        this.addSticker();
+      }
     },
     selectTemplate(templateId) {
       this.selectedTemplateId = templateId;
@@ -943,6 +1087,7 @@ export default {
 
         context.clearRect(0, 0, canvas.width, canvas.height);
         context.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
+        this.applyMockupTintToCanvas(context, canvas.width, canvas.height, baseImage);
 
         const zoneX = (designBox.xPct / 100) * canvas.width;
         const zoneY = (designBox.yPct / 100) * canvas.height;
@@ -1007,6 +1152,31 @@ export default {
         return this.selectedColor.mockup;
       }
     },
+    applyMockupTintToCanvas(context, width, height, baseImage) {
+      if (!this.selectedColor?.needsTint || !this.selectedColor?.swatch) {
+        return;
+      }
+
+      context.save();
+      context.globalCompositeOperation = "source-atop";
+      const profile = getTintProfile(this.selectedColor.swatch);
+      context.globalAlpha = profile.canvasTintAlpha;
+      context.fillStyle = this.selectedColor.swatch;
+
+      if (this.selectedTemplate?.family === "raglan") {
+        const sleeveWidth = width * 0.34;
+        context.fillRect(0, 0, sleeveWidth, height);
+        context.fillRect(width - sleeveWidth, 0, sleeveWidth, height);
+        context.fillRect(width * 0.34, 0, width * 0.32, height * 0.18);
+      } else {
+        context.fillRect(0, 0, width, height);
+      }
+
+      context.globalCompositeOperation = "source-over";
+      context.globalAlpha = profile.canvasTextureAlpha;
+      context.drawImage(baseImage, 0, 0, width, height);
+      context.restore();
+    },
     buildCompositionFingerprint() {
       const renderToken = [
         this.stickerRenderMode,
@@ -1036,7 +1206,7 @@ export default {
       }
 
       const compositionId = this.buildCompositionFingerprint();
-      const designSummary = this.compositionSummary || "Custom composition";
+      const designSummary = this.compositionSummary || this.$t("customComposition");
       const composedPreview = await this.buildStudioPreviewImage();
 
       cartStore.addToCart({
@@ -1056,7 +1226,7 @@ export default {
       });
 
       this.cartOpen = true;
-      this.showToast("Custom piece added to cart");
+      this.showToast(this.$t("customAdded"));
     },
     showToast(message) {
       this.toastMessage = message;
@@ -1201,6 +1371,64 @@ export default {
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
 }
 
+.studio-lock {
+  min-height: calc(100vh - 210px);
+  display: grid;
+  place-items: center;
+  padding: 48px 0;
+}
+
+.studio-lock-panel {
+  width: min(100%, 420px);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: #fff;
+  padding: 24px;
+}
+
+.studio-lock-panel h1 {
+  margin: 8px 0 18px;
+  font-family: "Archivo Black", "Space Grotesk", Arial, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.studio-lock-form {
+  display: grid;
+  gap: 12px;
+}
+
+.studio-lock-form label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.studio-lock-form input {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: #fff;
+  padding: 12px;
+  font: inherit;
+}
+
+.studio-lock-form input:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.studio-lock-form input[aria-invalid="true"] {
+  border-color: var(--accent);
+}
+
+.studio-lock-error {
+  margin: 0;
+  color: #a00000;
+  font-size: 13px;
+}
+
 .studio-hero {
   margin-top: 30px;
   border: 1px solid var(--line);
@@ -1311,11 +1539,60 @@ export default {
   pointer-events: none;
 }
 
+.mockup-color-tint,
+.mockup-color-texture {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.mockup-color-tint {
+  background: var(--mockup-tint, transparent);
+  -webkit-mask-image: var(--mockup-mask);
+  mask-image: var(--mockup-mask);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  opacity: var(--mockup-tint-opacity, 0.74);
+  z-index: 1;
+}
+
+.mockup-color-tint-full {
+  opacity: var(--mockup-tint-opacity, 0.74);
+}
+
+.mockup-color-tint-left {
+  clip-path: polygon(0 0, 39% 0, 34% 100%, 0 100%);
+}
+
+.mockup-color-tint-right {
+  clip-path: polygon(61% 0, 100% 0, 100% 100%, 66% 100%);
+}
+
+.mockup-color-tint-neck {
+  clip-path: polygon(34% 0, 66% 0, 60% 19%, 40% 19%);
+  opacity: var(--mockup-neck-opacity, 0.66);
+}
+
+.mockup-color-texture {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+  opacity: var(--mockup-texture-opacity, 0.24);
+  user-select: none;
+  z-index: 1;
+}
+
 .mockup-design-zone {
   position: absolute;
   overflow: hidden;
   touch-action: none;
   isolation: isolate;
+  z-index: 2;
 }
 
 .sticker-item {

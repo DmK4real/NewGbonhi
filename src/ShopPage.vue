@@ -5,32 +5,32 @@
         <img class="brand-logo" :src="logoUrl" alt="NewGbonhi logo" />
         <div class="brand-meta">
           <p class="brand-name">NewGbonhi</p>
-          <p class="brand-tagline">Drop 02 // In preparation</p>
+          <p class="brand-tagline">{{ $t("brandTagline") }}</p>
         </div>
       </div>
       <nav class="shop-nav" aria-label="Primary">
         <RouterLink :class="{ 'is-active': $route.name === 'shop' }" to="/">
-          Shop
+          {{ $t("navShop") }}
         </RouterLink>
         <RouterLink
           :class="{ 'is-active': $route.name === 'lookbook' }"
           to="/lookbook"
         >
-          Lookbook
+          {{ $t("navLookbook") }}
         </RouterLink>
         <RouterLink :class="{ 'is-active': $route.name === 'studio' }" to="/studio">
-          Studio
+          {{ $t("navStudio") }}
         </RouterLink>
         <RouterLink :class="{ 'is-active': $route.name === 'about' }" to="/about">
-          About
+          {{ $t("navAbout") }}
         </RouterLink>
         <RouterLink :class="{ 'is-active': $route.name === 'orders' }" to="/orders">
-          Orders
+          {{ $t("navOrders") }}
         </RouterLink>
-        <a href="#contact">Contact</a>
+        <a href="#contact">{{ $t("navContact") }}</a>
       </nav>
       <button class="shop-cta" type="button" @click="toggleCart">
-        Cart ({{ cartCount }})
+        {{ $t("cart") }} ({{ cartCount }})
       </button>
     </header>
 
@@ -38,25 +38,24 @@
 
     <section class="hero">
       <div class="hero-copy">
-        <p class="hero-kicker">Next drop</p>
-        <h1>Drop 02 in preparation</h1>
+        <p class="hero-kicker">{{ $t("nextDrop") }}</p>
+        <h1>{{ $t("drop02Prep") }}</h1>
         <p class="hero-sub">
-          The first preview piece is BLACK CAMELEON: clean fit, strong visual,
-          limited stock.
+          {{ $t("shopHeroSub") }}
         </p>
         <div class="hero-actions">
           <button class="hero-button" type="button" @click="scrollToProducts">
-            View items
+            {{ $t("viewItems") }}
           </button>
           <RouterLink class="hero-button ghost" to="/about">
-            Drop details
+            {{ $t("dropDetails") }}
           </RouterLink>
         </div>
       </div>
       <div class="hero-panel">
         <img class="hero-photo" :src="heroImage" alt="Next drop preview" />
         <div class="hero-countdown">
-          <p>Launch in</p>
+          <p>{{ $t("launchIn") }}</p>
           <strong>{{ countdown }}</strong>
           <small>{{ nextDropLabel }}</small>
         </div>
@@ -65,21 +64,21 @@
 
     <section class="drop-details">
       <div class="details-head">
-        <p>Drop focus</p>
-        <h2>Drop 02 in preparation with BLACK CAMELEON up front</h2>
+        <p>{{ $t("dropFocus") }}</p>
+        <h2>{{ $t("shopDetailsTitle") }}</h2>
       </div>
       <div class="details-grid">
         <article class="detail-card">
-          <h3>Featured piece</h3>
-          <p>BLACK CAMELEON opens the new drop collection.</p>
+          <h3>{{ $t("featuredPiece") }}</h3>
+          <p>{{ $t("featuredPieceText") }}</p>
         </article>
         <article class="detail-card">
-          <h3>Visual direction</h3>
-          <p>Black base and centered graphic for direct readability.</p>
+          <h3>{{ $t("visualDirection") }}</h3>
+          <p>{{ $t("visualDirectionText") }}</p>
         </article>
         <article class="detail-card">
-          <h3>Drop in preparation</h3>
-          <p>Progressive release, short availability based on demand.</p>
+          <h3>{{ $t("dropInPrep") }}</h3>
+          <p>{{ $t("dropInPrepText") }}</p>
         </article>
       </div>
     </section>
@@ -87,7 +86,7 @@
     <main class="shop-main" ref="productsSection">
       <aside class="shop-sidebar">
         <div class="sidebar-block">
-          <h2>Categories</h2>
+          <h2>{{ $t("categories") }}</h2>
           <button
             v-for="category in categoryOptions"
             :key="category.id"
@@ -100,7 +99,7 @@
           </button>
         </div>
         <div class="sidebar-block">
-          <h2>Filters</h2>
+          <h2>{{ $t("filters") }}</h2>
           <button
             v-for="filter in filters"
             :key="filter.id"
@@ -110,7 +109,7 @@
             :aria-pressed="activeFilter === filter.id"
             @click="toggleFilter(filter.id)"
           >
-            {{ filter.label }}
+            {{ $t(filter.labelKey) }}
           </button>
         </div>
       </aside>
@@ -135,27 +134,27 @@
             :aria-expanded="filtersOpen"
             @click="toggleFilters"
           >
-            Filters
+            {{ $t("filters") }}
           </button>
         </div>
 
         <div class="search-input-wrap">
-          <label for="search" class="sr-only">Search products</label>
+          <label for="search" class="sr-only">{{ $t("searchProducts") }}</label>
           <input
             id="search"
             v-model="searchQuery"
             type="search"
-            placeholder="Search products..."
+            :placeholder="$t('searchPlaceholder')"
             class="search-input"
           />
         </div>
 
         <div class="content-head">
           <div>
-            <p class="content-kicker">Drop 02 selection</p>
-            <h2>Shop</h2>
+            <p class="content-kicker">{{ $t("drop02Selection") }}</p>
+            <h2>{{ $t("navShop") }}</h2>
           </div>
-          <p class="content-count">{{ filteredProducts.length }} item(s)</p>
+          <p class="content-count">{{ $t("itemCount", { count: filteredProducts.length }) }}</p>
         </div>
 
         <div
@@ -163,7 +162,7 @@
           class="skeleton-grid"
           role="status"
           aria-live="polite"
-          aria-label="Loading products"
+          :aria-label="$t('loading')"
         >
           <article
             v-for="n in skeletonCount"
@@ -187,26 +186,7 @@
       </section>
     </main>
 
-    <footer class="shop-footer" id="contact">
-      <p>Copyright 2026 NewGbonhi. All rights reserved.</p>
-      <div class="footer-links">
-        <a
-          href="https://www.instagram.com/new.gbonhi?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Instagram
-        </a>
-        <a
-          href="https://www.tiktok.com/@new_gbonhi0?is_from_webapp=1&sender_device=pc"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          TikTok
-        </a>
-        <a href="mailto:hello@newgbonhi.com">Email</a>
-      </div>
-    </footer>
+    <SiteFooter />
 
     <div
       class="filter-backdrop"
@@ -219,12 +199,12 @@
       :class="{ open: filtersOpen }"
       role="dialog"
       aria-modal="true"
-      aria-label="Quick filters"
+      :aria-label="$t('quickFilters')"
     >
       <div class="drawer-head">
-        <h3>Quick filters</h3>
+        <h3>{{ $t("quickFilters") }}</h3>
         <button type="button" class="drawer-close" @click="closeFilters">
-          Close
+          {{ $t("close") }}
         </button>
       </div>
       <div class="drawer-body">
@@ -237,7 +217,7 @@
           :aria-pressed="activeFilter === filter.id"
           @click="toggleFilter(filter.id)"
         >
-          {{ filter.label }}
+          {{ $t(filter.labelKey) }}
         </button>
       </div>
     </aside>
@@ -274,10 +254,10 @@ export default {
       cartOpen: false,
       filtersOpen: false,
       filters: [
-        { id: "drop02", label: "Drop 02" },
-        { id: "new", label: "New" },
-        { id: "soldOut", label: "Out of stock" },
-        { id: "restock", label: "Restock" },
+        { id: "drop02", labelKey: "filterDrop02" },
+        { id: "new", labelKey: "filterNew" },
+        { id: "soldOut", labelKey: "filterSoldOut" },
+        { id: "restock", labelKey: "filterRestock" },
       ],
       activeCategory: "all",
       activeFilter: null,
@@ -317,9 +297,9 @@ export default {
     },
     categoryOptions() {
       const labelMap = {
-        "t-shirts": "T-shirts",
-        "crop-tops": "Crop tops",
-        pants: "Pants",
+        "t-shirts": this.$t("categoryTshirts"),
+        "crop-tops": this.$t("categoryCropTops"),
+        pants: this.$t("categoryPants"),
       };
       const order = ["t-shirts", "crop-tops", "pants"];
       const counts = this.products.reduce((acc, product) => {
@@ -348,7 +328,7 @@ export default {
         id,
         label: labelMap[id] || id.replace(/-/g, " "),
       }));
-      return [{ id: "all", label: "All" }, ...categories];
+      return [{ id: "all", label: this.$t("categoryAll") }, ...categories];
     },
     filteredProducts() {
       const available = new Set(
@@ -407,7 +387,7 @@ export default {
     addToCart(product) {
       cartStore.addToCart(product);
       this.cartOpen = true;
-      this.showToast(`${product.title} added to cart`);
+      this.showToast(`${product.title} ${this.$t("addedToCart").toLowerCase()}`);
     },
     showToast(message) {
       this.toastMessage = message;
@@ -423,7 +403,7 @@ export default {
       const now = Date.now();
       const remaining = Math.max(0, this.nextDropAt - now);
       if (remaining <= 0) {
-        this.countdown = "Live";
+        this.countdown = this.$t("live");
         return;
       }
 

@@ -5,32 +5,32 @@
         <img class="brand-logo" :src="logoUrl" alt="NewGbonhi logo" />
         <div class="brand-meta">
           <p class="brand-name">NewGbonhi</p>
-          <p class="brand-tagline">Drop 02 // In preparation</p>
+          <p class="brand-tagline">{{ $t("brandTagline") }}</p>
         </div>
       </div>
       <nav class="shop-nav" aria-label="Primary">
         <RouterLink :class="{ 'is-active': $route.name === 'shop' }" to="/">
-          Shop
+          {{ $t("navShop") }}
         </RouterLink>
         <RouterLink
           :class="{ 'is-active': $route.name === 'lookbook' }"
           to="/lookbook"
         >
-          Lookbook
+          {{ $t("navLookbook") }}
         </RouterLink>
         <RouterLink :class="{ 'is-active': $route.name === 'studio' }" to="/studio">
-          Studio
+          {{ $t("navStudio") }}
         </RouterLink>
         <RouterLink :class="{ 'is-active': $route.name === 'about' }" to="/about">
-          About
+          {{ $t("navAbout") }}
         </RouterLink>
         <RouterLink :class="{ 'is-active': $route.name === 'orders' }" to="/orders">
-          Orders
+          {{ $t("navOrders") }}
         </RouterLink>
-        <a href="#contact">Contact</a>
+        <a href="#contact">{{ $t("navContact") }}</a>
       </nav>
       <button class="shop-cta" type="button" @click="toggleCart">
-        Cart ({{ cartCount }})
+        {{ $t("cart") }} ({{ cartCount }})
       </button>
     </header>
 
@@ -52,7 +52,7 @@
             decoding="async"
           />
         </picture>
-        <div v-else class="product-placeholder">Image coming soon</div>
+        <div v-else class="product-placeholder">{{ $t("imageComingSoon") }}</div>
       </div>
 
       <div class="product-info">
@@ -60,11 +60,11 @@
         <h1>{{ product.title }}</h1>
         <p class="product-price">{{ formatPrice(product.price) }}</p>
         <p class="product-description">
-          {{ product.description || "Signature NewGbonhi piece for Drop 02." }}
+          {{ product.description || $t("defaultDescription") }}
         </p>
 
         <div v-if="colorOptions.length" class="color-picker">
-          <p>Colors</p>
+          <p>{{ $t("colors") }}</p>
           <div class="color-grid">
             <button
               v-for="variant in colorOptions"
@@ -79,7 +79,7 @@
         </div>
 
         <div class="size-picker">
-          <p>Sizes</p>
+          <p>{{ $t("sizes") }}</p>
           <div class="size-grid">
             <button
               v-for="size in sizeOptions"
@@ -100,41 +100,22 @@
             :disabled="product.soldOut"
             @click="addProductToCart"
           >
-            {{ product.soldOut ? "Out of stock" : "Add to cart" }}
+            {{ product.soldOut ? $t("outOfStock") : $t("addToCart") }}
           </button>
-          <RouterLink class="ghost" to="/">Back to shop</RouterLink>
+          <RouterLink class="ghost" to="/">{{ $t("backToShop") }}</RouterLink>
         </div>
         <p v-if="product.soldOut" class="product-soldout">
-          Out of stock. Restock soon.
+          {{ $t("soldOutRestock") }}
         </p>
       </div>
     </section>
 
     <section v-else class="product-missing">
-      <h1>Product not found</h1>
-      <RouterLink to="/">Back to shop</RouterLink>
+      <h1>{{ $t("productNotFound") }}</h1>
+      <RouterLink to="/">{{ $t("backToShop") }}</RouterLink>
     </section>
 
-    <footer class="shop-footer" id="contact">
-      <p>Copyright 2026 NewGbonhi. All rights reserved.</p>
-      <div class="footer-links">
-        <a
-          href="https://www.instagram.com/new.gbonhi?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Instagram
-        </a>
-        <a
-          href="https://www.tiktok.com/@new_gbonhi0?is_from_webapp=1&sender_device=pc"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          TikTok
-        </a>
-        <a href="mailto:hello@newgbonhi.com">Email</a>
-      </div>
-    </footer>
+    <SiteFooter />
 
     <div class="toast" :class="{ show: toastVisible }" role="status">
       {{ toastMessage }}
@@ -218,9 +199,9 @@ export default {
     },
     categoryLabel() {
       const labels = {
-        "t-shirts": "T-shirts",
-        "crop-tops": "Crop tops",
-        pants: "Pants",
+        "t-shirts": this.$t("categoryTshirts"),
+        "crop-tops": this.$t("categoryCropTops"),
+        pants: this.$t("categoryPants"),
       };
       return labels[this.product?.category] || "Drop 02";
     },
@@ -284,7 +265,7 @@ export default {
         imageWebp: variant?.imageWebp || this.product.imageWebp,
       });
       this.cartOpen = true;
-      this.showToast("Added to cart");
+      this.showToast(this.$t("addedToCart"));
     },
     showToast(message) {
       this.toastMessage = message;

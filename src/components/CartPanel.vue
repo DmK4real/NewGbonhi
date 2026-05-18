@@ -1,16 +1,16 @@
 <template>
   <div v-if="open" class="cart-layer">
     <button class="cart-backdrop" type="button" @click="$emit('close')" />
-    <aside class="cart-panel" role="dialog" aria-label="Shopping cart">
+    <aside class="cart-panel" role="dialog" :aria-label="$t('cart')">
       <header class="cart-header">
-        <h3>Cart</h3>
+        <h3>{{ $t("cart") }}</h3>
         <button class="cart-close" type="button" @click="$emit('close')">
-          Close
+          {{ $t("close") }}
         </button>
       </header>
 
       <p v-if="cartItems.length === 0" class="cart-empty">
-        Your cart is empty.
+        {{ $t("emptyCart") }}
       </p>
 
       <div v-else class="cart-items">
@@ -28,21 +28,21 @@
             decoding="async"
           />
           <div class="cart-item-body">
-            <p v-if="item.isCustomStudio" class="cart-badge">Custom studio</p>
+            <p v-if="item.isCustomStudio" class="cart-badge">{{ $t("customStudio") }}</p>
             <h4>{{ item.title }}</h4>
             <p v-if="item.selectedSize" class="cart-size">
-              Size: {{ item.selectedSize }}
+              {{ $t("size") }}: {{ item.selectedSize }}
             </p>
             <p v-if="item.selectedColor" class="cart-color">
-              Color: {{ item.selectedColor }}
+              {{ $t("color") }}: {{ item.selectedColor }}
             </p>
             <p v-if="item.selectedDesignName" class="cart-design">
-              Design: {{ item.selectedDesignName }}
+              {{ $t("design") }}: {{ item.selectedDesignName }}
             </p>
             <div class="cart-qty">
               <button
                 type="button"
-                aria-label="Decrease quantity"
+                :aria-label="$t('remove')"
                 @click="decreaseQty(item)"
               >
                 -
@@ -63,14 +63,14 @@
             type="button"
             @click="removeItem(item)"
           >
-            Remove
+            {{ $t("remove") }}
           </button>
         </article>
       </div>
 
       <footer v-if="cartItems.length" class="cart-footer">
         <div class="cart-total">
-          <span>Total</span>
+          <span>{{ $t("total") }}</span>
           <strong>{{ formatPrice(cartTotal) }}</strong>
         </div>
         <RouterLink
@@ -78,10 +78,10 @@
           to="/checkout"
           @click="$emit('close')"
         >
-          Checkout
+          {{ $t("checkout") }}
         </RouterLink>
         <button class="cart-clear" type="button" @click="clearCart">
-          Clear cart
+          {{ $t("clearCart") }}
         </button>
       </footer>
     </aside>

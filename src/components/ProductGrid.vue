@@ -1,5 +1,5 @@
 <template>
-  <p v-if="products.length === 0" class="pg-empty">{{ emptyText }}</p>
+  <p v-if="products.length === 0" class="pg-empty">{{ emptyText || $t("noProducts") }}</p>
   <div v-else class="pg-grid" role="list">
     <article
       v-for="product in products"
@@ -31,11 +31,11 @@
           </picture>
         </template>
         <div v-else class="pg-placeholder" aria-hidden="true">
-          <span class="pg-placeholder-text">Image coming soon</span>
+          <span class="pg-placeholder-text">{{ $t("imageComingSoon") }}</span>
         </div>
         <div class="pg-badges">
           <span v-if="product.soldOut" class="pg-badge pg-badge-soldout">
-            Out of stock
+            {{ $t("outOfStock") }}
           </span>
           <span
             v-for="badge in getBadges(product)"
@@ -45,7 +45,7 @@
             {{ badge }}
           </span>
         </div>
-        <span class="pg-view">View</span>
+        <span class="pg-view">{{ $t("view") }}</span>
       </component>
 
       <h3 class="pg-title">
@@ -64,7 +64,7 @@
         :disabled="product.soldOut"
         @click="$emit('add-to-cart', product)"
       >
-        {{ product.soldOut ? "Out of stock" : "Add to cart" }}
+        {{ product.soldOut ? $t("outOfStock") : $t("addToCart") }}
       </button>
     </article>
   </div>
@@ -89,7 +89,7 @@ export default {
     },
     emptyText: {
       type: String,
-      default: "No products found.",
+      default: "",
     },
   },
   methods: {
@@ -106,8 +106,8 @@ export default {
         return [];
       }
       const map = {
-        new: "New",
-        restock: "Restock",
+        new: this.$t("filterNew"),
+        restock: this.$t("filterRestock"),
         drop02: "Drop 02",
       };
       return product.tags

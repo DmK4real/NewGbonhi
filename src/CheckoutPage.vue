@@ -5,32 +5,32 @@
         <img class="brand-logo" :src="logoUrl" alt="NewGbonhi logo" />
         <div class="brand-meta">
           <p class="brand-name">NewGbonhi</p>
-          <p class="brand-tagline">Drop 02 // In preparation</p>
+          <p class="brand-tagline">{{ $t("brandTagline") }}</p>
         </div>
       </div>
       <nav class="shop-nav" aria-label="Primary">
         <RouterLink :class="{ 'is-active': $route.name === 'shop' }" to="/">
-          Shop
+          {{ $t("navShop") }}
         </RouterLink>
         <RouterLink
           :class="{ 'is-active': $route.name === 'lookbook' }"
           to="/lookbook"
         >
-          Lookbook
+          {{ $t("navLookbook") }}
         </RouterLink>
         <RouterLink :class="{ 'is-active': $route.name === 'studio' }" to="/studio">
-          Studio
+          {{ $t("navStudio") }}
         </RouterLink>
         <RouterLink :class="{ 'is-active': $route.name === 'about' }" to="/about">
-          About
+          {{ $t("navAbout") }}
         </RouterLink>
         <RouterLink :class="{ 'is-active': $route.name === 'orders' }" to="/orders">
-          Orders
+          {{ $t("navOrders") }}
         </RouterLink>
-        <a href="#contact">Contact</a>
+        <a href="#contact">{{ $t("navContact") }}</a>
       </nav>
       <button class="shop-cta" type="button" @click="toggleCart">
-        Cart ({{ cartCount }})
+        {{ $t("cart") }} ({{ cartCount }})
       </button>
     </header>
 
@@ -39,17 +39,17 @@
     <main class="checkout-main">
       <section class="checkout-form">
         <div class="section-head">
-          <p>Checkout</p>
-          <h1>Finalize your order</h1>
+          <p>{{ $t("checkoutKicker") }}</p>
+          <h1>{{ $t("finalizeOrder") }}</h1>
         </div>
 
         <div v-if="orderSent" class="confirmation">
-          <p class="confirmation-kicker">Order sent</p>
-          <h2>Thank you. Your order is pending payment.</h2>
-          <p class="confirmation-id">Order ID: {{ lastOrderId }}</p>
+          <p class="confirmation-kicker">{{ $t("orderSent") }}</p>
+          <h2>{{ $t("thanksPending") }}</h2>
+          <p class="confirmation-id">{{ $t("orderId") }}: {{ lastOrderId }}</p>
           <div class="confirmation-actions">
             <button class="ghost-button" type="button" @click="openWhatsApp">
-              Open WhatsApp
+              {{ $t("openWhatsApp") }}
             </button>
             <button
               class="pay-button"
@@ -57,7 +57,7 @@
               @click="markAsPaid"
               :disabled="isReportingPayment"
             >
-              {{ isReportingPayment ? "Verification..." : "I've paid" }}
+              {{ isReportingPayment ? $t("verification") : $t("paid") }}
             </button>
           </div>
         </div>
@@ -65,51 +65,50 @@
         <form v-if="!orderSent" @submit.prevent="sendOrder">
           <div class="form-grid">
             <label>
-              First name
+              {{ $t("firstName") }}
               <input v-model.trim="customer.firstName" required />
             </label>
             <label>
-              Last name
+              {{ $t("lastName") }}
               <input v-model.trim="customer.lastName" required />
             </label>
             <label>
-              Email
+              {{ $t("email") }}
               <input v-model.trim="customer.email" type="email" required />
             </label>
             <label>
-              Phone
+              {{ $t("phone") }}
               <input v-model.trim="customer.phone" required />
             </label>
             <label class="full">
-              Address
+              {{ $t("address") }}
               <input v-model.trim="customer.address" required />
             </label>
             <label>
-              City
+              {{ $t("city") }}
               <input v-model.trim="customer.city" required />
             </label>
             <label>
-              Zip code
+              {{ $t("zipCode") }}
               <input v-model.trim="customer.zip" required />
             </label>
           </div>
 
           <div class="notice">
-            <p>Steps</p>
-            <p>1. Confirm your order with your exact address.</p>
-            <p>2. Pay for the item via mobile money.</p>
-            <p>3. We dispatch the Yango trip from our address to yours.</p>
-            <p>4. You pay upon courier arrival (delivery fee).</p>
+            <p>{{ $t("steps") }}</p>
+            <p>{{ $t("step1") }}</p>
+            <p>{{ $t("step2") }}</p>
+            <p>{{ $t("step3") }}</p>
+            <p>{{ $t("step4") }}</p>
           </div>
 
           <div class="delivery-box">
-            <h3>Yango Delivery</h3>
+            <h3>{{ $t("yangoDelivery") }}</h3>
             <p class="delivery-copy">
-              The courier picks up the t-shirts from our address and delivers
-              them to you.
+              {{ $t("deliveryCopy") }}
             </p>
             <label class="delivery-select-label" for="delivery-zone">
-              Delivery zone
+              {{ $t("deliveryZone") }}
             </label>
             <select
               id="delivery-zone"
@@ -125,18 +124,18 @@
               </option>
             </select>
             <p v-if="selectedShipping" class="delivery-copy">
-              Estimated Yango fee: {{ formatPrice(shippingFee) }}
+              {{ $t("estimatedFee") }}: {{ formatPrice(shippingFee) }}
             </p>
             <p v-if="selectedShipping" class="delivery-copy">
-              Delivery window: {{ selectedShipping.eta }}
+              {{ $t("deliveryWindow") }}: {{ selectedShipping.eta }}
             </p>
           </div>
 
           <div class="payment-box">
-            <h3>Payment</h3>
+            <h3>{{ $t("payment") }}</h3>
+            <PaymentMethods />
             <p class="payment-note">
-              When the courier arrives, you only pay the delivery fee and
-              receive your parcel.
+              {{ $t("paymentNote") }}
             </p>
           </div>
 
@@ -148,8 +147,8 @@
             >
               {{
                 isSubmitting
-                  ? "Sending..."
-                  : "Send order (" + formatPrice(cartTotal) + " excluding delivery)"
+                  ? $t("sending")
+                  : $t("sendOrder") + " (" + formatPrice(cartTotal) + " " + $t("excludingDelivery") + ")"
               }}
             </button>
             <button
@@ -158,7 +157,7 @@
               @click="copyOrder"
               :disabled="!cartItems.length || isSubmitting"
             >
-              Copy summary
+              {{ $t("copySummary") }}
             </button>
           </div>
 
@@ -176,12 +175,12 @@
 
       <aside class="checkout-summary">
         <div class="section-head">
-          <p>Order</p>
-          <h2>Summary</h2>
+          <p>{{ $t("order") }}</p>
+          <h2>{{ $t("summary") }}</h2>
         </div>
 
         <div v-if="cartItems.length === 0" class="summary-empty">
-          Your cart is empty.
+          {{ $t("emptyCart") }}
         </div>
         <div v-else class="summary-items">
           <article
@@ -198,51 +197,32 @@
               decoding="async"
             />
             <div>
-              <p v-if="item.isCustomStudio" class="summary-badge">Custom studio</p>
+              <p v-if="item.isCustomStudio" class="summary-badge">{{ $t("customStudio") }}</p>
               <h3>{{ item.title }}</h3>
-              <p v-if="item.selectedSize">Size: {{ item.selectedSize }}</p>
-              <p v-if="item.selectedColor">Color: {{ item.selectedColor }}</p>
-              <p v-if="item.selectedDesignName">Design: {{ item.selectedDesignName }}</p>
-              <p>Qty: {{ item.qty }}</p>
+              <p v-if="item.selectedSize">{{ $t("size") }}: {{ item.selectedSize }}</p>
+              <p v-if="item.selectedColor">{{ $t("color") }}: {{ item.selectedColor }}</p>
+              <p v-if="item.selectedDesignName">{{ $t("design") }}: {{ item.selectedDesignName }}</p>
+              <p>{{ $t("qty") }}: {{ item.qty }}</p>
             </div>
             <strong>{{ formatPrice(item.qty * item.price) }}</strong>
           </article>
           <div class="summary-row">
-            <span>Subtotal</span>
+            <span>{{ $t("subtotal") }}</span>
             <strong>{{ formatPrice(cartTotal) }}</strong>
           </div>
           <div class="summary-row">
-            <span>Delivery</span>
+            <span>{{ $t("delivery") }}</span>
             <strong>{{ selectedShipping ? formatPrice(shippingFee) : "-" }}</strong>
           </div>
           <div class="summary-total">
-            <span>Final total</span>
+            <span>{{ $t("finalTotal") }}</span>
             <strong>{{ formatPrice(totalWithShipping) }}</strong>
           </div>
         </div>
       </aside>
     </main>
 
-    <footer class="shop-footer" id="contact">
-      <p>Copyright 2026 NewGbonhi. All rights reserved.</p>
-      <div class="footer-links">
-        <a
-          href="https://www.instagram.com/new.gbonhi?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Instagram
-        </a>
-        <a
-          href="https://www.tiktok.com/@new_gbonhi0?is_from_webapp=1&sender_device=pc"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          TikTok
-        </a>
-        <a href="mailto:hello@newgbonhi.com">Email</a>
-      </div>
-    </footer>
+    <SiteFooter />
   </div>
 </template>
 

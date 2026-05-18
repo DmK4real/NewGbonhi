@@ -5,32 +5,32 @@
         <img class="brand-logo" :src="logoUrl" alt="NewGbonhi logo" />
         <div class="brand-meta">
           <p class="brand-name">NewGbonhi</p>
-          <p class="brand-tagline">Drop 02 // In preparation</p>
+          <p class="brand-tagline">{{ $t("brandTagline") }}</p>
         </div>
       </div>
       <nav class="shop-nav" aria-label="Primary">
         <RouterLink :class="{ 'is-active': $route.name === 'shop' }" to="/">
-          Shop
+          {{ $t("navShop") }}
         </RouterLink>
         <RouterLink
           :class="{ 'is-active': $route.name === 'lookbook' }"
           to="/lookbook"
         >
-          Lookbook
+          {{ $t("navLookbook") }}
         </RouterLink>
         <RouterLink :class="{ 'is-active': $route.name === 'studio' }" to="/studio">
-          Studio
+          {{ $t("navStudio") }}
         </RouterLink>
         <RouterLink :class="{ 'is-active': $route.name === 'about' }" to="/about">
-          About
+          {{ $t("navAbout") }}
         </RouterLink>
         <RouterLink :class="{ 'is-active': $route.name === 'orders' }" to="/orders">
-          Orders
+          {{ $t("navOrders") }}
         </RouterLink>
-        <a href="#contact">Contact</a>
+        <a href="#contact">{{ $t("navContact") }}</a>
       </nav>
       <button class="shop-cta" type="button" @click="toggleCart">
-        Cart ({{ cartCount }})
+        {{ $t("cart") }} ({{ cartCount }})
       </button>
     </header>
 
@@ -38,90 +38,68 @@
 
     <section class="about-hero">
       <div class="hero-copy">
-        <p class="hero-kicker">About</p>
-        <h1>Drop details</h1>
+        <p class="hero-kicker">{{ $t("about") }}</p>
+        <h1>{{ $t("dropDetails") }}</h1>
         <p class="hero-sub">
-          Technical sheet for the drop: fit, fabric, finish, and wear
-          recommendations. Built for durable daily use.
+          {{ $t("aboutHeroSub") }}
         </p>
       </div>
       <div class="hero-panel">
         <img class="hero-logo" :src="logoUrl" alt="" />
-        <div class="hero-strip">NewGbonhi / Technical notes</div>
+        <div class="hero-strip">{{ $t("technicalNotes") }}</div>
       </div>
     </section>
 
     <section class="drop-specs">
       <div class="specs-head">
-        <p>Drop 02 details</p>
-        <h2>Cut, fabric, finish</h2>
+        <p>{{ $t("drop02Details") }}</p>
+        <h2>{{ $t("cutFabricFinish") }}</h2>
       </div>
       <div class="specs-grid">
-        <article v-for="spec in dropSpecs" :key="spec.title" class="spec-card">
-          <h3>{{ spec.title }}</h3>
-          <p>{{ spec.text }}</p>
+        <article v-for="spec in dropSpecs" :key="spec.titleKey" class="spec-card">
+          <h3>{{ $t(spec.titleKey) }}</h3>
+          <p>{{ $t(spec.textKey) }}</p>
         </article>
       </div>
     </section>
 
     <section class="fit-section">
       <div class="fit-head">
-        <p>Fit guide</p>
-        <h2>Sizes & recommendations</h2>
+        <p>{{ $t("fitGuide") }}</p>
+        <h2>{{ $t("sizesRecommendations") }}</h2>
       </div>
       <div class="fit-grid">
         <article class="fit-card">
           <h3>T-shirts</h3>
-          <p>Relaxed straight fit. Take your usual size for a standard fit.</p>
+          <p>{{ $t("tshirtsFit") }}</p>
         </article>
         <article class="fit-card">
           <h3>Crop tops</h3>
-          <p>Close and cropped fit. Go one size up for more ease.</p>
+          <p>{{ $t("cropTopsFit") }}</p>
         </article>
         <article class="fit-card">
-          <h3>Care</h3>
-          <p>Cold wash inside out. Low-heat ironing away from the print.</p>
+          <h3>{{ $t("care") }}</h3>
+          <p>{{ $t("careText") }}</p>
         </article>
       </div>
     </section>
 
     <section class="story-section">
       <div class="story-head">
-        <p>Vision</p>
-        <h2>Why this drop</h2>
+        <p>{{ $t("vision") }}</p>
+        <h2>{{ $t("whyThisDrop") }}</h2>
       </div>
       <div class="story-copy">
         <p>
-          NewGbonhi builds a clean streetwear wardrobe: less visual noise,
-          easy-to-rotate pieces, and graphics that define the identity.
+          {{ $t("storyOne") }}
         </p>
         <p>
-          Every item is designed to be worn often, styled easily, and remain
-          clear over time.
+          {{ $t("storyTwo") }}
         </p>
       </div>
     </section>
 
-    <footer class="shop-footer" id="contact">
-      <p>Copyright 2026 NewGbonhi. All rights reserved.</p>
-      <div class="footer-links">
-        <a
-          href="https://www.instagram.com/new.gbonhi?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Instagram
-        </a>
-        <a
-          href="https://www.tiktok.com/@new_gbonhi0?is_from_webapp=1&sender_device=pc"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          TikTok
-        </a>
-        <a href="mailto:hello@newgbonhi.com">Email</a>
-      </div>
-    </footer>
+    <SiteFooter />
   </div>
 </template>
 
@@ -142,28 +120,28 @@ export default {
       cartOpen: false,
       dropSpecs: [
         {
-          title: "Cut",
-          text: "Relaxed street silhouette: slightly dropped shoulders, straight torso.",
+          titleKey: "cut",
+          textKey: "cutText",
         },
         {
-          title: "Fabric",
-          text: "Cotton-dominant jersey with a dry hand feel and stable structure.",
+          titleKey: "fabric",
+          textKey: "fabricText",
         },
         {
-          title: "Weight",
-          text: "Medium weight to balance comfort, structure, and durability.",
+          titleKey: "weight",
+          textKey: "weightText",
         },
         {
-          title: "Print",
-          text: "High-contrast graphic print for a clean visual read.",
+          titleKey: "print",
+          textKey: "printText",
         },
         {
-          title: "Finish",
-          text: "Reinforced collar and stitching on high-tension areas.",
+          titleKey: "finish",
+          textKey: "finishText",
         },
         {
-          title: "Colorway",
-          text: "Black/white base with NewGbonhi visual accents.",
+          titleKey: "colorway",
+          textKey: "colorwayText",
         },
       ],
     };

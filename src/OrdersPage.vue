@@ -5,31 +5,31 @@
         <img class="brand-logo" :src="logoUrl" alt="NewGbonhi logo" />
         <div class="brand-meta">
           <p class="brand-name">NewGbonhi</p>
-          <p class="brand-tagline">Drop 02 // In preparation</p>
+          <p class="brand-tagline">{{ $t("brandTagline") }}</p>
         </div>
       </div>
       <nav class="shop-nav" aria-label="Primary">
         <RouterLink :class="{ 'is-active': $route.name === 'shop' }" to="/">
-          Shop
+          {{ $t("navShop") }}
         </RouterLink>
         <RouterLink
           :class="{ 'is-active': $route.name === 'lookbook' }"
           to="/lookbook"
         >
-          Lookbook
+          {{ $t("navLookbook") }}
         </RouterLink>
         <RouterLink :class="{ 'is-active': $route.name === 'studio' }" to="/studio">
-          Studio
+          {{ $t("navStudio") }}
         </RouterLink>
         <RouterLink :class="{ 'is-active': $route.name === 'about' }" to="/about">
-          About
+          {{ $t("navAbout") }}
         </RouterLink>
         <RouterLink :class="{ 'is-active': $route.name === 'orders' }" to="/orders">
-          Orders
+          {{ $t("navOrders") }}
         </RouterLink>
       </nav>
       <button class="shop-cta" type="button" @click="toggleCart">
-        Cart ({{ cartCount }})
+        {{ $t("cart") }} ({{ cartCount }})
       </button>
     </header>
 
@@ -37,38 +37,38 @@
 
     <main class="orders-main">
       <div class="orders-head">
-        <p>Orders</p>
+        <p>{{ $t("navOrders") }}</p>
         <div class="orders-title">
-          <h1>Order history</h1>
+          <h1>{{ $t("orderHistory") }}</h1>
           <button v-if="isAuthorized" class="ghost-button" type="button" @click="logout">
-            Logout
+            {{ $t("logout") }}
           </button>
         </div>
       </div>
 
       <div v-if="!isAuthorized" class="orders-login">
-        <p>Admin access required</p>
-        <p class="orders-hint">Password verification is handled by the API.</p>
+        <p>{{ $t("adminRequired") }}</p>
+        <p class="orders-hint">{{ $t("adminHint") }}</p>
         <form @submit.prevent="unlock">
           <input
             v-model.trim="adminPasswordInput"
             type="password"
-            placeholder="Admin password"
+            :placeholder="$t('adminPassword')"
             :disabled="isLoading"
           />
           <button class="pay-button" type="submit" :disabled="!canUnlock">
-            {{ isLoading ? "Loading..." : "Unlock" }}
+            {{ isLoading ? $t("loading") : $t("unlock") }}
           </button>
         </form>
         <p v-if="authError" class="orders-error">{{ authError }}</p>
       </div>
 
       <div v-else-if="isLoading" class="orders-empty">
-        Loading orders...
+        {{ $t("loadingOrders") }}
       </div>
 
       <div v-else-if="orders.length === 0" class="orders-empty">
-        No orders yet.
+        {{ $t("noOrders") }}
       </div>
 
       <section v-else class="orders-grid">
@@ -110,22 +110,22 @@
 
           <div class="order-summary">
             <div>
-              <span>Subtotal</span>
+              <span>{{ $t("subtotal") }}</span>
               <strong>{{ formatPrice(order.subtotal) }}</strong>
             </div>
             <div>
-              <span>Delivery</span>
+              <span>{{ $t("delivery") }}</span>
               <strong>{{ formatPrice(order.shipping?.fee || 0) }}</strong>
             </div>
             <div class="order-total">
-              <span>Total</span>
+              <span>{{ $t("total") }}</span>
               <strong>{{ formatPrice(order.total) }}</strong>
             </div>
           </div>
 
           <footer class="order-actions">
             <button type="button" class="ghost-button" @click="copyOrder(order)">
-              Copy summary
+              {{ $t("copySummary") }}
             </button>
             <button
               type="button"
@@ -133,7 +133,7 @@
               :disabled="isSaving"
               @click="markPaid(order)"
             >
-              Mark as paid
+              {{ $t("markPaid") }}
             </button>
             <button
               type="button"
@@ -141,33 +141,14 @@
               :disabled="isSaving"
               @click="removeOrder(order)"
             >
-              Delete
+              {{ $t("delete") }}
             </button>
           </footer>
         </article>
       </section>
     </main>
 
-    <footer class="shop-footer" id="contact">
-      <p>Copyright 2026 NewGbonhi. All rights reserved.</p>
-      <div class="footer-links">
-        <a
-          href="https://www.instagram.com/new.gbonhi?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Instagram
-        </a>
-        <a
-          href="https://www.tiktok.com/@new_gbonhi0?is_from_webapp=1&sender_device=pc"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          TikTok
-        </a>
-        <a href="mailto:hello@newgbonhi.com">Email</a>
-      </div>
-    </footer>
+    <SiteFooter />
   </div>
 </template>
 
@@ -254,12 +235,12 @@ export default {
     },
     formatStatus(status) {
       const map = {
-        sent: "Sent",
-        paid_reported: "Paid (reported)",
-        paid: "Paid",
-        delivered: "Delivered",
+        sent: this.$t("sent"),
+        paid_reported: this.$t("paidReported"),
+        paid: this.$t("paid"),
+        delivered: this.$t("delivered"),
       };
-      return map[status] || status || "Sent";
+      return map[status] || status || this.$t("sent");
     },
     buildOrderSummary(order) {
       const lines = [

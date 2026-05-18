@@ -5,32 +5,32 @@
         <img class="brand-logo" :src="logoUrl" alt="NewGbonhi logo" />
         <div class="brand-meta">
           <p class="brand-name">NewGbonhi</p>
-          <p class="brand-tagline">Drop 02 // In preparation</p>
+          <p class="brand-tagline">{{ $t("brandTagline") }}</p>
         </div>
       </div>
       <nav class="shop-nav" aria-label="Primary">
         <RouterLink :class="{ 'is-active': $route.name === 'shop' }" to="/">
-          Shop
+          {{ $t("navShop") }}
         </RouterLink>
         <RouterLink
           :class="{ 'is-active': $route.name === 'lookbook' }"
           to="/lookbook"
         >
-          Lookbook
+          {{ $t("navLookbook") }}
         </RouterLink>
         <RouterLink :class="{ 'is-active': $route.name === 'studio' }" to="/studio">
-          Studio
+          {{ $t("navStudio") }}
         </RouterLink>
         <RouterLink :class="{ 'is-active': $route.name === 'about' }" to="/about">
-          About
+          {{ $t("navAbout") }}
         </RouterLink>
         <RouterLink :class="{ 'is-active': $route.name === 'orders' }" to="/orders">
-          Orders
+          {{ $t("navOrders") }}
         </RouterLink>
-        <a href="#contact">Contact</a>
+        <a href="#contact">{{ $t("navContact") }}</a>
       </nav>
       <button class="shop-cta" type="button" @click="toggleCart">
-        Cart ({{ cartCount }})
+        {{ $t("cart") }} ({{ cartCount }})
       </button>
     </header>
 
@@ -38,23 +38,22 @@
 
     <section class="lookbook-hero">
       <div class="hero-copy">
-        <p class="hero-kicker">Lookbook</p>
-        <h1>Gallery of worn looks</h1>
+        <p class="hero-kicker">{{ $t("navLookbook") }}</p>
+        <h1>{{ $t("galleryWornLooks") }}</h1>
         <p class="hero-sub">
-          NewGbonhi pieces in real-life use: street, movement, and everyday
-          wear. Each look shows the fit and attitude of the drop.
+          {{ $t("lookbookSub") }}
         </p>
       </div>
       <div class="hero-panel">
         <img class="hero-logo" :src="logoUrl" alt="" />
-        <div class="hero-strip">Street looks / Drop 02</div>
+        <div class="hero-strip">{{ $t("streetLooks") }}</div>
       </div>
     </section>
 
     <section class="looks-gallery">
       <div class="gallery-head">
-        <p>Worn looks</p>
-        <h2>Editorial selection</h2>
+        <p>{{ $t("wornLooks") }}</p>
+        <h2>{{ $t("editorialSelection") }}</h2>
       </div>
       <div class="gallery-grid">
         <article v-for="look in wornLooks" :key="look.title" class="look-card">
@@ -72,45 +71,26 @@
 
     <section class="styling-notes">
       <div class="notes-head">
-        <p>Styling</p>
-        <h2>How to style the drop</h2>
+        <p>{{ $t("styling") }}</p>
+        <h2>{{ $t("howToStyle") }}</h2>
       </div>
       <div class="notes-grid">
         <article class="note-card">
-          <h3>Clean oversized fit</h3>
-          <p>Go one size up for a wider silhouette.</p>
+          <h3>{{ $t("oversizedFit") }}</h3>
+          <p>{{ $t("oversizedFitText") }}</p>
         </article>
         <article class="note-card">
-          <h3>Monochrome + accent</h3>
-          <p>Start with black or white, then add a strong graphic contrast.</p>
+          <h3>{{ $t("monoAccent") }}</h3>
+          <p>{{ $t("monoAccentText") }}</p>
         </article>
         <article class="note-card">
-          <h3>Light layering</h3>
-          <p>Add a simple outer layer while keeping the print readable.</p>
+          <h3>{{ $t("lightLayering") }}</h3>
+          <p>{{ $t("lightLayeringText") }}</p>
         </article>
       </div>
     </section>
 
-    <footer class="shop-footer" id="contact">
-      <p>Copyright 2026 NewGbonhi. All rights reserved.</p>
-      <div class="footer-links">
-        <a
-          href="https://www.instagram.com/new.gbonhi?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Instagram
-        </a>
-        <a
-          href="https://www.tiktok.com/@new_gbonhi0?is_from_webapp=1&sender_device=pc"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          TikTok
-        </a>
-        <a href="mailto:hello@newgbonhi.com">Email</a>
-      </div>
-    </footer>
+    <SiteFooter />
   </div>
 </template>
 

@@ -1,9 +1,20 @@
 import { createApp } from "vue";
 import App from "./App.vue";
 import router from "./router.js";
+import { i18nState, setLanguage, translate } from "./i18n.js";
+import LanguageSwitch from "./components/LanguageSwitch.vue";
+import PaymentMethods from "./components/PaymentMethods.vue";
+import SiteFooter from "./components/SiteFooter.vue";
 import { reportAppError } from "./utils/appError.js";
 
 const app = createApp(App);
+
+app.config.globalProperties.$t = translate;
+app.config.globalProperties.$language = i18nState;
+app.config.globalProperties.$setLanguage = setLanguage;
+app.component("LanguageSwitch", LanguageSwitch);
+app.component("PaymentMethods", PaymentMethods);
+app.component("SiteFooter", SiteFooter);
 
 app.config.errorHandler = (error, instance, info) => {
   console.error(error);

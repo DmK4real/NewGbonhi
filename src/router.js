@@ -37,6 +37,7 @@ const routes = [
       title: "Studio | New Gbonhi Shop",
       description:
         "Personnalise ton t-shirt unicolor New Gbonhi avec les logos et stickers disponibles.",
+      robots: "noindex, nofollow",
     },
   },
   {
