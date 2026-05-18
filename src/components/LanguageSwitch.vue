@@ -40,56 +40,50 @@ export default {
 .language-switch {
   display: inline-flex;
   align-items: center;
-  border: 1px solid var(--line, #0b0b0b);
-  background: #050505;
-  color: #fff;
-  overflow: hidden;
+  gap: 5px;
+  color: currentColor;
+  opacity: 0.58;
 }
 
 .language-switch button {
   border: 0;
   background: transparent;
   color: inherit;
-  padding: 10px 11px;
+  padding: 2px 0;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: 11px;
+  letter-spacing: 0.1em;
+  font-size: 10px;
   font-weight: 700;
   cursor: pointer;
+  opacity: 0.58;
 }
 
 .language-switch span {
-  color: rgba(255, 255, 255, 0.48);
-  font-size: 12px;
+  color: currentColor;
+  opacity: 0.42;
+  font-size: 10px;
 }
 
 .language-switch button.active {
-  background: #fff;
-  color: #050505;
+  opacity: 1;
 }
 
 .language-switch button:focus-visible {
-  outline: 2px solid #fff;
-  outline-offset: -2px;
+  outline: 1px solid currentColor;
+  outline-offset: 3px;
 }
 
 .language-switch button:hover {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.16);
-}
-
-.language-switch button.active:hover {
-  background: #fff;
-  color: #050505;
+  opacity: 1;
 }
 
 @media (max-width: 700px) {
   .language-switch {
-    width: 100%;
+    width: auto;
   }
 
   .language-switch button {
-    flex: 1;
+    flex: 0 0 auto;
   }
 }
 </style>

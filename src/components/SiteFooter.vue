@@ -1,5 +1,6 @@
 <template>
   <footer class="site-footer" id="contact">
+    <LanguageSwitch />
     <div class="footer-contact">
       <p>{{ $t("copyright") }}</p>
       <div class="footer-links">
@@ -21,7 +22,6 @@
       </div>
     </div>
     <PaymentMethods />
-    <LanguageSwitch />
   </footer>
 </template>
 
@@ -43,14 +43,26 @@ export default {
   color: inherit;
   padding: 42px clamp(18px, 6vw, 72px) 28px;
   display: grid;
+  grid-template-columns: minmax(80px, 1fr) auto minmax(80px, 1fr);
+  align-items: end;
   justify-items: center;
   gap: 24px;
   text-align: center;
 }
 
+.site-footer :deep(.language-switch) {
+  justify-self: start;
+  align-self: end;
+}
+
 .footer-contact {
   display: grid;
   gap: 12px;
+  grid-column: 2;
+}
+
+.site-footer :deep(.payment-methods) {
+  grid-column: 2;
 }
 
 .footer-contact p {
@@ -80,6 +92,18 @@ export default {
 @media (max-width: 700px) {
   .site-footer {
     padding: 34px 18px 24px;
+    grid-template-columns: 1fr;
+    justify-items: center;
+    gap: 18px;
+  }
+
+  .site-footer :deep(.language-switch) {
+    justify-self: start;
+  }
+
+  .footer-contact,
+  .site-footer :deep(.payment-methods) {
+    grid-column: auto;
   }
 }
 </style>
