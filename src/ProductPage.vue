@@ -37,8 +37,31 @@
     <CartPanel :open="cartOpen" @close="cartOpen = false" />
 
     <section v-if="product" class="product-hero">
-      <div class="product-media" :class="{ 'is-cutout': isCutoutProduct }">
-        <picture v-if="activeImagePrimary" class="product-picture">
+      <div
+        class="product-media"
+        :class="{
+          'is-cutout': isCutoutProduct,
+          'is-dual-view': isDualViewProduct,
+        }"
+      >
+        <div
+          v-if="isDualViewProduct && activeImagePrimary && activeImageSecondary"
+          class="product-dual-view"
+        >
+          <img
+            :src="activeImagePrimary"
+            :alt="`${product.title} front`"
+            loading="lazy"
+            decoding="async"
+          />
+          <img
+            :src="activeImageSecondary"
+            :alt="`${product.title} back`"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+        <picture v-else-if="activeImagePrimary" class="product-picture">
           <source
             v-if="activeImageWebp"
             :srcset="activeImageWebp"
@@ -168,6 +191,9 @@ export default {
     activeImagePrimary() {
       return this.activeVariant?.imagePrimary || this.product?.imagePrimary || "";
     },
+    activeImageSecondary() {
+      return this.product?.imageSecondary || "";
+    },
     activeImageWebp() {
       return this.activeVariant?.imageWebp || this.product?.imageWebp || "";
     },
@@ -208,6 +234,10 @@ export default {
     isCutoutProduct() {
       const tags = Array.isArray(this.product?.tags) ? this.product.tags : [];
       return tags.includes("cutout");
+    },
+    isDualViewProduct() {
+      const tags = Array.isArray(this.product?.tags) ? this.product.tags : [];
+      return tags.includes("dual-view");
     },
   },
   watch: {
@@ -459,6 +489,21 @@ export default {
   overflow: hidden;
 }
 
+.product-dual-view {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.product-dual-view img {
+  width: 100%;
+  max-height: 420px;
+  object-fit: contain;
+  display: block;
+  min-width: 0;
+}
+
 .product-placeholder {
   color: #606060;
   text-transform: uppercase;
@@ -686,6 +731,10 @@ export default {
   .product-media {
     min-height: 280px;
     padding: 12px;
+  }
+
+  .product-dual-view {
+    gap: 8px;
   }
 
   .product-info h1 {

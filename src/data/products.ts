@@ -13,6 +13,7 @@ export type ProductRecord = {
   title?: string;
   url: string;
   imageKey?: string;
+  imageSecondaryKey?: string;
   imagePrimary: string;
   imageSecondary: string;
   imageWebp: string;
@@ -29,6 +30,7 @@ type RawProduct = {
   title?: string;
   url?: string;
   imageKey?: string;
+  imageSecondaryKey?: string;
   imagePrimary?: string;
   imageSecondary?: string;
   imageWebp?: string;
@@ -144,7 +146,11 @@ export const products: ProductRecord[] = rawProducts.map((product, index) => {
     url: product.url || `/product/${slug}`,
     variants,
     imagePrimary: primaryFromVariants || resolveImagePrimary(product),
-    imageSecondary: secondaryFromVariants || product.imageSecondary || "",
+    imageSecondary:
+      secondaryFromVariants ||
+      resolveImageByKey(product.imageSecondaryKey) ||
+      product.imageSecondary ||
+      "",
     imageWebp: resolveImageWebp(product),
   };
 });

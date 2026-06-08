@@ -62,8 +62,17 @@
           class="look-card"
           :class="{ 'is-cutout': look.cutout }"
         >
-          <div class="look-media">
+          <div
+            class="look-media"
+            :class="{ 'look-media-dual': look.secondarySrc }"
+          >
             <img :src="look.src" :alt="look.title" loading="lazy" />
+            <img
+              v-if="look.secondarySrc"
+              :src="look.secondarySrc"
+              :alt="`${look.title} back`"
+              loading="lazy"
+            />
           </div>
           <div class="look-info">
             <p class="look-scene">{{ look.scene }}</p>
@@ -166,28 +175,18 @@ export default {
       cartOpen: false,
       wornLooks: [
         {
-          src: arwFilmCityBlackFrontUrl,
-          title: "ARW FILM CITY TEE / Black front",
-          scene: "Drop 03 / Front marks",
-          note: "Black edition with NewGbonhi and ARW Film chest marks.",
-        },
-        {
-          src: arwFilmCityBlackBackUrl,
-          title: "ARW FILM CITY TEE / Black back",
-          scene: "Drop 03 / City back",
-          note: "City building composition printed large on the back.",
-        },
-        {
           src: arwFilmCityWhiteFrontUrl,
-          title: "ARW FILM CITY TEE / White front",
-          scene: "Drop 03 / Front marks",
-          note: "White edition with the same NewGbonhi x ARW Film chest identity.",
+          secondarySrc: arwFilmCityWhiteBackUrl,
+          title: "ARW FILM CITY TEE / White",
+          scene: "Drop 03 / Front + back",
+          note: "White edition with NewGbonhi x ARW Film chest marks and the city building back print.",
         },
         {
-          src: arwFilmCityWhiteBackUrl,
-          title: "ARW FILM CITY TEE / White back",
-          scene: "Drop 03 / City back",
-          note: "Light colorway with the city back print in high contrast.",
+          src: arwFilmCityBlackFrontUrl,
+          secondarySrc: arwFilmCityBlackBackUrl,
+          title: "ARW FILM CITY TEE / Black",
+          scene: "Drop 03 / Front + back",
+          note: "Black edition with NewGbonhi x ARW Film chest marks and the city building back print.",
         },
         {
           src: arwFilmDopamineTeeUrl,
@@ -507,6 +506,15 @@ export default {
   aspect-ratio: 4 / 5;
   object-fit: contain;
   display: block;
+}
+
+.look-media-dual {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.look-media-dual img {
+  min-width: 0;
 }
 
 .look-card.is-cutout .look-media {

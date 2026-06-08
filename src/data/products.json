@@ -23,18 +23,27 @@
   },
   {
     "id": 8,
-    "title": "ARW FILM CITY TEE",
-    "slug": "arw-film-city-tee",
-    "description": "Drop 03 collaboration T-shirt with ARW Film and NewGbonhi chest marks plus a city building back graphic.",
+    "title": "ARW FILM CITY TEE WHITE",
+    "slug": "arw-film-city-tee-white",
+    "description": "Drop 03 white collaboration T-shirt with ARW Film and NewGbonhi chest marks plus a city building back graphic.",
     "price": 15000,
-    "imageKey": "arwFilmCityBlackFront",
+    "imageKey": "arwFilmCityWhiteFront",
+    "imageSecondaryKey": "arwFilmCityWhiteBack",
     "category": "t-shirts",
     "sizes": ["S", "M", "L", "XL", "XXL"],
-    "tags": ["new", "drop03"],
-    "variants": [
-      { "id": "black", "label": "Black", "imageKey": "arwFilmCityBlackFront" },
-      { "id": "white", "label": "White", "imageKey": "arwFilmCityWhiteFront" }
-    ]
+    "tags": ["new", "drop03", "dual-view"]
+  },
+  {
+    "id": 9,
+    "title": "ARW FILM CITY TEE BLACK",
+    "slug": "arw-film-city-tee-black",
+    "description": "Drop 03 black collaboration T-shirt with ARW Film and NewGbonhi chest marks plus a city building back graphic.",
+    "price": 15000,
+    "imageKey": "arwFilmCityBlackFront",
+    "imageSecondaryKey": "arwFilmCityBlackBack",
+    "category": "t-shirts",
+    "sizes": ["S", "M", "L", "XL", "XXL"],
+    "tags": ["new", "drop03", "dual-view"]
   },
   {
     "id": 1,

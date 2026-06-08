@@ -15,7 +15,31 @@
         :title="product.title || ''"
         :aria-label="product.title || 'Product'"
       >
-        <template v-if="product.imagePrimary || product.imageSecondary">
+        <template
+          v-if="
+            isDualViewProduct(product) &&
+            product.imagePrimary &&
+            product.imageSecondary
+          "
+        >
+          <div class="pg-dual-view" aria-hidden="true">
+            <img
+              class="pg-image pg-image-dual"
+              loading="lazy"
+              decoding="async"
+              :src="product.imagePrimary"
+              :alt="`${product.title || 'Product'} front`"
+            />
+            <img
+              class="pg-image pg-image-dual"
+              loading="lazy"
+              decoding="async"
+              :src="product.imageSecondary"
+              :alt="`${product.title || 'Product'} back`"
+            />
+          </div>
+        </template>
+        <template v-else-if="product.imagePrimary || product.imageSecondary">
           <picture class="pg-picture">
             <source
               v-if="product.imageWebp"
@@ -121,6 +145,10 @@ export default {
       const tags = Array.isArray(product?.tags) ? product.tags : [];
       return tags.includes("cutout");
     },
+    isDualViewProduct(product) {
+      const tags = Array.isArray(product?.tags) ? product.tags : [];
+      return tags.includes("dual-view");
+    },
     formatPrice(value) {
       if (typeof value !== "number" || Number.isNaN(value)) {
         return "";
@@ -220,6 +248,19 @@ export default {
   transform: scale(1.24);
 }
 
+.pg-dual-view {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
+}
+
+.pg-image-dual {
+  min-width: 0;
+  padding: 0;
+}
+
 .pg-picture {
   display: block;
   width: 100%;
@@ -232,6 +273,10 @@ export default {
 
 .pg-image-wrap:hover .pg-image-cutout {
   transform: scale(1.3);
+}
+
+.pg-image-wrap:hover .pg-image-dual {
+  transform: scale(1.03);
 }
 
 .pg-placeholder {
