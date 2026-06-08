@@ -125,7 +125,7 @@
           <img :src="collabFrontTeeCutout" :alt="$t('collabFrontAlt')" />
           <figcaption>{{ $t("collabPieceLabel") }}</figcaption>
         </figure>
-        <figure class="collab-frame collab-frame-mark">
+        <figure class="collab-frame collab-frame-mark collab-frame-cutout">
           <img :src="collabChromeLogo" :alt="$t('collabChromeAlt')" />
           <figcaption>{{ $t("collabMarkLabel") }}</figcaption>
         </figure>
@@ -321,7 +321,10 @@ const collabDopamineTeeCutout = new URL(
   "./assets/ARW FILM DOPAMINE TEE CUTOUT.png",
   import.meta.url
 ).href;
-const collabChromeLogo = new URL("./assets/ARW FILM CHROME LOGO.jpeg", import.meta.url).href;
+const collabChromeLogo = new URL(
+  "./assets/ARW FILM CHROME LOGO CUTOUT.png",
+  import.meta.url
+).href;
 
 export default {
   name: "ShopPage",
@@ -985,7 +988,8 @@ export default {
 }
 
 .collab-frame-mark img {
-  object-fit: cover;
+  object-fit: contain;
+  padding: clamp(10px, 4vw, 26px);
 }
 
 .collab-frame:hover img {

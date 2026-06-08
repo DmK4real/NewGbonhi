@@ -199,16 +199,6 @@ export default {
   border-color: #000;
 }
 
-.pg-card:hover .pg-image-wrap-cutout,
-.pg-image-wrap-cutout {
-  background: transparent;
-  border-color: transparent;
-}
-
-.pg-image-wrap-cutout::after {
-  border-color: transparent;
-}
-
 .pg-card:hover .pg-image-wrap::after,
 .pg-image-wrap:focus-visible::after {
   opacity: 1;
