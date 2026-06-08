@@ -131,11 +131,11 @@ const onTopBgabUrl = new URL(
   import.meta.url
 ).href;
 const arwFilmLogoTeeUrl = new URL(
-  "./assets/ARW FILM TEE FRONT.jpeg",
+  "./assets/ARW FILM TEE FRONT CUTOUT.png",
   import.meta.url
 ).href;
 const arwFilmDopamineTeeUrl = new URL(
-  "./assets/ARW FILM DOPAMINE TEE.jpeg",
+  "./assets/ARW FILM DOPAMINE TEE CUTOUT.png",
   import.meta.url
 ).href;
 
@@ -469,8 +469,9 @@ export default {
   display: block;
 }
 
-.look-card.is-cutout .look-media img {
-  mix-blend-mode: multiply;
+.look-card.is-cutout .look-media {
+  background: transparent;
+  border-bottom-color: transparent;
 }
 
 .look-info {

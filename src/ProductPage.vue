@@ -437,6 +437,11 @@ export default {
   border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
+.product-media.is-cutout {
+  background: transparent;
+  border-color: transparent;
+}
+
 .product-picture img {
   width: 100%;
   height: auto;
@@ -448,10 +453,6 @@ export default {
     scale(var(--variant-image-zoom, 1));
   transform-origin: center center;
   transition: transform 0.2s ease;
-}
-
-.product-media.is-cutout .product-picture img {
-  mix-blend-mode: multiply;
 }
 
 .product-picture {

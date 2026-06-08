@@ -10,6 +10,7 @@
       <component
         :is="linkTag(product)"
         class="pg-image-wrap"
+        :class="{ 'pg-image-wrap-cutout': isCutoutProduct(product) }"
         v-bind="linkProps(product)"
         :title="product.title || ''"
         :aria-label="product.title || 'Product'"
@@ -198,6 +199,16 @@ export default {
   border-color: #000;
 }
 
+.pg-card:hover .pg-image-wrap-cutout,
+.pg-image-wrap-cutout {
+  background: transparent;
+  border-color: transparent;
+}
+
+.pg-image-wrap-cutout::after {
+  border-color: transparent;
+}
+
 .pg-card:hover .pg-image-wrap::after,
 .pg-image-wrap:focus-visible::after {
   opacity: 1;
@@ -213,10 +224,6 @@ export default {
   box-sizing: border-box;
   transition: opacity 0.25s ease, transform 0.35s ease;
   background: transparent;
-}
-
-.pg-image-cutout {
-  mix-blend-mode: multiply;
 }
 
 .pg-picture {

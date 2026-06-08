@@ -45,8 +45,8 @@ const imageKeyToFile: Record<string, string> = {
   safeZoneWhite: "WHITE SAFE zone 4 BOY.png",
   safeBabiGirl: "WHITE SAFE BABI GIRL.png",
   blackCameleon: "BLACK CAMELEON.png",
-  arwFilmLogoTee: "ARW FILM TEE FRONT.jpeg",
-  arwFilmDopamineTee: "ARW FILM DOPAMINE TEE.jpeg",
+  arwFilmLogoTee: "ARW FILM TEE FRONT CUTOUT.png",
+  arwFilmDopamineTee: "ARW FILM DOPAMINE TEE CUTOUT.png",
 };
 
 const imageKeyMap = Object.fromEntries(

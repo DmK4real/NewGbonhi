@@ -305,13 +305,14 @@ import { products } from "./data/products.ts";
 import { cartStore } from "./data/cart.ts";
 
 const logoUrl = new URL("./assets/newgbonhi-logo.png", import.meta.url).href;
-const heroImage = new URL("./assets/ARW FILM DOPAMINE TEE.jpeg", import.meta.url).href;
+const heroImage = new URL(
+  "./assets/ARW FILM DOPAMINE TEE CUTOUT.png",
+  import.meta.url
+).href;
 const stickerOval = new URL("./assets/NEW GBONHI OVAL.png", import.meta.url).href;
 const stickerArwFilm = new URL("./assets/ARW FILM.png", import.meta.url).href;
 const stickerCup = new URL("./assets/ARW FILM CUP STICKER.png", import.meta.url).href;
 const collabLockup = new URL("./assets/ARW FILM X NEW GBONHI.jpeg", import.meta.url).href;
-const collabFrontTee = new URL("./assets/ARW FILM TEE FRONT.jpeg", import.meta.url).href;
-const collabDopamineTee = new URL("./assets/ARW FILM DOPAMINE TEE.jpeg", import.meta.url).href;
 const collabFrontTeeCutout = new URL(
   "./assets/ARW FILM TEE FRONT CUTOUT.png",
   import.meta.url
@@ -336,8 +337,6 @@ export default {
       stickerArwFilm,
       stickerCup,
       collabLockup,
-      collabFrontTee,
-      collabDopamineTee,
       collabFrontTeeCutout,
       collabDopamineTeeCutout,
       collabChromeLogo,
@@ -969,6 +968,11 @@ export default {
   grid-row: 1 / span 2;
 }
 
+.collab-frame-cutout {
+  background: transparent;
+  border-color: transparent;
+}
+
 .collab-frame img {
   width: 100%;
   height: 100%;
@@ -1532,7 +1536,6 @@ export default {
     min-height: 0;
     object-fit: contain;
     display: block;
-    mix-blend-mode: multiply;
   }
 
   .hero-sticker-logo {
