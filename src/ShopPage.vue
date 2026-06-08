@@ -654,13 +654,13 @@ export default {
 
 .hero {
   margin-top: 32px;
-  padding: 28px;
-  border: 1px solid var(--line);
-  border-radius: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 24px;
-  background: #fff;
+  background: transparent;
   animation: rise 0.7s ease both;
 }
 
@@ -715,17 +715,14 @@ export default {
 
 .hero-panel {
   position: relative;
-  border-radius: 16px;
-  background:
-    radial-gradient(circle at 16% 18%, rgba(225, 6, 0, 0.08), transparent 22%),
-    radial-gradient(circle at 82% 76%, rgba(11, 11, 11, 0.05), transparent 26%),
-    #fff;
+  border-radius: 0;
+  background: transparent;
   color: #0b0b0b;
-  overflow: hidden;
+  overflow: visible;
   display: grid;
   place-items: center;
   min-height: 340px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 0;
 }
 
 .hero-photo {
@@ -1504,7 +1501,7 @@ export default {
   }
 
   .hero {
-    padding: 18px;
+    padding: 0;
     gap: 16px;
   }
 
