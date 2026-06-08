@@ -118,11 +118,11 @@
 
       <div class="collab-gallery" aria-label="ARW Film collaboration previews">
         <figure class="collab-frame collab-frame-main collab-frame-cutout">
-          <img :src="collabDopamineTee" :alt="$t('collabDopamineAlt')" />
+          <img :src="collabDopamineTeeCutout" :alt="$t('collabDopamineAlt')" />
           <figcaption>{{ $t("collabEditorialLabel") }}</figcaption>
         </figure>
         <figure class="collab-frame collab-frame-side collab-frame-cutout">
-          <img :src="collabFrontTee" :alt="$t('collabFrontAlt')" />
+          <img :src="collabFrontTeeCutout" :alt="$t('collabFrontAlt')" />
           <figcaption>{{ $t("collabPieceLabel") }}</figcaption>
         </figure>
         <figure class="collab-frame collab-frame-mark">
@@ -312,6 +312,14 @@ const stickerCup = new URL("./assets/ARW FILM CUP STICKER.png", import.meta.url)
 const collabLockup = new URL("./assets/ARW FILM X NEW GBONHI.jpeg", import.meta.url).href;
 const collabFrontTee = new URL("./assets/ARW FILM TEE FRONT.jpeg", import.meta.url).href;
 const collabDopamineTee = new URL("./assets/ARW FILM DOPAMINE TEE.jpeg", import.meta.url).href;
+const collabFrontTeeCutout = new URL(
+  "./assets/ARW FILM TEE FRONT CUTOUT.png",
+  import.meta.url
+).href;
+const collabDopamineTeeCutout = new URL(
+  "./assets/ARW FILM DOPAMINE TEE CUTOUT.png",
+  import.meta.url
+).href;
 const collabChromeLogo = new URL("./assets/ARW FILM CHROME LOGO.jpeg", import.meta.url).href;
 
 export default {
@@ -330,6 +338,8 @@ export default {
       collabLockup,
       collabFrontTee,
       collabDopamineTee,
+      collabFrontTeeCutout,
+      collabDopamineTeeCutout,
       collabChromeLogo,
       nextDropAt: null,
       countdown: "",
@@ -950,7 +960,9 @@ export default {
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 14px;
-  background: #f7f7f7;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(255, 255, 255, 0.14), transparent 48%),
+    rgba(255, 255, 255, 0.04);
 }
 
 .collab-frame-main {
@@ -969,10 +981,6 @@ export default {
 .collab-frame-main img,
 .collab-frame-side img {
   object-fit: contain;
-}
-
-.collab-frame-cutout img {
-  mix-blend-mode: multiply;
 }
 
 .collab-frame-mark img {
