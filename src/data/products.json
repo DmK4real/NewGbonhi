@@ -1,5 +1,27 @@
 [
   {
+    "id": 6,
+    "title": "ARW FILM LOGO TEE",
+    "slug": "arw-film-logo-tee",
+    "description": "Drop 03 collaboration T-shirt with ARW Film chrome logo on a black washed base.",
+    "price": 15000,
+    "imageKey": "arwFilmLogoTee",
+    "category": "t-shirts",
+    "sizes": ["S", "M", "L", "XL", "XXL"],
+    "tags": ["new", "drop03"]
+  },
+  {
+    "id": 7,
+    "title": "ARW FILM DOPAMINE TEE",
+    "slug": "arw-film-dopamine-tee",
+    "description": "Drop 03 collaboration T-shirt with Dopamine editorial graphic on a black washed base.",
+    "price": 15000,
+    "imageKey": "arwFilmDopamineTee",
+    "category": "t-shirts",
+    "sizes": ["S", "M", "L", "XL", "XXL"],
+    "tags": ["new", "drop03"]
+  },
+  {
     "id": 1,
     "title": "SAFE zone 4 BOY",
     "slug": "safe-zone-4-boy",

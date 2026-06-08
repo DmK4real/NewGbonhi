@@ -109,6 +109,7 @@ export default {
         new: this.$t("filterNew"),
         restock: this.$t("filterRestock"),
         drop02: "Drop 02",
+        drop03: "Drop 03",
       };
       return product.tags
         .map((tag) => map[tag] || "")

@@ -53,12 +53,82 @@
         </div>
       </div>
       <div class="hero-panel">
+        <img
+          class="hero-sticker hero-sticker-logo"
+          :src="logoUrl"
+          alt=""
+          aria-hidden="true"
+        />
+        <img
+          class="hero-sticker hero-sticker-oval"
+          :src="stickerOval"
+          alt=""
+          aria-hidden="true"
+        />
+        <img
+          class="hero-sticker hero-sticker-arw"
+          :src="stickerArwFilm"
+          alt=""
+          aria-hidden="true"
+        />
+        <img
+          class="hero-sticker hero-sticker-arw-alt"
+          :src="stickerArwFilm"
+          alt=""
+          aria-hidden="true"
+        />
+        <img
+          class="hero-sticker hero-sticker-cup"
+          :src="stickerCup"
+          alt=""
+          aria-hidden="true"
+        />
+        <span class="hero-sticker hero-sticker-text" aria-hidden="true">
+          NewGbonhi
+        </span>
+        <span class="hero-sticker hero-sticker-drop" aria-hidden="true">
+          Drop 03
+        </span>
         <img class="hero-photo" :src="heroImage" alt="Next drop preview" />
-        <div class="hero-countdown">
-          <p>{{ $t("launchIn") }}</p>
-          <strong>{{ countdown }}</strong>
-          <small>{{ nextDropLabel }}</small>
+      </div>
+    </section>
+
+    <section class="collab-feature" aria-labelledby="collab-title">
+      <div class="collab-copy">
+        <div class="collab-lockup">
+          <img :src="collabLockup" :alt="$t('collabLogoAlt')" />
         </div>
+        <p class="collab-kicker">{{ $t("collabKicker") }}</p>
+        <h2 id="collab-title">{{ $t("collabTitle") }}</h2>
+        <p class="collab-sub">{{ $t("collabSub") }}</p>
+        <div class="collab-badges" aria-label="Collaboration details">
+          <span>{{ $t("collabBadgeOne") }}</span>
+          <span>{{ $t("collabBadgeTwo") }}</span>
+          <span>{{ $t("collabBadgeThree") }}</span>
+        </div>
+        <div class="collab-actions">
+          <button class="hero-button" type="button" @click="scrollToProducts">
+            {{ $t("collabPrimaryCta") }}
+          </button>
+          <RouterLink class="hero-button ghost" to="/lookbook">
+            {{ $t("collabSecondaryCta") }}
+          </RouterLink>
+        </div>
+      </div>
+
+      <div class="collab-gallery" aria-label="ARW Film collaboration previews">
+        <figure class="collab-frame collab-frame-main">
+          <img :src="collabDopamineTee" :alt="$t('collabDopamineAlt')" />
+          <figcaption>{{ $t("collabEditorialLabel") }}</figcaption>
+        </figure>
+        <figure class="collab-frame collab-frame-side">
+          <img :src="collabFrontTee" :alt="$t('collabFrontAlt')" />
+          <figcaption>{{ $t("collabPieceLabel") }}</figcaption>
+        </figure>
+        <figure class="collab-frame collab-frame-mark">
+          <img :src="collabChromeLogo" :alt="$t('collabChromeAlt')" />
+          <figcaption>{{ $t("collabMarkLabel") }}</figcaption>
+        </figure>
       </div>
     </section>
 
@@ -235,7 +305,14 @@ import { products } from "./data/products.ts";
 import { cartStore } from "./data/cart.ts";
 
 const logoUrl = new URL("./assets/newgbonhi-logo.png", import.meta.url).href;
-const heroImage = new URL("./assets/BLACK CAMELEON.png", import.meta.url).href;
+const heroImage = new URL("./assets/ARW FILM DOPAMINE TEE.jpeg", import.meta.url).href;
+const stickerOval = new URL("./assets/NEW GBONHI OVAL.png", import.meta.url).href;
+const stickerArwFilm = new URL("./assets/ARW FILM.png", import.meta.url).href;
+const stickerCup = new URL("./assets/ARW FILM CUP STICKER.png", import.meta.url).href;
+const collabLockup = new URL("./assets/ARW FILM X NEW GBONHI.jpeg", import.meta.url).href;
+const collabFrontTee = new URL("./assets/ARW FILM TEE FRONT.jpeg", import.meta.url).href;
+const collabDopamineTee = new URL("./assets/ARW FILM DOPAMINE TEE.jpeg", import.meta.url).href;
+const collabChromeLogo = new URL("./assets/ARW FILM CHROME LOGO.jpeg", import.meta.url).href;
 
 export default {
   name: "ShopPage",
@@ -247,14 +324,21 @@ export default {
     return {
       logoUrl,
       heroImage,
-      nextDropAt: new Date("2026-04-04T18:00:00+00:00").getTime(),
+      stickerOval,
+      stickerArwFilm,
+      stickerCup,
+      collabLockup,
+      collabFrontTee,
+      collabDopamineTee,
+      collabChromeLogo,
+      nextDropAt: null,
       countdown: "",
       toastMessage: "",
       toastVisible: false,
       cartOpen: false,
       filtersOpen: false,
       filters: [
-        { id: "drop02", labelKey: "filterDrop02" },
+        { id: "drop03", labelKey: "filterDrop02" },
         { id: "new", labelKey: "filterNew" },
         { id: "soldOut", labelKey: "filterSoldOut" },
         { id: "restock", labelKey: "filterRestock" },
@@ -290,6 +374,9 @@ export default {
       return cartStore.cartCount.value;
     },
     nextDropLabel() {
+      if (!this.nextDropAt) {
+        return this.$t("drop03Label");
+      }
       return new Intl.DateTimeFormat("en-GB", {
         dateStyle: "long",
         timeStyle: "short",
@@ -351,8 +438,8 @@ export default {
 
         if (this.activeFilter === "soldOut") {
           filterMatch = Boolean(product.soldOut);
-        } else if (this.activeFilter === "drop02") {
-          filterMatch = tagList.includes("drop02");
+        } else if (this.activeFilter === "drop03") {
+          filterMatch = tagList.includes("drop03");
         } else if (this.activeFilter === "new") {
           filterMatch = tagList.includes("new");
         } else if (this.activeFilter === "restock") {
@@ -400,6 +487,10 @@ export default {
       }, 2200);
     },
     updateCountdown() {
+      if (!this.nextDropAt) {
+        this.countdown = this.$t("dropSoon");
+        return;
+      }
       const now = Date.now();
       const remaining = Math.max(0, this.nextDropAt - now);
       if (remaining <= 0) {
@@ -614,44 +705,293 @@ export default {
 }
 
 .hero-panel {
+  position: relative;
   border-radius: 16px;
-  background: #000000;
+  background:
+    radial-gradient(circle at 16% 18%, rgba(225, 6, 0, 0.08), transparent 22%),
+    radial-gradient(circle at 82% 76%, rgba(11, 11, 11, 0.05), transparent 26%),
+    #fff;
   color: #0b0b0b;
   overflow: hidden;
   display: grid;
+  place-items: center;
   min-height: 340px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .hero-photo {
+  position: relative;
+  z-index: 2;
   width: 100%;
   height: 100%;
   min-height: 300px;
-  object-fit: cover;
+  object-fit: contain;
   opacity: 1;
   filter: contrast(1.08) saturate(1.06) brightness(1.02);
   image-rendering: -webkit-optimize-contrast;
   image-rendering: auto;
 }
 
-.hero-countdown {
-  padding: 14px;
+.hero-sticker {
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+  user-select: none;
+  will-change: transform;
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.16));
+}
+
+.hero-sticker-logo {
+  width: clamp(56px, 9vw, 98px);
+  left: 8%;
+  top: 10%;
+  animation: sticker-float-a 5.8s ease-in-out infinite;
+}
+
+.hero-sticker-oval {
+  width: clamp(86px, 13vw, 150px);
+  right: 6%;
+  top: 16%;
+  transform: rotate(8deg);
+  animation: sticker-float-b 6.6s ease-in-out infinite;
+}
+
+.hero-sticker-arw {
+  width: clamp(82px, 12vw, 138px);
+  left: 13%;
+  bottom: 34%;
+  transform: rotate(7deg);
+  animation: sticker-float-d 7.4s ease-in-out infinite;
+}
+
+.hero-sticker-arw-alt {
+  width: clamp(58px, 8vw, 96px);
+  right: 18%;
+  bottom: 28%;
+  opacity: 0.92;
+  transform: rotate(-12deg);
+  animation: sticker-float-e 8s ease-in-out infinite;
+}
+
+.hero-sticker-cup {
+  width: clamp(72px, 10vw, 126px);
+  right: 2%;
+  top: 4%;
+  border-radius: 8px;
+  transform: rotate(6deg);
+  animation: sticker-float-f 8.4s ease-in-out infinite;
+}
+
+.hero-sticker-text,
+.hero-sticker-drop {
+  border: 1px solid #0b0b0b;
+  border-radius: 999px;
+  background: #fff;
+  color: #0b0b0b;
+  padding: 8px 12px;
+  font-family: "Archivo Black", "Space Grotesk", Arial, sans-serif;
+  font-size: clamp(10px, 1.6vw, 14px);
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.hero-sticker-text {
+  left: 6%;
+  bottom: 18%;
+  transform: rotate(-8deg);
+  animation: sticker-float-c 7s ease-in-out infinite;
+}
+
+.hero-sticker-drop {
+  right: 8%;
+  bottom: 12%;
+  background: #0b0b0b;
+  color: #fff;
+  transform: rotate(7deg);
+  animation: sticker-float-a 6.2s ease-in-out infinite reverse;
+}
+
+.collab-feature {
+  margin-top: 24px;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, rgba(11, 11, 11, 0.96), rgba(28, 28, 28, 0.98)),
+    #0b0b0b;
+  color: #fff;
   display: grid;
-  gap: 6px;
+  grid-template-columns: minmax(280px, 0.86fr) minmax(0, 1.14fr);
+  gap: 24px;
+  overflow: hidden;
+  position: relative;
+  animation: rise 0.75s ease both;
+}
+
+.collab-feature::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.06),
+      rgba(255, 255, 255, 0.06) 1px,
+      transparent 1px,
+      transparent 42px
+    ),
+    linear-gradient(90deg, rgba(225, 6, 0, 0.2), transparent 38%);
+  opacity: 0.74;
+  pointer-events: none;
+}
+
+.collab-copy,
+.collab-gallery {
+  position: relative;
+  z-index: 1;
+}
+
+.collab-copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+
+.collab-lockup {
+  width: min(360px, 100%);
+  margin-bottom: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 14px;
+  background: #f7f7f7;
+  overflow: hidden;
+}
+
+.collab-lockup img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.collab-kicker {
+  margin: 0;
+  color: #ff2b24;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.collab-copy h2 {
+  margin: 10px 0 12px;
+  font-family: "Archivo Black", "Space Grotesk", Arial, sans-serif;
+  font-size: clamp(32px, 5vw, 58px);
+  line-height: 0.96;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.collab-sub {
+  margin: 0;
+  max-width: 500px;
+  color: rgba(255, 255, 255, 0.76);
+  line-height: 1.6;
+}
+
+.collab-badges {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.collab-badges span {
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 999px;
+  padding: 7px 10px;
+  color: rgba(255, 255, 255, 0.9);
   text-transform: uppercase;
   letter-spacing: 0.16em;
   font-size: 10px;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(255, 255, 255, 0.06);
 }
 
-.hero-countdown strong {
-  font-size: 18px;
-  letter-spacing: 0.1em;
+.collab-actions {
+  margin-top: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
-.hero-countdown small {
-  color: rgba(255, 255, 255, 0.8);
+.collab-feature .hero-button {
+  border-color: rgba(255, 255, 255, 0.78);
+  background: #fff;
+  color: #0b0b0b;
+}
+
+.collab-feature .hero-button.ghost {
+  background: transparent;
+  color: #fff;
+}
+
+.collab-gallery {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(150px, 0.8fr);
+  grid-template-rows: 1fr 0.72fr;
+  gap: 12px;
+  min-height: 520px;
+}
+
+.collab-frame {
+  margin: 0;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 14px;
+  background: #f7f7f7;
+}
+
+.collab-frame-main {
+  grid-row: 1 / span 2;
+}
+
+.collab-frame img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  filter: contrast(1.08) saturate(0.96);
+  transition: transform 0.35s ease;
+}
+
+.collab-frame-main img,
+.collab-frame-side img {
+  object-fit: contain;
+}
+
+.collab-frame-mark img {
+  object-fit: cover;
+}
+
+.collab-frame:hover img {
+  transform: scale(1.035);
+}
+
+.collab-frame figcaption {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  padding: 7px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  background: rgba(11, 11, 11, 0.78);
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
   font-size: 10px;
-  letter-spacing: 0.14em;
+  backdrop-filter: blur(10px);
 }
 
 .drop-details {
@@ -1054,9 +1394,83 @@ export default {
   }
 }
 
+@keyframes sticker-float-a {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(-6deg);
+  }
+  50% {
+    transform: translate3d(8px, -12px, 0) rotate(4deg);
+  }
+}
+
+@keyframes sticker-float-b {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(8deg);
+  }
+  50% {
+    transform: translate3d(-10px, 10px, 0) rotate(-3deg);
+  }
+}
+
+@keyframes sticker-float-c {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(-8deg);
+  }
+  50% {
+    transform: translate3d(10px, 8px, 0) rotate(2deg);
+  }
+}
+
+@keyframes sticker-float-d {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(7deg);
+  }
+  50% {
+    transform: translate3d(-8px, -10px, 0) rotate(-5deg);
+  }
+}
+
+@keyframes sticker-float-e {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(-12deg);
+  }
+  50% {
+    transform: translate3d(7px, 11px, 0) rotate(6deg);
+  }
+}
+
+@keyframes sticker-float-f {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(6deg);
+  }
+  50% {
+    transform: translate3d(-9px, -8px, 0) rotate(-4deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-sticker {
+    animation: none;
+  }
+}
+
 @media (max-width: 980px) {
   .hero {
     grid-template-columns: 1fr;
+  }
+
+  .collab-feature {
+    grid-template-columns: 1fr;
+  }
+
+  .collab-gallery {
+    min-height: 460px;
   }
 
   .shop-main {
@@ -1092,8 +1506,6 @@ export default {
   }
 
   .hero-panel {
-    display: flex;
-    flex-direction: column;
     min-height: 0;
   }
 
@@ -1104,9 +1516,88 @@ export default {
     display: block;
   }
 
-  .hero-countdown {
-    position: relative;
-    z-index: 1;
+  .hero-sticker-logo {
+    left: 5%;
+    top: 7%;
+    width: 52px;
+  }
+
+  .hero-sticker-oval {
+    right: 4%;
+    top: 10%;
+    width: 82px;
+  }
+
+  .hero-sticker-arw {
+    left: 7%;
+    bottom: 28%;
+    width: 78px;
+  }
+
+  .hero-sticker-arw-alt {
+    right: 8%;
+    bottom: 24%;
+    width: 58px;
+  }
+
+  .hero-sticker-cup {
+    right: 2%;
+    top: 4%;
+    width: 62px;
+  }
+
+  .hero-sticker-text {
+    left: 5%;
+    bottom: 12%;
+  }
+
+  .hero-sticker-drop {
+    right: 5%;
+    bottom: 8%;
+  }
+
+  .collab-feature {
+    padding: 18px;
+    gap: 18px;
+  }
+
+  .collab-lockup {
+    margin-bottom: 18px;
+  }
+
+  .collab-copy h2 {
+    font-size: 34px;
+  }
+
+  .collab-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .collab-gallery {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    min-height: 0;
+  }
+
+  .collab-frame-main {
+    grid-column: 1 / -1;
+    grid-row: auto;
+    aspect-ratio: 3 / 4;
+  }
+
+  .collab-frame-side,
+  .collab-frame-mark {
+    aspect-ratio: 1 / 1.12;
+  }
+
+  .collab-frame figcaption {
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    text-align: center;
+    letter-spacing: 0.12em;
+    font-size: 9px;
   }
 
   .drop-details {

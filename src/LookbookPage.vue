@@ -125,6 +125,14 @@ const onTopBgabUrl = new URL(
   "./assets/NEW GBONHI ON TOP BGAB.png",
   import.meta.url
 ).href;
+const arwFilmLogoTeeUrl = new URL(
+  "./assets/ARW FILM TEE FRONT.jpeg",
+  import.meta.url
+).href;
+const arwFilmDopamineTeeUrl = new URL(
+  "./assets/ARW FILM DOPAMINE TEE.jpeg",
+  import.meta.url
+).href;
 
 export default {
   name: "LookbookPage",
@@ -136,6 +144,18 @@ export default {
       logoUrl,
       cartOpen: false,
       wornLooks: [
+        {
+          src: arwFilmDopamineTeeUrl,
+          title: "ARW FILM DOPAMINE TEE",
+          scene: "Drop 03 / Collab",
+          note: "Editorial graphic on a black washed base for the ARW Film x NewGbonhi capsule.",
+        },
+        {
+          src: arwFilmLogoTeeUrl,
+          title: "ARW FILM LOGO TEE",
+          scene: "Drop 03 / Chrome mark",
+          note: "Chrome ARW Film identity placed clean on the chest for the new collab.",
+        },
         {
           src: safeZoneBlackUrl,
           title: "SAFE zone 4 BOY / Black",
