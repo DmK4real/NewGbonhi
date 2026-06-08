@@ -1507,12 +1507,16 @@ export default {
 
   .hero-panel {
     min-height: 0;
+    aspect-ratio: 1 / 1;
+    background: #fff;
   }
 
   .hero-photo {
-    height: clamp(240px, 78vw, 340px);
+    position: absolute;
+    inset: 0;
+    height: 100%;
     min-height: 0;
-    object-fit: contain;
+    object-fit: cover;
     display: block;
   }
 
