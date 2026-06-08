@@ -37,7 +37,7 @@
     <CartPanel :open="cartOpen" @close="cartOpen = false" />
 
     <section v-if="product" class="product-hero">
-      <div class="product-media">
+      <div class="product-media" :class="{ 'is-cutout': isCutoutProduct }">
         <picture v-if="activeImagePrimary" class="product-picture">
           <source
             v-if="activeImageWebp"
@@ -204,6 +204,10 @@ export default {
         pants: this.$t("categoryPants"),
       };
       return labels[this.product?.category] || "Drop 02";
+    },
+    isCutoutProduct() {
+      const tags = Array.isArray(this.product?.tags) ? this.product.tags : [];
+      return tags.includes("drop03");
     },
   },
   watch: {
@@ -444,6 +448,10 @@ export default {
     scale(var(--variant-image-zoom, 1));
   transform-origin: center center;
   transition: transform 0.2s ease;
+}
+
+.product-media.is-cutout .product-picture img {
+  mix-blend-mode: multiply;
 }
 
 .product-picture {

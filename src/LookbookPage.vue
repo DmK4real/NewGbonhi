@@ -56,7 +56,12 @@
         <h2>{{ $t("editorialSelection") }}</h2>
       </div>
       <div class="gallery-grid">
-        <article v-for="look in wornLooks" :key="look.title" class="look-card">
+        <article
+          v-for="look in wornLooks"
+          :key="look.title"
+          class="look-card"
+          :class="{ 'is-cutout': look.cutout }"
+        >
           <div class="look-media">
             <img :src="look.src" :alt="look.title" loading="lazy" />
           </div>
@@ -149,12 +154,14 @@ export default {
           title: "ARW FILM DOPAMINE TEE",
           scene: "Drop 03 / Collab",
           note: "Editorial graphic on a black washed base for the ARW Film x NewGbonhi capsule.",
+          cutout: true,
         },
         {
           src: arwFilmLogoTeeUrl,
           title: "ARW FILM LOGO TEE",
           scene: "Drop 03 / Chrome mark",
           note: "Chrome ARW Film identity placed clean on the chest for the new collab.",
+          cutout: true,
         },
         {
           src: safeZoneBlackUrl,
@@ -460,6 +467,10 @@ export default {
   aspect-ratio: 4 / 5;
   object-fit: contain;
   display: block;
+}
+
+.look-card.is-cutout .look-media img {
+  mix-blend-mode: multiply;
 }
 
 .look-info {

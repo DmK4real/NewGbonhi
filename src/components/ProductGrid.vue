@@ -23,6 +23,7 @@
             />
             <img
               class="pg-image pg-image-primary"
+              :class="{ 'pg-image-cutout': isCutoutProduct(product) }"
               loading="lazy"
               decoding="async"
               :src="product.imagePrimary || product.imageSecondary"
@@ -114,6 +115,10 @@ export default {
       return product.tags
         .map((tag) => map[tag] || "")
         .filter(Boolean);
+    },
+    isCutoutProduct(product) {
+      const tags = Array.isArray(product?.tags) ? product.tags : [];
+      return tags.includes("drop03");
     },
     formatPrice(value) {
       if (typeof value !== "number" || Number.isNaN(value)) {
@@ -208,6 +213,10 @@ export default {
   box-sizing: border-box;
   transition: opacity 0.25s ease, transform 0.35s ease;
   background: transparent;
+}
+
+.pg-image-cutout {
+  mix-blend-mode: multiply;
 }
 
 .pg-picture {

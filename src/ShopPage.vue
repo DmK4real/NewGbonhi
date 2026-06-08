@@ -117,11 +117,11 @@
       </div>
 
       <div class="collab-gallery" aria-label="ARW Film collaboration previews">
-        <figure class="collab-frame collab-frame-main">
+        <figure class="collab-frame collab-frame-main collab-frame-cutout">
           <img :src="collabDopamineTee" :alt="$t('collabDopamineAlt')" />
           <figcaption>{{ $t("collabEditorialLabel") }}</figcaption>
         </figure>
-        <figure class="collab-frame collab-frame-side">
+        <figure class="collab-frame collab-frame-side collab-frame-cutout">
           <img :src="collabFrontTee" :alt="$t('collabFrontAlt')" />
           <figcaption>{{ $t("collabPieceLabel") }}</figcaption>
         </figure>
@@ -971,6 +971,10 @@ export default {
   object-fit: contain;
 }
 
+.collab-frame-cutout img {
+  mix-blend-mode: multiply;
+}
+
 .collab-frame-mark img {
   object-fit: cover;
 }
@@ -1508,7 +1512,9 @@ export default {
   .hero-panel {
     min-height: 0;
     aspect-ratio: 1 / 1;
-    background: #fff;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
   }
 
   .hero-photo {
@@ -1516,8 +1522,9 @@ export default {
     inset: 0;
     height: 100%;
     min-height: 0;
-    object-fit: cover;
+    object-fit: contain;
     display: block;
+    mix-blend-mode: multiply;
   }
 
   .hero-sticker-logo {
