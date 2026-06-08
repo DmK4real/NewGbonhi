@@ -148,19 +148,19 @@ const arwFilmDopamineTeeUrl = new URL(
   import.meta.url
 ).href;
 const arwFilmCityBlackFrontUrl = new URL(
-  "./assets/ARW FILM CITY TEE BLACK FRONT.jpeg",
+  "./assets/ARW FILM CITY TEE BLACK FRONT CUTOUT.png",
   import.meta.url
 ).href;
 const arwFilmCityBlackBackUrl = new URL(
-  "./assets/ARW FILM CITY TEE BLACK BACK.jpeg",
+  "./assets/ARW FILM CITY TEE BLACK BACK CUTOUT.png",
   import.meta.url
 ).href;
 const arwFilmCityWhiteFrontUrl = new URL(
-  "./assets/ARW FILM CITY TEE WHITE FRONT.jpeg",
+  "./assets/ARW FILM CITY TEE WHITE FRONT CUTOUT.png",
   import.meta.url
 ).href;
 const arwFilmCityWhiteBackUrl = new URL(
-  "./assets/ARW FILM CITY TEE WHITE BACK.jpeg",
+  "./assets/ARW FILM CITY TEE WHITE BACK CUTOUT.png",
   import.meta.url
 ).href;
 

@@ -239,7 +239,7 @@ export default {
 }
 
 .pg-image-dual-front {
-  transform: scale(1.34);
+  transform: scale(1.1);
 }
 
 .pg-picture {
@@ -257,7 +257,7 @@ export default {
 }
 
 .pg-image-wrap:hover .pg-image-dual-front {
-  transform: scale(1.42);
+  transform: scale(1.16);
 }
 
 .pg-placeholder {
