@@ -216,6 +216,10 @@ export default {
   background: transparent;
 }
 
+.pg-image-cutout {
+  transform: scale(1.24);
+}
+
 .pg-picture {
   display: block;
   width: 100%;
@@ -224,6 +228,10 @@ export default {
 
 .pg-image-wrap:hover .pg-image-primary {
   transform: scale(1.04);
+}
+
+.pg-image-wrap:hover .pg-image-cutout {
+  transform: scale(1.3);
 }
 
 .pg-placeholder {
