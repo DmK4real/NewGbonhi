@@ -8,7 +8,7 @@
     "imageKey": "arwFilmLogoTee",
     "category": "t-shirts",
     "sizes": ["S", "M", "L", "XL", "XXL"],
-    "tags": ["new", "drop03"]
+    "tags": ["new", "drop03", "cutout"]
   },
   {
     "id": 7,
@@ -19,7 +19,22 @@
     "imageKey": "arwFilmDopamineTee",
     "category": "t-shirts",
     "sizes": ["S", "M", "L", "XL", "XXL"],
-    "tags": ["new", "drop03"]
+    "tags": ["new", "drop03", "cutout"]
+  },
+  {
+    "id": 8,
+    "title": "ARW FILM CITY TEE",
+    "slug": "arw-film-city-tee",
+    "description": "Drop 03 collaboration T-shirt with ARW Film and NewGbonhi chest marks plus a city building back graphic.",
+    "price": 15000,
+    "imageKey": "arwFilmCityBlackFront",
+    "category": "t-shirts",
+    "sizes": ["S", "M", "L", "XL", "XXL"],
+    "tags": ["new", "drop03"],
+    "variants": [
+      { "id": "black", "label": "Black", "imageKey": "arwFilmCityBlackFront" },
+      { "id": "white", "label": "White", "imageKey": "arwFilmCityWhiteFront" }
+    ]
   },
   {
     "id": 1,

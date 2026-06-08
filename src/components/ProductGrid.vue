@@ -119,7 +119,7 @@ export default {
     },
     isCutoutProduct(product) {
       const tags = Array.isArray(product?.tags) ? product.tags : [];
-      return tags.includes("drop03");
+      return tags.includes("cutout");
     },
     formatPrice(value) {
       if (typeof value !== "number" || Number.isNaN(value)) {

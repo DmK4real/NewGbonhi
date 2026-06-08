@@ -138,6 +138,22 @@ const arwFilmDopamineTeeUrl = new URL(
   "./assets/ARW FILM DOPAMINE TEE CUTOUT.png",
   import.meta.url
 ).href;
+const arwFilmCityBlackFrontUrl = new URL(
+  "./assets/ARW FILM CITY TEE BLACK FRONT.jpeg",
+  import.meta.url
+).href;
+const arwFilmCityBlackBackUrl = new URL(
+  "./assets/ARW FILM CITY TEE BLACK BACK.jpeg",
+  import.meta.url
+).href;
+const arwFilmCityWhiteFrontUrl = new URL(
+  "./assets/ARW FILM CITY TEE WHITE FRONT.jpeg",
+  import.meta.url
+).href;
+const arwFilmCityWhiteBackUrl = new URL(
+  "./assets/ARW FILM CITY TEE WHITE BACK.jpeg",
+  import.meta.url
+).href;
 
 export default {
   name: "LookbookPage",
@@ -149,6 +165,30 @@ export default {
       logoUrl,
       cartOpen: false,
       wornLooks: [
+        {
+          src: arwFilmCityBlackFrontUrl,
+          title: "ARW FILM CITY TEE / Black front",
+          scene: "Drop 03 / Front marks",
+          note: "Black edition with NewGbonhi and ARW Film chest marks.",
+        },
+        {
+          src: arwFilmCityBlackBackUrl,
+          title: "ARW FILM CITY TEE / Black back",
+          scene: "Drop 03 / City back",
+          note: "City building composition printed large on the back.",
+        },
+        {
+          src: arwFilmCityWhiteFrontUrl,
+          title: "ARW FILM CITY TEE / White front",
+          scene: "Drop 03 / Front marks",
+          note: "White edition with the same NewGbonhi x ARW Film chest identity.",
+        },
+        {
+          src: arwFilmCityWhiteBackUrl,
+          title: "ARW FILM CITY TEE / White back",
+          scene: "Drop 03 / City back",
+          note: "Light colorway with the city back print in high contrast.",
+        },
         {
           src: arwFilmDopamineTeeUrl,
           title: "ARW FILM DOPAMINE TEE",

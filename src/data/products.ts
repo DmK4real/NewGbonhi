@@ -47,6 +47,10 @@ const imageKeyToFile: Record<string, string> = {
   blackCameleon: "BLACK CAMELEON.png",
   arwFilmLogoTee: "ARW FILM TEE FRONT CUTOUT.png",
   arwFilmDopamineTee: "ARW FILM DOPAMINE TEE CUTOUT.png",
+  arwFilmCityBlackFront: "ARW FILM CITY TEE BLACK FRONT.jpeg",
+  arwFilmCityBlackBack: "ARW FILM CITY TEE BLACK BACK.jpeg",
+  arwFilmCityWhiteFront: "ARW FILM CITY TEE WHITE FRONT.jpeg",
+  arwFilmCityWhiteBack: "ARW FILM CITY TEE WHITE BACK.jpeg",
 };
 
 const imageKeyMap = Object.fromEntries(

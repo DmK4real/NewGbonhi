@@ -207,7 +207,7 @@ export default {
     },
     isCutoutProduct() {
       const tags = Array.isArray(this.product?.tags) ? this.product.tags : [];
-      return tags.includes("drop03");
+      return tags.includes("cutout");
     },
   },
   watch: {
