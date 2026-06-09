@@ -16,7 +16,7 @@ export default defineConfig(({ mode }) => {
     ],
     server: {
       port: frontendPort,
-      strictPort: true,
+      strictPort: false,
       proxy: {
         "/api": {
           target: `http://localhost:${targetPort}`,

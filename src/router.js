@@ -1,6 +1,8 @@
 import { createRouter, createWebHashHistory, createWebHistory } from "vue-router";
 import ShopPage from "./ShopPage.vue";
 import LookbookPage from "./LookbookPage.vue";
+import LabPage from "./LabPage.vue";
+import ArwStudioPage from "./ArwStudioPage.vue";
 import AboutPage from "./AboutPage.vue";
 import ProductPage from "./ProductPage.vue";
 import CheckoutPage from "./CheckoutPage.vue";
@@ -67,6 +69,26 @@ const routes = [
     meta: {
       title: "Lookbook | New Gbonhi Shop",
       description: "Lookbook officiel New Gbonhi Shop et direction visuelle des drops.",
+    },
+  },
+  {
+    path: "/lab",
+    name: "lab",
+    component: LabPage,
+    meta: {
+      title: "NewGbonhi Lab | Collective digital a Abidjan",
+      description:
+        "NewGbonhi Lab reference les talents, studios, marques et projets du collectif NewGbonhi.",
+    },
+  },
+  {
+    path: "/lab/arw-studio",
+    name: "arw-studio",
+    component: ArwStudioPage,
+    meta: {
+      title: "ARW Studio | NewGbonhi Lab",
+      description:
+        "ARW Studio dans le NewGbonhi Lab: capsule Drop 03, chrome identity et produits ARW Film.",
     },
   },
   {

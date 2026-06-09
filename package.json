@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:agent": "node scripts/dev-server.mjs",
     "api:dev": "node api/server.js",
     "api:worker:dev": "npx wrangler dev",
     "api:worker:deploy": "npx wrangler deploy",

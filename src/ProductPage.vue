@@ -18,6 +18,9 @@
         >
           {{ $t("navLookbook") }}
         </RouterLink>
+        <RouterLink :class="{ 'is-active': $route.name === 'lab' }" to="/lab">
+          {{ $t("navLab") }}
+        </RouterLink>
         <RouterLink :class="{ 'is-active': $route.name === 'studio' }" to="/studio">
           {{ $t("navStudio") }}
         </RouterLink>
@@ -81,6 +84,13 @@
       <div class="product-info">
         <p class="product-kicker">{{ categoryLabel }}</p>
         <h1>{{ product.title }}</h1>
+        <RouterLink
+          v-if="product.creatorName && product.creatorSlug"
+          class="product-creator"
+          :to="creatorLink(product)"
+        >
+          {{ $t("creatorBy") }} {{ product.creatorName }}
+        </RouterLink>
         <p class="product-price">{{ formatPrice(product.price) }}</p>
         <p class="product-description">
           {{ product.description || $t("defaultDescription") }}
@@ -284,6 +294,12 @@ export default {
     },
     toggleCart() {
       this.cartOpen = !this.cartOpen;
+    },
+    creatorLink(product) {
+      if (product?.creatorSlug === "arw-studio") {
+        return "/lab/arw-studio";
+      }
+      return `/lab#${product?.creatorSlug || ""}`;
     },
     addProductToCart() {
       if (!this.product || this.product.soldOut) {
@@ -532,6 +548,23 @@ export default {
   margin: 0 0 12px;
   font-size: 18px;
   font-weight: 600;
+}
+
+.product-creator {
+  display: inline-flex;
+  margin: -2px 0 12px;
+  color: var(--accent);
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.product-creator:hover,
+.product-creator:focus-visible {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
 }
 
 .product-description {

@@ -70,6 +70,17 @@
         </component>
       </h3>
 
+      <RouterLink
+        v-if="product.creatorName && product.creatorSlug"
+        class="pg-creator"
+        :to="creatorLink(product)"
+      >
+        {{ $t("creatorBy") }} {{ product.creatorName }}
+      </RouterLink>
+      <p v-else-if="product.creatorName" class="pg-creator">
+        {{ $t("creatorBy") }} {{ product.creatorName }}
+      </p>
+
       <p class="pg-price">
         {{ formatPrice(product.price) }}
       </p>
@@ -155,6 +166,12 @@ export default {
         currency: this.currency,
         maximumFractionDigits: 2,
       }).format(value);
+    },
+    creatorLink(product) {
+      if (product?.creatorSlug === "arw-studio") {
+        return "/lab/arw-studio";
+      }
+      return `/lab#${product?.creatorSlug || ""}`;
     },
   },
 };
@@ -361,6 +378,24 @@ export default {
   text-align: left;
   font: 500 14px/1.4 "Space Grotesk", "Karla", Arial, sans-serif;
   color: var(--pg-text);
+}
+
+.pg-creator {
+  display: inline-flex;
+  width: fit-content;
+  margin: 0 0 4px;
+  text-align: left;
+  font: 700 10px/1.2 "Space Grotesk", "Karla", Arial, sans-serif;
+  color: var(--pg-accent);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.pg-creator:hover,
+.pg-creator:focus-visible {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
 }
 
 .pg-add {

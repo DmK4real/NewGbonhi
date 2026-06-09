@@ -18,6 +18,9 @@
         >
           {{ $t("navLookbook") }}
         </RouterLink>
+        <RouterLink :class="{ 'is-active': $route.name === 'lab' }" to="/lab">
+          {{ $t("navLab") }}
+        </RouterLink>
         <RouterLink :class="{ 'is-active': $route.name === 'studio' }" to="/studio">
           {{ $t("navStudio") }}
         </RouterLink>
@@ -130,6 +133,22 @@
           <figcaption>{{ $t("collabMarkLabel") }}</figcaption>
         </figure>
       </div>
+    </section>
+
+    <section class="lab-entry" aria-labelledby="lab-entry-title">
+      <div class="lab-entry-copy">
+        <p>{{ $t("labHomeKicker") }}</p>
+        <h2 id="lab-entry-title">{{ $t("labHomeTitle") }}</h2>
+        <p>{{ $t("labHomeSub") }}</p>
+        <RouterLink class="hero-button" to="/lab">
+          {{ $t("labHomeCta") }}
+        </RouterLink>
+      </div>
+      <RouterLink class="lab-entry-profile" to="/lab/arw-studio">
+        <span>{{ $t("labHomeCreatorKicker") }}</span>
+        <strong>ARW Studio</strong>
+        <img :src="collabCityWhiteTeeCutout" alt="" />
+      </RouterLink>
     </section>
 
     <section class="drop-details">
@@ -1011,6 +1030,99 @@ export default {
   backdrop-filter: blur(10px);
 }
 
+.lab-entry {
+  margin-top: 24px;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: #fff;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 0.45fr);
+  gap: 24px;
+  align-items: stretch;
+  animation: rise 0.78s ease both;
+}
+
+.lab-entry-copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.lab-entry-copy p:first-child,
+.lab-entry-profile span {
+  margin: 0;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.lab-entry-copy h2 {
+  margin: 10px 0 12px;
+  font-family: "Archivo Black", "Space Grotesk", Arial, sans-serif;
+  font-size: clamp(28px, 4vw, 44px);
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.lab-entry-copy p:not(:first-child) {
+  margin: 0;
+  max-width: 680px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.lab-entry-copy .hero-button {
+  width: fit-content;
+  margin-top: 22px;
+}
+
+.lab-entry-profile {
+  position: relative;
+  min-height: 260px;
+  border: 1px solid rgba(0, 0, 0, 0.16);
+  border-radius: 16px;
+  background:
+    linear-gradient(180deg, rgba(225, 6, 0, 0.08), transparent 42%),
+    #f7f7f7;
+  color: #0b0b0b;
+  text-decoration: none;
+  overflow: hidden;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.lab-entry-profile strong {
+  position: relative;
+  z-index: 2;
+  margin-top: 6px;
+  font-family: "Archivo Black", "Space Grotesk", Arial, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 22px;
+}
+
+.lab-entry-profile img {
+  position: absolute;
+  right: -10%;
+  bottom: 12%;
+  width: 78%;
+  max-height: 260px;
+  object-fit: contain;
+  filter: drop-shadow(0 18px 22px rgba(0, 0, 0, 0.16));
+  transition: transform 0.3s ease;
+}
+
+.lab-entry-profile:hover img,
+.lab-entry-profile:focus-visible img {
+  transform: scale(1.06) rotate(-1deg);
+}
+
 .drop-details {
   margin-top: 24px;
   padding: 24px;
@@ -1621,6 +1733,15 @@ export default {
     text-align: center;
     letter-spacing: 0.12em;
     font-size: 9px;
+  }
+
+  .lab-entry {
+    grid-template-columns: 1fr;
+    padding: 18px;
+  }
+
+  .lab-entry-copy .hero-button {
+    width: 100%;
   }
 
   .drop-details {

@@ -18,6 +18,9 @@
         >
           {{ $t("navLookbook") }}
         </RouterLink>
+        <RouterLink :class="{ 'is-active': $route.name === 'lab' }" to="/lab">
+          {{ $t("navLab") }}
+        </RouterLink>
         <RouterLink :class="{ 'is-active': $route.name === 'studio' }" to="/studio">
           {{ $t("navStudio") }}
         </RouterLink>
