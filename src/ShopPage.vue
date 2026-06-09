@@ -118,7 +118,7 @@
 
       <div class="collab-gallery" aria-label="ARW Film collaboration previews">
         <figure class="collab-frame collab-frame-main collab-frame-cutout">
-          <img :src="collabDopamineTeeCutout" :alt="$t('collabDopamineAlt')" />
+          <img :src="collabCityWhiteTeeCutout" :alt="$t('collabCityWhiteAlt')" />
           <figcaption>{{ $t("collabEditorialLabel") }}</figcaption>
         </figure>
         <figure class="collab-frame collab-frame-side collab-frame-cutout">
@@ -317,8 +317,8 @@ const collabFrontTeeCutout = new URL(
   "./assets/ARW FILM TEE FRONT CUTOUT.png",
   import.meta.url
 ).href;
-const collabDopamineTeeCutout = new URL(
-  "./assets/ARW FILM DOPAMINE TEE CUTOUT.png",
+const collabCityWhiteTeeCutout = new URL(
+  "./assets/ARW FILM CITY TEE WHITE FRONT CUTOUT.png",
   import.meta.url
 ).href;
 const collabChromeLogo = new URL(
@@ -341,7 +341,7 @@ export default {
       stickerCup,
       collabLockup,
       collabFrontTeeCutout,
-      collabDopamineTeeCutout,
+      collabCityWhiteTeeCutout,
       collabChromeLogo,
       nextDropAt: null,
       countdown: "",

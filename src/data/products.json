@@ -55,6 +55,7 @@
     "category": "t-shirts",
     "sizes": ["S", "M", "L", "XL", "XXL"],
     "tags": ["restock", "drop02"],
+    "soldOut": true,
     "variants": [
       { "id": "black", "label": "Black", "imageKey": "safeZoneBlack" },
       { "id": "white", "label": "White", "imageKey": "safeZoneWhite" }
@@ -70,6 +71,7 @@
     "category": "t-shirts",
     "sizes": ["S", "M", "L", "XL", "XXL"],
     "tags": ["new", "drop02"],
+    "soldOut": true,
     "variants": [
       { "id": "black", "label": "Black", "imageKey": "blackCameleon" },
       { "id": "white", "label": "White", "imageKey": "whiteCameleon" }
