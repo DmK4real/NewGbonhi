@@ -125,7 +125,7 @@
           <figcaption>{{ $t("collabEditorialLabel") }}</figcaption>
         </figure>
         <figure class="collab-frame collab-frame-side collab-frame-cutout">
-          <img :src="collabFrontTeeCutout" :alt="$t('collabFrontAlt')" />
+          <img :src="collabCityBlackTeeCutout" :alt="$t('collabCityBlackAlt')" />
           <figcaption>{{ $t("collabPieceLabel") }}</figcaption>
         </figure>
         <figure class="collab-frame collab-frame-mark collab-frame-cutout">
@@ -325,25 +325,30 @@ import { cartStore } from "./data/cart.ts";
 
 const logoUrl = new URL("./assets/newgbonhi-logo.png", import.meta.url).href;
 const heroImage = new URL(
-  "./assets/ARW FILM DOPAMINE TEE CUTOUT.png",
+  "./assets/ARW FILM CITY TEE WHITE FRONT CUTOUT.png",
   import.meta.url
 ).href;
 const stickerOval = new URL("./assets/NEW GBONHI OVAL.png", import.meta.url).href;
 const stickerArwFilm = new URL("./assets/ARW FILM.png", import.meta.url).href;
 const stickerCup = new URL("./assets/ARW FILM CUP STICKER.png", import.meta.url).href;
 const collabLockup = new URL("./assets/ARW FILM X NEW GBONHI.jpeg", import.meta.url).href;
-const collabFrontTeeCutout = new URL(
-  "./assets/ARW FILM TEE FRONT CUTOUT.png",
-  import.meta.url
-).href;
 const collabCityWhiteTeeCutout = new URL(
   "./assets/ARW FILM CITY TEE WHITE FRONT CUTOUT.png",
+  import.meta.url
+).href;
+const collabCityBlackTeeCutout = new URL(
+  "./assets/ARW FILM CITY TEE BLACK FRONT CUTOUT.png",
   import.meta.url
 ).href;
 const collabChromeLogo = new URL(
   "./assets/ARW FILM CHROME LOGO CUTOUT.png",
   import.meta.url
 ).href;
+
+const arwStudioOnlySlugs = new Set([
+  "arw-film-logo-tee",
+  "arw-film-dopamine-tee",
+]);
 
 export default {
   name: "ShopPage",
@@ -359,8 +364,8 @@ export default {
       stickerArwFilm,
       stickerCup,
       collabLockup,
-      collabFrontTeeCutout,
       collabCityWhiteTeeCutout,
+      collabCityBlackTeeCutout,
       collabChromeLogo,
       nextDropAt: null,
       countdown: "",
@@ -413,6 +418,11 @@ export default {
         timeStyle: "short",
       }).format(this.nextDropAt);
     },
+    shopProducts() {
+      return this.products.filter(
+        (product) => !arwStudioOnlySlugs.has(product.slug)
+      );
+    },
     categoryOptions() {
       const labelMap = {
         "t-shirts": this.$t("categoryTshirts"),
@@ -420,7 +430,7 @@ export default {
         pants: this.$t("categoryPants"),
       };
       const order = ["t-shirts", "crop-tops", "pants"];
-      const counts = this.products.reduce((acc, product) => {
+      const counts = this.shopProducts.reduce((acc, product) => {
         const raw = String(product?.category || "").trim().toLowerCase();
         if (!raw) {
           return acc;
@@ -458,7 +468,7 @@ export default {
 
       const query = this.searchQuery.toLowerCase(); // New search query processing
 
-      return this.products.filter((product) => {
+      return this.shopProducts.filter((product) => {
         const productCategory = String(product?.category || "")
           .trim()
           .toLowerCase();

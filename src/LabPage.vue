@@ -30,7 +30,7 @@
         <RouterLink :class="{ 'is-active': $route.name === 'orders' }" to="/orders">
           {{ $t("navOrders") }}
         </RouterLink>
-        <a href="#contact">{{ $t("navContact") }}</a>
+        <a class="nav-contact" href="#contact">{{ $t("navContact") }}</a>
       </nav>
       <button class="shop-cta" type="button" @click="toggleCart">
         {{ $t("cart") }} ({{ cartCount }})
@@ -61,9 +61,16 @@
             <strong>ARW Studio</strong>
           </div>
           <div class="showcase-stage">
-            <img class="showcase-lockup" :src="collabLockup" alt="ARW Film x NewGbonhi" />
+            <div class="showcase-board">
+              <img class="showcase-logo showcase-logo-arw" :src="arwLogo" alt="ARW Film" />
+              <span class="showcase-cross">x</span>
+              <img
+                class="showcase-logo showcase-logo-newgbonhi"
+                :src="newgbonhiOval"
+                alt="NewGbonhi"
+              />
+            </div>
             <img class="showcase-shirt" :src="cityWhiteTee" alt="" />
-            <img class="showcase-mark" :src="arwLogo" alt="" />
             <img class="showcase-cup" :src="cupSticker" alt="" />
           </div>
           <div class="showcase-footer">
@@ -87,47 +94,10 @@
         </div>
       </section>
 
-      <section id="arw-studio" class="resident-section">
-        <div class="resident-copy">
-          <p class="eyebrow">{{ pageCopy.residentKicker }}</p>
-          <h2>{{ pageCopy.residentTitle }}</h2>
-          <p class="resident-text">{{ pageCopy.residentText }}</p>
-          <dl class="resident-facts">
-            <div v-for="fact in pageCopy.residentFacts" :key="fact.label">
-              <dt>{{ fact.label }}</dt>
-              <dd>{{ fact.value }}</dd>
-            </div>
-          </dl>
-          <div class="hero-actions">
-            <RouterLink class="lab-button" to="/lab/arw-studio">
-              {{ pageCopy.residentPrimary }}
-            </RouterLink>
-            <a class="lab-button lab-button-light" href="#contact">
-              {{ pageCopy.residentSecondary }}
-            </a>
-          </div>
-        </div>
-
-        <div class="resident-visual">
-          <article class="resident-frame resident-frame-large">
-            <img :src="collabLockup" alt="ARW Film x NewGbonhi" />
-            <span>Room 001</span>
-          </article>
-          <article class="resident-frame">
-            <img :src="arwLogo" alt="ARW Film mark" />
-            <span>Identity</span>
-          </article>
-          <article class="resident-frame resident-frame-mark">
-            <img :src="cupSticker" alt="ARW Film sticker" />
-            <span>Visual world</span>
-          </article>
-        </div>
-      </section>
-
       <section id="clients" class="client-directory" aria-labelledby="client-directory-title">
         <div class="directory-topline">
           <span>NEWGBONHI LAB</span>
-          <a href="#arw-studio">{{ pageCopy.directoryClose }}</a>
+          <RouterLink to="/lab/arw-studio">{{ pageCopy.directoryClose }}</RouterLink>
         </div>
 
         <div class="directory-body">
@@ -202,7 +172,7 @@ import { i18nState } from "./i18n.js";
 
 const logoUrl = new URL("./assets/newgbonhi-logo.png", import.meta.url).href;
 const arwLogo = new URL("./assets/ARW FILM.png", import.meta.url).href;
-const collabLockup = new URL("./assets/ARW FILM X NEW GBONHI.jpeg", import.meta.url).href;
+const newgbonhiOval = new URL("./assets/NEW GBONHI OVAL.png", import.meta.url).href;
 const cityWhiteTee = new URL(
   "./assets/ARW FILM CITY TEE WHITE FRONT CUTOUT.png",
   import.meta.url
@@ -365,7 +335,7 @@ export default {
     return {
       logoUrl,
       arwLogo,
-      collabLockup,
+      newgbonhiOval,
       cityWhiteTee,
       cupSticker,
       cartOpen: false,
@@ -536,7 +506,6 @@ main {
 
 .lab-hero,
 .lab-system,
-.resident-section,
 .client-directory {
   animation: rise 0.65s ease both;
 }
@@ -550,8 +519,7 @@ main {
 
 .hero-copy,
 .hero-showcase,
-.lab-system,
-.resident-section {
+.lab-system {
   border: 1px solid var(--line);
   border-radius: 18px;
   background: #fff;
@@ -582,8 +550,7 @@ main {
   text-transform: uppercase;
 }
 
-.hero-sub,
-.resident-text {
+.hero-sub {
   margin: 0;
   color: var(--muted);
   font-size: 16px;
@@ -674,15 +641,50 @@ main {
     );
 }
 
-.showcase-lockup {
+.showcase-board {
   position: absolute;
   top: 24px;
   left: 24px;
   z-index: 2;
-  width: min(300px, 54%);
+  width: min(330px, 58%);
+  height: min(350px, 74%);
   border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: 12px;
   background: #fff;
+  overflow: hidden;
+  box-shadow: 0 28px 40px rgba(0, 0, 0, 0.26);
+}
+
+.showcase-logo {
+  position: absolute;
+  z-index: 2;
+  object-fit: contain;
+  filter: drop-shadow(0 18px 18px rgba(0, 0, 0, 0.18));
+}
+
+.showcase-logo-arw {
+  left: 13%;
+  top: 22%;
+  width: 36%;
+}
+
+.showcase-logo-newgbonhi {
+  right: 9%;
+  bottom: 16%;
+  width: 46%;
+}
+
+.showcase-cross {
+  position: absolute;
+  left: 50%;
+  top: 52%;
+  z-index: 3;
+  transform: translate(-50%, -50%);
+  color: #0b0b0b;
+  font-family: "Archivo Black", "Space Grotesk", Arial, sans-serif;
+  font-size: clamp(18px, 3vw, 30px);
+  line-height: 1;
+  text-transform: uppercase;
 }
 
 .showcase-shirt {
@@ -692,15 +694,6 @@ main {
   z-index: 2;
   width: min(460px, 72%);
   filter: drop-shadow(0 26px 32px rgba(0, 0, 0, 0.42));
-}
-
-.showcase-mark {
-  position: absolute;
-  left: 7%;
-  bottom: 11%;
-  z-index: 3;
-  width: min(160px, 28%);
-  filter: drop-shadow(0 18px 20px rgba(0, 0, 0, 0.3));
 }
 
 .showcase-cup {
@@ -770,121 +763,6 @@ main {
   color: var(--muted);
   font-size: 13px;
   line-height: 1.55;
-}
-
-.resident-section {
-  padding: 24px;
-  display: grid;
-  grid-template-columns: minmax(280px, 0.82fr) minmax(0, 1.18fr);
-  gap: 24px;
-  align-items: stretch;
-}
-
-.resident-copy {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.resident-copy h2 {
-  margin: 12px 0 14px;
-  font-family: "Archivo Black", "Space Grotesk", Arial, sans-serif;
-  font-size: clamp(38px, 5vw, 62px);
-  line-height: 0.95;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.resident-facts {
-  margin: 22px 0 0;
-  display: grid;
-  border-top: 1px solid rgba(0, 0, 0, 0.16);
-}
-
-.resident-facts div {
-  display: grid;
-  grid-template-columns: 0.7fr 1fr;
-  gap: 14px;
-  padding: 14px 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.16);
-}
-
-.resident-facts dt,
-.resident-facts dd {
-  margin: 0;
-}
-
-.resident-facts dt {
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  font-size: 10px;
-  font-weight: 700;
-}
-
-.resident-facts dd {
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.resident-visual {
-  display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  grid-template-rows: 1fr 0.82fr;
-  gap: 14px;
-  min-height: 540px;
-}
-
-.resident-frame {
-  position: relative;
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  overflow: hidden;
-  background: #f7f7f7;
-  display: grid;
-  place-items: center;
-}
-
-.resident-frame-large {
-  grid-row: 1 / span 2;
-  background:
-    linear-gradient(90deg, rgba(225, 6, 0, 0.06), transparent 30%),
-    #fff;
-}
-
-.resident-frame-mark {
-  background: #0b0b0b;
-}
-
-.resident-frame img {
-  width: 90%;
-  height: 90%;
-  object-fit: contain;
-  filter: drop-shadow(0 18px 18px rgba(0, 0, 0, 0.18));
-}
-
-.resident-frame-large img {
-  width: 106%;
-  height: 106%;
-}
-
-.resident-frame-mark img {
-  width: 72%;
-  height: 72%;
-}
-
-.resident-frame span {
-  position: absolute;
-  left: 14px;
-  bottom: 14px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: #fff;
-  padding: 7px 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  font-size: 10px;
-  font-weight: 800;
 }
 
 .client-directory {
@@ -1106,8 +984,7 @@ main {
     justify-self: end;
   }
 
-  .lab-hero,
-  .resident-section {
+  .lab-hero {
     grid-template-columns: 1fr;
   }
 
@@ -1122,10 +999,6 @@ main {
   .system-grid article + article {
     border-left: 0;
     border-top: 1px solid rgba(0, 0, 0, 0.16);
-  }
-
-  .resident-visual {
-    min-height: 480px;
   }
 
   .showcase-stage {
@@ -1199,8 +1072,7 @@ main {
   }
 
   .hero-copy,
-  .lab-system,
-  .resident-section {
+  .lab-system {
     padding: 18px;
   }
 
@@ -1217,14 +1089,13 @@ main {
     font-size: clamp(36px, 15vw, 58px);
   }
 
-  .hero-sub,
-  .resident-text {
+  .hero-sub {
     font-size: 14px;
     line-height: 1.6;
   }
 
   .showcase-stage {
-    min-height: 340px;
+    min-height: 330px;
   }
 
   .showcase-meta,
@@ -1235,66 +1106,46 @@ main {
     gap: 4px;
   }
 
-  .showcase-lockup {
+  .showcase-board {
     top: 14px;
     left: 14px;
-    width: 58%;
+    width: 61%;
+    height: 72%;
+  }
+
+  .showcase-logo-arw {
+    left: 11%;
+    top: 24%;
+    width: 38%;
+  }
+
+  .showcase-logo-newgbonhi {
+    right: 8%;
+    bottom: 16%;
+    width: 48%;
+  }
+
+  .showcase-cross {
+    top: 52%;
+    font-size: 22px;
   }
 
   .showcase-shirt {
-    right: -2%;
-    bottom: -4%;
-    width: 86%;
-  }
-
-  .showcase-mark {
-    left: 14px;
-    bottom: 16px;
-    width: 30%;
+    right: -10%;
+    bottom: -2%;
+    width: 80%;
   }
 
   .showcase-cup {
     right: 12px;
-    top: 68px;
-    width: 17%;
+    top: 72px;
+    width: 14%;
   }
 
   .system-grid article {
     min-height: 0;
     gap: 10px;
     padding: 16px;
-  }
-
-  .resident-copy h2 {
-    font-size: clamp(32px, 10vw, 46px);
-  }
-
-  .resident-facts div,
-  .resident-visual {
-    grid-template-columns: 1fr;
-  }
-
-  .resident-facts div {
-    gap: 6px;
-  }
-
-  .resident-visual {
-    grid-template-rows: 260px 200px 180px;
-    min-height: 0;
-  }
-
-  .resident-frame-large {
-    grid-row: auto;
-  }
-
-  .resident-frame img {
-    width: 84%;
-    height: 84%;
-  }
-
-  .resident-frame-large img {
-    width: 110%;
-    height: 110%;
   }
 
   .directory-topline {
@@ -1362,5 +1213,60 @@ main {
     font-size: 14px;
     line-height: 1.3;
   }
+}
+
+@media (max-width: 700px) {
+  .shop-nav .nav-contact {
+    display: none;
+  }
+}
+
+@media (max-width: 430px) {
+  .lab-page {
+    padding-inline: 12px;
+  }
+
+  .shop-nav {
+    gap: 12px;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+  }
+
+  .showcase-stage {
+    min-height: 300px;
+  }
+
+  .showcase-board {
+    width: 63%;
+    height: 70%;
+  }
+
+  .showcase-logo-arw {
+    left: 10%;
+    top: 24%;
+    width: 39%;
+  }
+
+  .showcase-logo-newgbonhi {
+    right: 7%;
+    bottom: 17%;
+    width: 50%;
+  }
+
+  .showcase-cross {
+    top: 52%;
+    font-size: 20px;
+  }
+
+  .showcase-shirt {
+    right: -12%;
+    width: 82%;
+  }
+
+  .showcase-cup {
+    top: 66px;
+    width: 16%;
+  }
+
 }
 </style>
