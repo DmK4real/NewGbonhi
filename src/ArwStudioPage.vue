@@ -302,6 +302,11 @@ export default {
   gap: 24px;
 }
 
+.arw-nav::-webkit-scrollbar,
+.arw-actions::-webkit-scrollbar {
+  display: none;
+}
+
 .arw-actions {
   justify-content: flex-end;
 }
@@ -788,34 +793,59 @@ main {
 }
 
 @media (max-width: 980px) {
+  .arw-page {
+    padding: 0 18px 38px;
+  }
+
   .arw-header {
     grid-template-columns: 1fr;
-    justify-items: center;
-    padding: 16px 0;
+    justify-items: stretch;
+    padding: 14px 0 18px;
+    gap: 14px;
+  }
+
+  .arw-brand {
+    order: -1;
+    justify-self: center;
   }
 
   .arw-nav,
   .arw-actions {
     width: 100%;
-    justify-content: center;
-    flex-wrap: wrap;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    white-space: nowrap;
+    scrollbar-width: none;
+    padding-bottom: 4px;
   }
 
   .arw-hero {
     grid-template-columns: 1fr;
     min-height: 0;
+    border-radius: 0 0 24px 24px;
+  }
+
+  .hero-copy {
+    padding: 34px 28px;
   }
 
   .hero-visual {
-    min-height: 420px;
+    min-height: 380px;
   }
 
   .quick-links,
-  .arw-products,
   .service-strip {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .arw-products {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .arw-footer {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 640px) {
@@ -831,11 +861,22 @@ main {
 
   .arw-nav,
   .arw-actions {
-    gap: 14px;
+    gap: 12px;
+  }
+
+  .arw-nav a,
+  .arw-actions a,
+  .arw-actions button {
+    font-size: 10px;
+  }
+
+  .arw-brand img {
+    width: clamp(132px, 44vw, 188px);
+    height: 50px;
   }
 
   .hero-copy {
-    padding: 24px 18px;
+    padding: 22px 18px 24px;
   }
 
   .hero-logo {
@@ -844,7 +885,12 @@ main {
   }
 
   .hero-copy h1 {
-    font-size: clamp(32px, 12vw, 48px);
+    font-size: clamp(30px, 12vw, 44px);
+  }
+
+  .hero-copy p:not(.eyebrow) {
+    font-size: 14px;
+    line-height: 1.6;
   }
 
   .hero-buttons,
@@ -859,29 +905,110 @@ main {
   }
 
   .hero-visual {
-    min-height: 360px;
+    min-height: 300px;
+  }
+
+  .hero-visual::after {
+    right: 8%;
+    top: 18%;
+    width: 120px;
+    height: 120px;
   }
 
   .denim-shirt {
-    right: -35%;
-    bottom: -20%;
-    width: 130%;
+    right: -22%;
+    bottom: -14%;
+    width: 118%;
   }
 
   .coin-mark {
-    right: 12%;
-    top: 34%;
-    width: 34%;
+    right: 10%;
+    top: 32%;
+    width: 30%;
+  }
+
+  .hero-dots {
+    right: 14px;
+    top: auto;
+    bottom: 18px;
+    grid-auto-flow: column;
   }
 
   .quick-links,
-  .arw-products,
+  .arw-products {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .quick-links a {
+    min-height: 70px;
+    padding: 12px;
+    align-items: flex-start;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .quick-links span {
+    width: 36px;
+    height: 36px;
+  }
+
+  .quick-links strong {
+    font-size: 11px;
+    line-height: 1.2;
+  }
+
+  .arw-product-card {
+    padding: 8px;
+    grid-template-rows: auto minmax(74px, auto) auto;
+  }
+
+  .product-info {
+    min-height: 74px;
+    padding: 12px 2px 10px;
+  }
+
+  .product-info a {
+    font-size: 11px;
+    line-height: 1.35;
+  }
+
+  .product-info p {
+    font-size: 12px;
+  }
+
+  .arw-product-card button {
+    min-height: 42px;
+    padding: 0 8px;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+  }
+
   .service-strip {
     grid-template-columns: 1fr;
+    padding: 12px;
+  }
+
+  .service-strip article {
+    padding: 10px;
+  }
+
+  .arw-footer {
+    padding: 18px;
   }
 
   .arw-footer nav {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 420px) {
+  .quick-links {
+    grid-template-columns: 1fr;
+  }
+
+  .arw-products {
+    gap: 10px;
   }
 }
 </style>

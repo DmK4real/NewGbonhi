@@ -1087,6 +1087,25 @@ main {
 }
 
 @media (max-width: 980px) {
+  .shop-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  .brand {
+    min-width: 0;
+  }
+
+  .shop-nav {
+    grid-column: 1 / -1;
+    padding-bottom: 4px;
+  }
+
+  .shop-cta {
+    justify-self: end;
+  }
+
   .lab-hero,
   .resident-section {
     grid-template-columns: 1fr;
@@ -1109,6 +1128,22 @@ main {
     min-height: 480px;
   }
 
+  .showcase-stage {
+    min-height: 360px;
+  }
+
+  .showcase-shirt {
+    right: -2%;
+    bottom: -6%;
+    width: min(400px, 70%);
+  }
+
+  .showcase-cup {
+    right: 6%;
+    top: 11%;
+    width: min(82px, 14%);
+  }
+
   .directory-lead,
   .directory-columns {
     grid-template-columns: 1fr;
@@ -1121,15 +1156,41 @@ main {
 
 @media (max-width: 700px) {
   .lab-page {
-    padding: 24px 16px 40px;
+    padding: 20px 14px 36px;
   }
 
   .shop-header {
-    align-items: flex-start;
+    gap: 14px;
+    align-items: start;
+  }
+
+  .brand {
+    width: 100%;
+  }
+
+  .brand-logo {
+    width: 52px;
+    height: 52px;
+  }
+
+  .brand-name {
+    font-size: 18px;
+  }
+
+  .brand-tagline {
+    font-size: 10px;
+    letter-spacing: 0.16em;
+  }
+
+  .shop-nav {
+    gap: 14px;
+    font-size: 11px;
+    padding-bottom: 2px;
   }
 
   .shop-cta {
     width: 100%;
+    min-height: 44px;
   }
 
   main {
@@ -1152,8 +1213,18 @@ main {
     width: 100%;
   }
 
+  .hero-copy h1 {
+    font-size: clamp(36px, 15vw, 58px);
+  }
+
+  .hero-sub,
+  .resident-text {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
   .showcase-stage {
-    min-height: 420px;
+    min-height: 340px;
   }
 
   .showcase-meta,
@@ -1165,27 +1236,37 @@ main {
   }
 
   .showcase-lockup {
-    top: 16px;
-    left: 16px;
-    width: 64%;
+    top: 14px;
+    left: 14px;
+    width: 58%;
   }
 
   .showcase-shirt {
-    right: -10%;
-    bottom: -3%;
-    width: 92%;
+    right: -2%;
+    bottom: -4%;
+    width: 86%;
   }
 
   .showcase-mark {
-    left: 16px;
-    bottom: 20px;
-    width: 34%;
+    left: 14px;
+    bottom: 16px;
+    width: 30%;
   }
 
   .showcase-cup {
-    right: 18px;
-    top: 92px;
-    width: 18%;
+    right: 12px;
+    top: 68px;
+    width: 17%;
+  }
+
+  .system-grid article {
+    min-height: 0;
+    gap: 10px;
+    padding: 16px;
+  }
+
+  .resident-copy h2 {
+    font-size: clamp(32px, 10vw, 46px);
   }
 
   .resident-facts div,
@@ -1193,8 +1274,12 @@ main {
     grid-template-columns: 1fr;
   }
 
+  .resident-facts div {
+    gap: 6px;
+  }
+
   .resident-visual {
-    grid-template-rows: 320px 260px 210px;
+    grid-template-rows: 260px 200px 180px;
     min-height: 0;
   }
 
@@ -1202,14 +1287,23 @@ main {
     grid-row: auto;
   }
 
+  .resident-frame img {
+    width: 84%;
+    height: 84%;
+  }
+
   .resident-frame-large img {
-    width: 118%;
-    height: 118%;
+    width: 110%;
+    height: 110%;
   }
 
   .directory-topline {
-    min-height: 54px;
-    padding: 0 16px;
+    min-height: 50px;
+    padding: 0 14px;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 2px;
   }
 
   .directory-topline span,
@@ -1219,21 +1313,54 @@ main {
   }
 
   .directory-body {
-    padding: 18px;
-    gap: 24px;
+    padding: 16px;
+    gap: 20px;
+  }
+
+  .directory-lead {
+    gap: 12px;
+    padding-bottom: 18px;
+  }
+
+  .directory-lead h2 {
+    font-size: clamp(24px, 10vw, 40px);
+    line-height: 0.96;
+  }
+
+  .directory-total {
+    white-space: normal;
+  }
+
+  .client-listing {
+    grid-template-columns: 1fr;
   }
 
   .client-row {
-    min-height: 124px;
+    min-height: 110px;
+    padding: 16px;
+  }
+
+  .client-row strong {
+    font-size: clamp(18px, 7vw, 28px);
+  }
+
+  .client-row em {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .directory-columns {
+    gap: 18px;
   }
 
   .directory-columns ul {
-    grid-template-columns: 1fr 1fr;
-    gap: 16px 20px;
+    grid-template-columns: 1fr;
+    gap: 12px;
   }
 
   .directory-columns span {
-    font-size: 15px;
+    font-size: 14px;
+    line-height: 1.3;
   }
 }
 </style>
