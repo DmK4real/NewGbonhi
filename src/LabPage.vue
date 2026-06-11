@@ -646,7 +646,7 @@ main {
   top: 24px;
   left: 24px;
   z-index: 2;
-  width: min(330px, 58%);
+  width: min(360px, 52%);
   height: min(350px, 74%);
   border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: 12px;
@@ -664,19 +664,19 @@ main {
 
 .showcase-logo-arw {
   left: 13%;
-  top: 22%;
-  width: 36%;
+  top: 23%;
+  width: 43%;
 }
 
 .showcase-logo-newgbonhi {
-  right: 9%;
-  bottom: 16%;
-  width: 46%;
+  left: 10%;
+  bottom: 13%;
+  width: 42%;
 }
 
 .showcase-cross {
   position: absolute;
-  left: 50%;
+  left: 32%;
   top: 52%;
   z-index: 3;
   transform: translate(-50%, -50%);
@@ -689,10 +689,10 @@ main {
 
 .showcase-shirt {
   position: absolute;
-  right: 4%;
+  right: -2%;
   bottom: -8%;
   z-index: 2;
-  width: min(460px, 72%);
+  width: min(450px, 66%);
   filter: drop-shadow(0 26px 32px rgba(0, 0, 0, 0.42));
 }
 
@@ -1109,31 +1109,32 @@ main {
   .showcase-board {
     top: 14px;
     left: 14px;
-    width: 61%;
+    width: 56%;
     height: 72%;
   }
 
   .showcase-logo-arw {
-    left: 11%;
+    left: 12%;
     top: 24%;
-    width: 38%;
+    width: 48%;
   }
 
   .showcase-logo-newgbonhi {
-    right: 8%;
-    bottom: 16%;
-    width: 48%;
+    left: 9%;
+    bottom: 13%;
+    width: 50%;
   }
 
   .showcase-cross {
     top: 52%;
+    left: 35%;
     font-size: 22px;
   }
 
   .showcase-shirt {
-    right: -10%;
+    right: -12%;
     bottom: -2%;
-    width: 80%;
+    width: 76%;
   }
 
   .showcase-cup {
@@ -1237,30 +1238,31 @@ main {
   }
 
   .showcase-board {
-    width: 63%;
+    width: 58%;
     height: 70%;
   }
 
   .showcase-logo-arw {
-    left: 10%;
+    left: 11%;
     top: 24%;
-    width: 39%;
+    width: 50%;
   }
 
   .showcase-logo-newgbonhi {
-    right: 7%;
-    bottom: 17%;
-    width: 50%;
+    left: 8%;
+    bottom: 13%;
+    width: 52%;
   }
 
   .showcase-cross {
     top: 52%;
+    left: 36%;
     font-size: 20px;
   }
 
   .showcase-shirt {
-    right: -12%;
-    width: 82%;
+    right: -14%;
+    width: 78%;
   }
 
   .showcase-cup {
