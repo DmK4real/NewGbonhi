@@ -665,7 +665,7 @@ main {
 .showcase-logo-arw {
   left: 13%;
   top: 23%;
-  width: 43%;
+  width: 36%;
 }
 
 .showcase-logo-newgbonhi {
