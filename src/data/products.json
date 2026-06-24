@@ -62,7 +62,7 @@
     "imageKey": "safeZoneBlack",
     "category": "t-shirts",
     "sizes": ["S", "M", "L", "XL", "XXL"],
-    "tags": ["restock", "drop02"],
+    "tags": ["drop02"],
     "soldOut": true,
     "variants": [
       { "id": "black", "label": "Black", "imageKey": "safeZoneBlack" },
@@ -78,7 +78,7 @@
     "imageKey": "blackCameleon",
     "category": "t-shirts",
     "sizes": ["S", "M", "L", "XL", "XXL"],
-    "tags": ["new", "drop02"],
+    "tags": ["drop02"],
     "soldOut": true,
     "variants": [
       { "id": "black", "label": "Black", "imageKey": "blackCameleon" },
@@ -94,7 +94,7 @@
     "imageKey": "safeBabiGirl",
     "category": "t-shirts",
     "sizes": ["S", "M", "L", "XL", "XXL"],
-    "tags": ["new", "drop02"],
+    "tags": ["drop02"],
     "variants": [
       { "id": "black", "label": "Black", "imageKey": "safeBabiGirlBlack" },
       { "id": "white", "label": "White", "imageKey": "safeBabiGirl" }
