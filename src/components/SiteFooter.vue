@@ -160,9 +160,18 @@ export default {
   .site-footer :deep(.payment-methods) {
     grid-column: auto;
   }
-  .footer-mark { font-size: clamp(42px, 18vw, 92px); }
+  .footer-mark {
+    width: 100%;
+    overflow: visible;
+    font-size: clamp(34px, 11vw, 58px);
+    line-height: .9;
+    letter-spacing: -.065em;
+    white-space: nowrap;
+  }
   .footer-index { align-items: flex-start; flex-direction: column; }
   .footer-sitemap { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); text-align: left; }
-  .footer-links { width: 100%; display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
+  .footer-sitemap a { min-width: 0; letter-spacing: .1em; overflow-wrap: anywhere; }
+  .footer-links { width: 100%; display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; }
+  .footer-links a { min-width: 0; font-size: 9px; letter-spacing: .1em; overflow-wrap: anywhere; }
 }
 </style>

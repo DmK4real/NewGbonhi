@@ -1546,7 +1546,20 @@ main {
   .discipline-filters { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x proximity; scrollbar-width: none; }
   .discipline-filters button { flex: 0 0 auto; scroll-snap-align: start; }
   .lab-page {
+    width: 100%;
+    max-width: 100%;
     padding: 20px 14px 36px;
+    overflow-x: clip;
+  }
+
+  .lab-page main,
+  .lab-page main > section,
+  .lab-page main > section > *,
+  .explorer-head > *,
+  .lab-shop-head > *,
+  .agenda-heading > * {
+    min-width: 0;
+    max-width: 100%;
   }
 
   .shop-header {
@@ -1603,7 +1616,12 @@ main {
   }
 
   .hero-copy h1 {
-    font-size: clamp(36px, 15vw, 58px);
+    max-width: 100%;
+    font-size: clamp(32px, 11vw, 44px);
+    line-height: .98;
+    letter-spacing: -.025em;
+    overflow-wrap: break-word;
+    text-wrap: balance;
   }
 
   .hero-sub {
@@ -1692,8 +1710,9 @@ main {
   }
 
   .directory-lead h2 {
-    font-size: clamp(24px, 10vw, 40px);
-    line-height: 0.96;
+    font-size: clamp(25px, 8.5vw, 36px);
+    line-height: 1;
+    letter-spacing: -.02em;
   }
 
   .directory-total {
@@ -1710,7 +1729,8 @@ main {
   }
 
   .client-row strong {
-    font-size: clamp(18px, 7vw, 28px);
+    font-size: clamp(18px, 6vw, 25px);
+    letter-spacing: .04em;
   }
 
   .client-row em {
@@ -1728,8 +1748,27 @@ main {
   }
 
   .directory-columns span {
-    font-size: 14px;
-    line-height: 1.3;
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .explorer-head h2,
+  .project-intro h2,
+  .lab-shop-head h2,
+  .section-heading h2,
+  .lab-join h2,
+  .lab-agenda h2 {
+    max-width: 100%;
+    font-size: clamp(26px, 8.5vw, 38px) !important;
+    line-height: 1 !important;
+    letter-spacing: -.02em !important;
+    overflow-wrap: break-word;
+    text-wrap: balance;
+  }
+
+  .project-card h3 {
+    font-size: clamp(18px, 6vw, 25px);
+    line-height: 1.05;
   }
 }
 

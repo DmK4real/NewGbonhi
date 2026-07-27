@@ -223,7 +223,10 @@ export default {
 
 html {
   scroll-padding-top: var(--header-height);
+  overflow-x: clip;
 }
+
+body { overflow-x: clip; }
 
 .skip-link { position: fixed; top: 10px; left: 10px; z-index: 1000; padding: 12px 16px; background: #0b0b0b; color: #fff; text-decoration: none; text-transform: uppercase; letter-spacing: .12em; font-size: 10px; transform: translateY(-150%); }
 .skip-link:focus { transform: translateY(0); }
