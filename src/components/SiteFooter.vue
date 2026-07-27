@@ -5,6 +5,7 @@
     <LanguageSwitch />
     <nav class="footer-sitemap" aria-label="Footer">
       <RouterLink to="/">{{ $t("navShop") }}</RouterLink>
+      <RouterLink to="/collections">{{ $t("navCollections") }}</RouterLink>
       <RouterLink to="/lookbook">{{ $t("navLookbook") }}</RouterLink>
       <RouterLink to="/lab">{{ $t("navLab") }}</RouterLink>
       <RouterLink to="/studio">{{ $t("navStudio") }}</RouterLink>

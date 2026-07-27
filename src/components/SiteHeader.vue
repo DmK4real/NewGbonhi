@@ -29,7 +29,7 @@
       <RouterLink :class="{ 'is-active': $route.name === 'shop' }" to="/" @click="closeMenu">
         {{ $t("navShop") }}
       </RouterLink>
-      <RouterLink to="/#products" @click="closeMenu">{{ $t("navCollections") }}</RouterLink>
+      <RouterLink :class="{ 'is-active': $route.name === 'collections' }" to="/collections" @click="closeMenu">{{ $t("navCollections") }}</RouterLink>
       <RouterLink :class="{ 'is-active': $route.name === 'lab' }" to="/lab" @click="closeMenu">
         {{ $t("navLab") }}
       </RouterLink>

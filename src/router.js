@@ -11,6 +11,7 @@ const ProductPage = () => import("./ProductPage.vue");
 const CheckoutPage = () => import("./CheckoutPage.vue");
 const OrdersPage = () => import("./OrdersPage.vue");
 const StudioPage = () => import("./StudioPage.vue");
+const CollectionsPage = () => import("./CollectionsPage.vue");
 
 const routes = [
   {
@@ -30,6 +31,15 @@ const routes = [
     meta: {
       title: "Produit | New Gbonhi Shop",
       description: "Details produit New Gbonhi Shop: visuels, tailles et prix.",
+    },
+  },
+  {
+    path: "/collections",
+    name: "collections",
+    component: CollectionsPage,
+    meta: {
+      title: "Collections | New Gbonhi Shop",
+      description: "Tous les drops, collaborations et archives NewGbonhi réunis dans le catalogue.",
     },
   },
   {
