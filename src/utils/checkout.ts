@@ -82,6 +82,12 @@ export const SHIPPING_OPTIONS: ShippingOption[] = [
     eta: "48/72h apres paiement confirme",
   },
   {
+    id: "abidjan-abobo",
+    label: "Abobo",
+    fee: 3500,
+    eta: "48/72h apres paiement confirme",
+  },
+  {
     id: "abidjan-other",
     label: "Other area in Abidjan",
     fee: 4000,
