@@ -1562,6 +1562,78 @@ main {
     max-width: 100%;
   }
 
+  .lab-shop {
+    padding: 24px 18px;
+  }
+
+  .lab-shop-head {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .lab-shop-head > div {
+    width: 100%;
+  }
+
+  .lab-shop-head .eyebrow {
+    max-width: 100%;
+    line-height: 1.5;
+  }
+
+  .lab-shop-head .lab-button {
+    width: auto;
+    max-width: 100%;
+    align-self: flex-start;
+    text-align: left;
+    line-height: 1.35;
+  }
+
+  .lab-product-grid {
+    grid-template-columns: minmax(0, 1fr);
+    margin-top: 26px;
+  }
+
+  .lab-product {
+    display: grid;
+    grid-template-rows: auto minmax(250px, auto) auto;
+    gap: 12px;
+    padding: 18px;
+  }
+
+  .lab-product > span {
+    max-width: 100%;
+    font-size: 9px;
+    line-height: 1.4;
+    letter-spacing: .1em;
+    overflow-wrap: normal;
+  }
+
+  .lab-product img {
+    min-height: 260px;
+    aspect-ratio: 4 / 3;
+  }
+
+  .lab-product div {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 16px;
+  }
+
+  .lab-product strong {
+    max-width: 24ch;
+    font-size: 14px;
+    line-height: 1.25;
+    letter-spacing: .04em;
+    overflow-wrap: normal;
+  }
+
+  .lab-product em {
+    align-self: end;
+    font-size: 11px;
+  }
+
   .shop-header {
     gap: 14px;
     align-items: start;
@@ -1762,7 +1834,8 @@ main {
     font-size: clamp(26px, 8.5vw, 38px) !important;
     line-height: 1 !important;
     letter-spacing: -.02em !important;
-    overflow-wrap: break-word;
+    overflow-wrap: normal;
+    word-break: normal;
     text-wrap: balance;
   }
 

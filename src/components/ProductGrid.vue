@@ -313,11 +313,15 @@ export default {
 
 .pg-badges {
   position: absolute;
-  inset: 10px 10px auto 10px;
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  flex-wrap: wrap;
+  inset: 12px auto auto 12px;
+  max-width: calc(100% - 24px);
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  border: 1px solid rgba(11, 11, 11, .8);
+  background: rgba(247, 247, 243, .9);
+  box-shadow: 0 5px 16px rgba(0, 0, 0, .06);
+  backdrop-filter: blur(8px);
   pointer-events: none;
 }
 
@@ -346,14 +350,13 @@ export default {
 }
 
 .pg-badge-tag {
-  background: #0b0b0b;
-  margin-left: auto;
+  background: transparent;
+  color: var(--pg-text);
 }
 
 .pg-badge-preorder {
-  background: #fff;
-  color: var(--pg-text);
-  border: 1px solid var(--pg-border);
+  background: transparent;
+  color: var(--pg-accent);
 }
 
 .pg-title {
@@ -450,19 +453,41 @@ export default {
 
 .pg-badge {
   position: relative;
-  padding: 4px 8px;
-  background: var(--pg-accent);
-  color: #fff;
-  font: 700 11px/1 "Space Grotesk", "Karla", Arial, sans-serif;
-  letter-spacing: 0.08em;
+  padding: 7px 9px;
+  border: 0;
+  background: transparent;
+  color: var(--pg-text);
+  font: 700 8px/1 "Space Grotesk", "Karla", Arial, sans-serif;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  border-radius: var(--ng-radius, 2px);
+  border-radius: 0;
+  white-space: nowrap;
+}
+
+.pg-badge + .pg-badge {
+  border-left: 1px solid rgba(11, 11, 11, .25);
+}
+
+.pg-badge-soldout {
+  background: #0b0b0b;
+  color: #fff;
 }
 
 @media (max-width: 700px) {
   .pg-grid {
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     gap: 20px 14px;
+  }
+
+  .pg-badges {
+    inset: 8px auto auto 8px;
+    max-width: calc(100% - 16px);
+  }
+
+  .pg-badge {
+    padding: 6px 7px;
+    font-size: 7px;
+    letter-spacing: .08em;
   }
 }
 </style>
