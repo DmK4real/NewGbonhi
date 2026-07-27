@@ -941,43 +941,43 @@ main {
   top: 24px;
   left: 24px;
   z-index: 2;
-  width: min(360px, 52%);
-  height: min(350px, 74%);
+  width: min(420px, 66%);
+  min-height: 150px;
+  padding: clamp(18px, 3vw, 28px);
   border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: var(--ng-radius);
   background: #fff;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(12px, 2vw, 24px);
   overflow: hidden;
   box-shadow: 0 28px 40px rgba(0, 0, 0, 0.26);
 }
 
 .showcase-logo {
-  position: absolute;
+  position: static;
   z-index: 2;
+  width: 100%;
+  max-height: 88px;
   object-fit: contain;
-  filter: drop-shadow(0 18px 18px rgba(0, 0, 0, 0.18));
+  filter: none;
 }
 
 .showcase-logo-arw {
-  left: 13%;
-  top: 23%;
-  width: 36%;
+  justify-self: end;
 }
 
 .showcase-logo-newgbonhi {
-  left: 10%;
-  bottom: 13%;
-  width: 42%;
+  justify-self: start;
 }
 
 .showcase-cross {
-  position: absolute;
-  left: 32%;
-  top: 52%;
+  position: static;
   z-index: 3;
-  transform: translate(-50%, -50%);
   color: #0b0b0b;
   font-family: "Archivo Black", "Space Grotesk", Arial, sans-serif;
-  font-size: clamp(18px, 3vw, 30px);
+  font-size: clamp(16px, 2vw, 24px);
   line-height: 1;
   text-transform: uppercase;
 }
@@ -1716,38 +1716,36 @@ main {
   .showcase-board {
     top: 14px;
     left: 14px;
-    width: 56%;
-    height: 72%;
+    width: calc(100% - 28px);
+    min-height: 118px;
+    padding: 16px;
+    gap: 12px;
   }
 
   .showcase-logo-arw {
-    left: 12%;
-    top: 24%;
-    width: 48%;
+    width: 100%;
+    max-height: 62px;
   }
 
   .showcase-logo-newgbonhi {
-    left: 9%;
-    bottom: 13%;
-    width: 50%;
+    width: 100%;
+    max-height: 62px;
   }
 
   .showcase-cross {
-    top: 52%;
-    left: 35%;
-    font-size: 22px;
+    font-size: 16px;
   }
 
   .showcase-shirt {
-    right: -12%;
-    bottom: -2%;
-    width: 76%;
+    right: 2%;
+    bottom: -5%;
+    width: 66%;
   }
 
   .showcase-cup {
     right: 12px;
-    top: 72px;
-    width: 14%;
+    top: 142px;
+    width: 13%;
   }
 
   .system-grid article {
@@ -1867,36 +1865,30 @@ main {
   }
 
   .showcase-board {
-    width: 58%;
-    height: 70%;
+    width: calc(100% - 28px);
+    min-height: 110px;
   }
 
   .showcase-logo-arw {
-    left: 11%;
-    top: 24%;
-    width: 50%;
+    width: 100%;
   }
 
   .showcase-logo-newgbonhi {
-    left: 8%;
-    bottom: 13%;
-    width: 52%;
+    width: 100%;
   }
 
   .showcase-cross {
-    top: 52%;
-    left: 36%;
-    font-size: 20px;
+    font-size: 15px;
   }
 
   .showcase-shirt {
-    right: -14%;
-    width: 78%;
+    right: 1%;
+    width: 68%;
   }
 
   .showcase-cup {
-    top: 66px;
-    width: 16%;
+    top: 134px;
+    width: 14%;
   }
 
 }

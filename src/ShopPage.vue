@@ -59,7 +59,18 @@
           {{ $t("viewFullCollection") }} <span>↓</span>
         </button>
       </div>
-      <div class="camo-editorial" aria-labelledby="camo-editorial-title" tabindex="0" @keydown.left.prevent="previousCamoSlide" @keydown.right.prevent="nextCamoSlide">
+      <div
+        class="camo-editorial"
+        aria-labelledby="camo-editorial-title"
+        tabindex="0"
+        @keydown.left.prevent="previousCamoSlide"
+        @keydown.right.prevent="nextCamoSlide"
+        @mouseenter="pauseCamoAutoplay"
+        @mouseleave="startCamoAutoplay"
+        @focusin="pauseCamoAutoplay"
+        @focusout="startCamoAutoplay"
+        @touchstart.passive="pauseCamoAutoplayTemporarily"
+      >
       <div class="camo-editorial-copy">
         <div>
           <p>{{ $t("camoEditorialKicker") }}</p>
@@ -81,7 +92,7 @@
         <div class="camo-slider-controls">
           <button type="button" aria-label="Photo précédente" @click="previousCamoSlide">←</button>
           <div role="tablist" aria-label="Photos de campagne">
-            <button v-for="(_, index) in camoEditorialImages" :key="index" type="button" :class="{ active: camoSlide === index }" :aria-label="`Image ${index + 1}`" :aria-selected="camoSlide === index" role="tab" @click="camoSlide = index"></button>
+            <button v-for="(_, index) in camoEditorialImages" :key="index" type="button" :class="{ active: camoSlide === index }" :aria-label="`Image ${index + 1}`" :aria-selected="camoSlide === index" role="tab" @click="selectCamoSlide(index)"></button>
           </div>
           <button type="button" aria-label="Photo suivante" @click="nextCamoSlide">→</button>
         </div>
@@ -449,6 +460,8 @@ export default {
     this.loadingTimer = setTimeout(() => {
       this.isProductsLoading = false;
     }, 480);
+    this.startCamoAutoplay();
+    document.addEventListener("visibilitychange", this.handleCamoVisibility);
   },
   beforeUnmount() {
     if (this.countdownTimer) {
@@ -460,6 +473,9 @@ export default {
     if (this.toastTimer) {
       clearTimeout(this.toastTimer);
     }
+    this.pauseCamoAutoplay();
+    if (this.camoResumeTimer) clearTimeout(this.camoResumeTimer);
+    document.removeEventListener("visibilitychange", this.handleCamoVisibility);
   },
   computed: {
     cartCount() {
@@ -553,11 +569,47 @@ export default {
     },
   },
   methods: {
-    nextCamoSlide() {
+    advanceCamoSlide() {
       this.camoSlide = (this.camoSlide + 1) % this.camoEditorialImages.length;
+    },
+    nextCamoSlide() {
+      this.advanceCamoSlide();
+      this.restartCamoAutoplay();
     },
     previousCamoSlide() {
       this.camoSlide = (this.camoSlide - 1 + this.camoEditorialImages.length) % this.camoEditorialImages.length;
+      this.restartCamoAutoplay();
+    },
+    selectCamoSlide(index) {
+      this.camoSlide = index;
+      this.restartCamoAutoplay();
+    },
+    startCamoAutoplay() {
+      if (typeof window === "undefined" || document.hidden) return;
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      if (this.camoAutoplayTimer || this.camoEditorialImages.length < 2) return;
+      this.camoAutoplayTimer = window.setInterval(this.advanceCamoSlide, 6000);
+    },
+    pauseCamoAutoplay() {
+      if (!this.camoAutoplayTimer) return;
+      clearInterval(this.camoAutoplayTimer);
+      this.camoAutoplayTimer = null;
+    },
+    restartCamoAutoplay() {
+      this.pauseCamoAutoplay();
+      this.startCamoAutoplay();
+    },
+    pauseCamoAutoplayTemporarily() {
+      this.pauseCamoAutoplay();
+      if (this.camoResumeTimer) clearTimeout(this.camoResumeTimer);
+      this.camoResumeTimer = window.setTimeout(() => {
+        this.camoResumeTimer = null;
+        this.startCamoAutoplay();
+      }, 10000);
+    },
+    handleCamoVisibility() {
+      if (document.hidden) this.pauseCamoAutoplay();
+      else this.startCamoAutoplay();
     },
     setCategory(categoryId) {
       this.activeCategory = categoryId;
