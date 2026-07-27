@@ -480,14 +480,20 @@ export default {
   }
 
   .pg-badges {
-    inset: 8px auto auto 8px;
-    max-width: calc(100% - 16px);
+    inset: 8px 8px auto 8px;
+    width: auto;
+    max-width: none;
+    box-sizing: border-box;
+    overflow: hidden;
   }
 
   .pg-badge {
-    padding: 6px 7px;
-    font-size: 7px;
-    letter-spacing: .08em;
+    min-width: 0;
+    flex: 1 1 auto;
+    padding: 6px 4px;
+    text-align: center;
+    font-size: clamp(5.5px, 1.65vw, 7px);
+    letter-spacing: .04em;
   }
 }
 </style>
