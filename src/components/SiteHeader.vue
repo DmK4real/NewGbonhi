@@ -247,7 +247,36 @@ export default {
   display: none;
 }
 
-@media (max-width: 1100px) {
+@media (min-width: 761px) and (max-width: 1100px) {
+  .site-header {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 14px;
+  }
+
+  .site-brand div {
+    display: none;
+  }
+
+  .site-navigation {
+    gap: clamp(8px, 1.2vw, 16px);
+  }
+
+  .site-navigation a {
+    font-size: 9px;
+    letter-spacing: .1em;
+  }
+
+  .site-tools {
+    gap: 5px;
+  }
+
+  .site-tool {
+    font-size: 8px;
+    letter-spacing: .08em;
+  }
+}
+
+@media (max-width: 760px) {
   .site-header {
     grid-template-columns: auto 1fr auto;
   }
