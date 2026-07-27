@@ -110,6 +110,7 @@
     "category": "t-shirts",
     "sizes": ["S", "M", "L", "XL", "XXL"],
     "tags": ["drop02"],
+    "soldOut": true,
     "variants": [
       { "id": "black", "label": "Black", "imageKey": "safeBabiGirlBlack" },
       { "id": "white", "label": "White", "imageKey": "safeBabiGirl" }
