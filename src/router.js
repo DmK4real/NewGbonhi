@@ -1,15 +1,16 @@
 import { createRouter, createWebHashHistory, createWebHistory } from "vue-router";
-import ShopPage from "./ShopPage.vue";
-import LookbookPage from "./LookbookPage.vue";
-import LabPage from "./LabPage.vue";
-import ArwStudioPage from "./ArwStudioPage.vue";
-import AboutPage from "./AboutPage.vue";
-import ProductPage from "./ProductPage.vue";
-import CheckoutPage from "./CheckoutPage.vue";
-import OrdersPage from "./OrdersPage.vue";
-import StudioPage from "./StudioPage.vue";
 import { applySeo } from "./utils/seo.js";
 import { clearAppError } from "./utils/appError.js";
+
+const ShopPage = () => import("./ShopPage.vue");
+const LookbookPage = () => import("./LookbookPage.vue");
+const LabPage = () => import("./LabPage.vue");
+const ArwStudioPage = () => import("./ArwStudioPage.vue");
+const AboutPage = () => import("./AboutPage.vue");
+const ProductPage = () => import("./ProductPage.vue");
+const CheckoutPage = () => import("./CheckoutPage.vue");
+const OrdersPage = () => import("./OrdersPage.vue");
+const StudioPage = () => import("./StudioPage.vue");
 
 const routes = [
   {

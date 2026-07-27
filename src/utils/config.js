@@ -18,7 +18,10 @@ export const checkoutConfig = {
   momoMtn: readEnv("VITE_MOMO_MTN"),
   momoMoov: readEnv("VITE_MOMO_MOOV"),
   momoAdditional: readEnv("VITE_MOMO_ADDITIONAL"),
-  paymentNote: readEnv("VITE_PAYMENT_NOTE", "Carte sur demande via WhatsApp."),
+  paymentNote: readEnv(
+    "VITE_PAYMENT_NOTE",
+    "La production commence apres validation du paiement. Livraison prevue sous 48/72h."
+  ),
 };
 
 export const validateFrontendConfig = () => {

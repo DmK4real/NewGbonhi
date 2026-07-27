@@ -1,49 +1,26 @@
-<template>
+﻿<template>
   <div class="checkout-page">
-    <header class="shop-header">
-      <div class="brand">
-        <img class="brand-logo" :src="logoUrl" alt="NewGbonhi logo" />
-        <div class="brand-meta">
-          <p class="brand-name">NewGbonhi</p>
-          <p class="brand-tagline">{{ $t("brandTagline") }}</p>
-        </div>
-      </div>
-      <nav class="shop-nav" aria-label="Primary">
-        <RouterLink :class="{ 'is-active': $route.name === 'shop' }" to="/">
-          {{ $t("navShop") }}
-        </RouterLink>
-        <RouterLink
-          :class="{ 'is-active': $route.name === 'lookbook' }"
-          to="/lookbook"
-        >
-          {{ $t("navLookbook") }}
-        </RouterLink>
-        <RouterLink :class="{ 'is-active': $route.name === 'lab' }" to="/lab">
-          {{ $t("navLab") }}
-        </RouterLink>
-        <RouterLink :class="{ 'is-active': $route.name === 'studio' }" to="/studio">
-          {{ $t("navStudio") }}
-        </RouterLink>
-        <RouterLink :class="{ 'is-active': $route.name === 'about' }" to="/about">
-          {{ $t("navAbout") }}
-        </RouterLink>
-        <RouterLink :class="{ 'is-active': $route.name === 'orders' }" to="/orders">
-          {{ $t("navOrders") }}
-        </RouterLink>
-        <a href="#contact">{{ $t("navContact") }}</a>
-      </nav>
-      <button class="shop-cta" type="button" @click="toggleCart">
-        {{ $t("cart") }} ({{ cartCount }})
-      </button>
-    </header>
+    <SiteHeader @toggle-cart="toggleCart" />
 
     <CartPanel :open="cartOpen" @close="cartOpen = false" />
 
     <main class="checkout-main">
+      <nav class="checkout-progress" aria-label="Checkout progress">
+        <span class="done"><b>01</b>{{ $t("cart") }}</span>
+        <span class="active"><b>02</b>{{ $t("delivery") }}</span>
+        <span><b>03</b>{{ $t("payment") }}</span>
+        <span><b>04</b>{{ $t("orderSent") }}</span>
+      </nav>
       <section class="checkout-form">
         <div class="section-head">
-          <p>{{ $t("checkoutKicker") }}</p>
+          <p>CHECKOUT / 001 — {{ $t("checkoutKicker") }}</p>
           <h1>{{ $t("finalizeOrder") }}</h1>
+        </div>
+
+        <div class="preorder-banner">
+          <p>{{ $t("preorderBadge") }}</p>
+          <strong>{{ $t("preorderCheckoutTitle") }}</strong>
+          <span>{{ $t("preorderCheckoutCopy") }}</span>
         </div>
 
         <div v-if="orderSent" class="confirmation">
@@ -60,40 +37,41 @@
               @click="markAsPaid"
               :disabled="isReportingPayment"
             >
-              {{ isReportingPayment ? $t("verification") : $t("paid") }}
+              {{ isReportingPayment ? $t("verification") : $t("customerPaid") }}
             </button>
           </div>
         </div>
 
-        <form v-if="!orderSent" @submit.prevent="sendOrder">
+        <form v-if="!orderSent" id="checkout-order-form" @submit.prevent="sendOrder">
+          <p class="checkout-step-label">01 / CUSTOMER</p>
           <div class="form-grid">
             <label>
               {{ $t("firstName") }}
-              <input v-model.trim="customer.firstName" required />
+              <input v-model.trim="customer.firstName" autocomplete="given-name" required />
             </label>
             <label>
               {{ $t("lastName") }}
-              <input v-model.trim="customer.lastName" required />
+              <input v-model.trim="customer.lastName" autocomplete="family-name" required />
             </label>
             <label>
               {{ $t("email") }}
-              <input v-model.trim="customer.email" type="email" required />
+              <input v-model.trim="customer.email" type="email" autocomplete="email" inputmode="email" required />
             </label>
             <label>
               {{ $t("phone") }}
-              <input v-model.trim="customer.phone" required />
+              <input v-model.trim="customer.phone" type="tel" autocomplete="tel" inputmode="tel" required />
             </label>
             <label class="full">
               {{ $t("address") }}
-              <input v-model.trim="customer.address" required />
+              <input v-model.trim="customer.address" autocomplete="street-address" required />
             </label>
             <label>
               {{ $t("city") }}
-              <input v-model.trim="customer.city" required />
+              <input v-model.trim="customer.city" autocomplete="address-level2" required />
             </label>
             <label>
               {{ $t("zipCode") }}
-              <input v-model.trim="customer.zip" required />
+              <input v-model.trim="customer.zip" autocomplete="postal-code" inputmode="numeric" required />
             </label>
           </div>
 
@@ -106,6 +84,7 @@
           </div>
 
           <div class="delivery-box">
+            <p class="checkout-step-label">02 / DELIVERY</p>
             <h3>{{ $t("yangoDelivery") }}</h3>
             <p class="delivery-copy">
               {{ $t("deliveryCopy") }}
@@ -135,6 +114,7 @@
           </div>
 
           <div class="payment-box">
+            <p class="checkout-step-label">03 / PAYMENT</p>
             <h3>{{ $t("payment") }}</h3>
             <PaymentMethods />
             <p class="payment-note">
@@ -190,7 +170,10 @@
             v-for="item in cartItems"
             :key="item.key"
             class="summary-item"
-            :class="{ 'is-custom-studio': item.isCustomStudio }"
+            :class="{
+              'is-custom-studio': item.isCustomStudio,
+              'is-preorder': item.preorder,
+            }"
           >
             <img
               v-if="item.imagePrimary"
@@ -200,6 +183,9 @@
               decoding="async"
             />
             <div>
+              <p v-if="item.preorder" class="summary-badge summary-preorder">
+                {{ $t("preorderBadge") }}
+              </p>
               <p v-if="item.isCustomStudio" class="summary-badge">{{ $t("customStudio") }}</p>
               <h3>{{ item.title }}</h3>
               <p v-if="item.selectedSize">{{ $t("size") }}: {{ item.selectedSize }}</p>
@@ -225,12 +211,21 @@
       </aside>
     </main>
 
+    <div v-if="!orderSent && cartItems.length" class="checkout-mobile-bar">
+      <div><span>{{ $t("finalTotal") }}</span><strong>{{ formatPrice(totalWithShipping) }}</strong></div>
+      <button type="submit" form="checkout-order-form" :disabled="!canSend || isSubmitting">
+        {{ isSubmitting ? $t("sending") : $t("sendOrder") }}
+      </button>
+    </div>
+
     <SiteFooter />
   </div>
 </template>
 
 <script>
+import SiteHeader from "./components/SiteHeader.vue";
 import CartPanel from "./components/CartPanel.vue";
+import PaymentMethods from "./components/PaymentMethods.vue";
 import { cartStore } from "./data/cart.ts";
 import { createOrder, reportOrderPaid } from "./data/orders.js";
 import {
@@ -259,7 +254,9 @@ const logoUrl = new URL("./assets/newgbonhi-logo.png", import.meta.url).href;
 export default {
   name: "CheckoutPage",
   components: {
+    SiteHeader,
     CartPanel,
+    PaymentMethods,
   },
   data() {
     return {
@@ -307,6 +304,14 @@ export default {
     },
     totalWithShipping() {
       return this.cartTotal + this.shippingFee;
+    },
+    preorderFulfillment() {
+      return {
+        mode: "preorder",
+        paymentRequired: true,
+        productionWindow: this.$t("productionAfterPayment"),
+        deliveryWindow: this.$t("deliveryWindow48h72h"),
+      };
     },
     contactEmail() {
       return VITE_CONTACT_EMAIL;
@@ -364,6 +369,7 @@ export default {
         selectedShipping: this.selectedShipping,
         shippingFee: this.shippingFee,
         totalWithShipping: this.totalWithShipping,
+        fulfillment: this.preorderFulfillment,
       });
     },
     buildOrderId() {
@@ -399,27 +405,34 @@ export default {
 
       try {
         const createdOrder = await createOrder({
-        customer: { ...this.customer },
-        items: this.cartItems.map((item) => ({
-          key: item.key,
-          title: item.title,
-          qty: item.qty,
-          price: item.price,
-          selectedSize: item.selectedSize || null,
-          selectedColor: item.selectedColor || null,
-          selectedColorId: item.selectedColorId || null,
-          selectedDesignId: item.selectedDesignId || null,
-          selectedDesignName: item.selectedDesignName || null,
-          selectedDesignCategory: item.selectedDesignCategory || null,
-          isCustomStudio: Boolean(item.isCustomStudio),
-        })),
-        subtotal: this.cartTotal,
-        shipping: {
-          id: this.selectedShipping.id,
-          label: this.selectedShipping.label,
-          fee: this.shippingFee,
-        },
-      });
+          customer: { ...this.customer },
+          items: this.cartItems.map((item) => ({
+            key: item.key,
+            title: item.title,
+            qty: item.qty,
+            price: item.price,
+            selectedSize: item.selectedSize || null,
+            selectedColor: item.selectedColor || null,
+            selectedColorId: item.selectedColorId || null,
+            selectedDesignId: item.selectedDesignId || null,
+            selectedDesignName: item.selectedDesignName || null,
+            selectedDesignCategory: item.selectedDesignCategory || null,
+            isCustomStudio: Boolean(item.isCustomStudio),
+            preorder: item.preorder !== false,
+            productionWindow:
+              item.productionWindow || this.preorderFulfillment.productionWindow,
+            deliveryWindow:
+              item.deliveryWindow || this.preorderFulfillment.deliveryWindow,
+          })),
+          subtotal: this.cartTotal,
+          shipping: {
+            id: this.selectedShipping.id,
+            label: this.selectedShipping.label,
+            fee: this.shippingFee,
+          },
+          type: "preorder",
+          fulfillment: this.preorderFulfillment,
+        });
 
         if (!createdOrder || !createdOrder.id) {
           throw new Error("Unable to create order.");
@@ -430,7 +443,7 @@ export default {
 
         this.openWhatsApp();
         this.orderSent = true;
-        this.success = "Message ready in WhatsApp. Please send it.";
+        this.success = this.$t("whatsappReady");
       } catch (error) {
         this.error =
           error instanceof Error ? error.message : "Unable to send order.";
@@ -448,7 +461,7 @@ export default {
       try {
         await reportOrderPaid(this.lastOrderId);
         cartStore.clearCart();
-        this.success = "Thank you. Payment pending verification.";
+        this.success = this.$t("paymentReported");
       } catch (error) {
         this.error =
           error instanceof Error
@@ -473,8 +486,6 @@ export default {
 </script>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&display=swap");
-
 :global(*) {
   box-sizing: border-box;
 }
@@ -631,6 +642,42 @@ export default {
   margin: 8px 0 0;
   text-transform: uppercase;
   letter-spacing: 0.08em;
+}
+
+.preorder-banner {
+  margin-top: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  border-radius: 16px;
+  padding: 14px;
+  background: #fafafa;
+  display: grid;
+  gap: 5px;
+}
+
+.preorder-banner p,
+.preorder-banner strong,
+.preorder-banner span {
+  margin: 0;
+}
+
+.preorder-banner p {
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.preorder-banner strong {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 12px;
+}
+
+.preorder-banner span {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 .form-grid {
@@ -863,6 +910,10 @@ export default {
     #fff;
 }
 
+.summary-item.is-preorder {
+  border-color: rgba(0, 0, 0, 0.28);
+}
+
 .summary-item.is-custom-studio img {
   border: 1px solid rgba(225, 6, 0, 0.22);
   background: #f7f7f7;
@@ -892,6 +943,12 @@ export default {
   font-size: 9px;
   text-transform: uppercase;
   letter-spacing: 0.14em;
+}
+
+.summary-preorder {
+  border-color: rgba(0, 0, 0, 0.5);
+  background: #0b0b0b;
+  color: #fff;
 }
 
 .summary-total {
@@ -945,6 +1002,52 @@ export default {
   text-decoration: none;
 }
 
+/* Editorial checkout */
+.checkout-main { grid-template-columns: minmax(0,1.08fr) minmax(360px,.92fr); align-items: start; }
+.checkout-progress { grid-column: 1/-1; display: grid; grid-template-columns: repeat(4,1fr); border: 1px solid var(--line); }
+.checkout-progress span { min-height: 58px; padding: 12px; border-right: 1px solid var(--line); display: flex; align-items: center; gap: 10px; color: #777; font: 700 9px/1.2 monospace; letter-spacing: .1em; text-transform: uppercase; }
+.checkout-progress span:last-child { border-right: 0; }
+.checkout-progress b { color: var(--accent); }
+.checkout-progress .done { background: #efefeb; color: #0b0b0b; }
+.checkout-progress .active { background: #0b0b0b; color: #fff; }
+.checkout-form,
+.checkout-summary { border-radius: var(--ng-radius); }
+.checkout-form { padding: clamp(24px,4vw,46px); }
+.checkout-summary { position: sticky; top: calc(var(--header-height) + 24px); }
+.section-head h1 {
+  max-width: 100%;
+  font-family: "Archivo Black","Space Grotesk",sans-serif;
+  font-size: clamp(32px, 4vw, 54px);
+  line-height: .96;
+  letter-spacing: -.025em;
+  overflow-wrap: break-word;
+  text-wrap: balance;
+}
+.preorder-banner,
+.confirmation,
+.delivery-box,
+.payment-box,
+.summary-item { border-radius: var(--ng-radius); }
+.checkout-step-label { margin: 28px 0 12px; color: var(--accent); font: 700 9px/1 monospace; letter-spacing: .16em; }
+.form-grid { gap: 18px 14px; }
+.form-grid input,
+.delivery-select { min-height: 48px; border-radius: 0; transition: border-color .18s ease,box-shadow .18s ease; }
+.form-grid input:focus,
+.delivery-select:focus { outline: 0; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(225,6,0,.12); }
+.delivery-box,
+.payment-box { margin-top: 28px; padding: 20px; }
+.delivery-box .checkout-step-label,
+.payment-box .checkout-step-label { margin-top: 0; }
+.pay-button,
+.ghost-button { min-height: 50px; }
+.pay-button { transition: background-color .18s ease; }
+.pay-button:hover:not(:disabled) { border-color: var(--accent); background: var(--accent); }
+.summary-item { border-width: 0 0 1px; padding: 14px 0; }
+.summary-item img { border-radius: var(--ng-radius); background: #efefeb; }
+.summary-badge { border-radius: var(--ng-radius); }
+.summary-total { margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 13px; }
+.checkout-mobile-bar { display: none; }
+
 @keyframes rise {
   from {
     opacity: 0;
@@ -960,6 +1063,7 @@ export default {
   .checkout-main {
     grid-template-columns: 1fr;
   }
+  .checkout-summary { position: static; }
 }
 
 @media (max-width: 700px) {
@@ -983,6 +1087,9 @@ export default {
   .form-grid {
     grid-template-columns: 1fr;
   }
+  .checkout-progress { grid-template-columns: repeat(2,1fr); }
+  .checkout-progress span:nth-child(2) { border-right: 0; }
+  .checkout-progress span { min-height: 48px; }
 
   .summary-item {
     grid-template-columns: 64px 1fr;
@@ -999,5 +1106,12 @@ export default {
     gap: 8px;
     flex-wrap: wrap;
   }
+  .checkout-mobile-bar { position: fixed; right: 0; bottom: 0; left: 0; z-index: 120; padding: 10px 14px; display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 12px; align-items: center; border-top: 1px solid #0b0b0b; background: rgba(255,255,255,.96); backdrop-filter: blur(14px); }
+  .checkout-mobile-bar div { display: grid; gap: 3px; }
+  .checkout-mobile-bar span { font: 700 8px/1 monospace; letter-spacing: .12em; text-transform: uppercase; }
+  .checkout-mobile-bar strong { font: 700 12px/1 monospace; }
+  .checkout-mobile-bar button { min-height: 42px; border: 0; background: var(--accent); color: #fff; padding: 10px 14px; font: 700 9px/1 sans-serif; letter-spacing: .12em; text-transform: uppercase; }
+  .checkout-mobile-bar button:disabled { opacity: .45; }
+  .checkout-page { padding-bottom: 100px; }
 }
 </style>

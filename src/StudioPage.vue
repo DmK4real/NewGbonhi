@@ -1,41 +1,6 @@
-<template>
+﻿<template>
   <div class="studio-page">
-    <header class="shop-header">
-      <div class="brand">
-        <img class="brand-logo" :src="logoUrl" alt="NewGbonhi logo" />
-        <div class="brand-meta">
-          <p class="brand-name">NewGbonhi</p>
-          <p class="brand-tagline">{{ $t("studioTagline") }}</p>
-        </div>
-      </div>
-      <nav class="shop-nav" aria-label="Primary">
-        <RouterLink :class="{ 'is-active': $route.name === 'shop' }" to="/">
-          {{ $t("navShop") }}
-        </RouterLink>
-        <RouterLink
-          :class="{ 'is-active': $route.name === 'lookbook' }"
-          to="/lookbook"
-        >
-          {{ $t("navLookbook") }}
-        </RouterLink>
-        <RouterLink :class="{ 'is-active': $route.name === 'lab' }" to="/lab">
-          {{ $t("navLab") }}
-        </RouterLink>
-        <RouterLink :class="{ 'is-active': $route.name === 'studio' }" to="/studio">
-          {{ $t("navStudio") }}
-        </RouterLink>
-        <RouterLink :class="{ 'is-active': $route.name === 'about' }" to="/about">
-          {{ $t("navAbout") }}
-        </RouterLink>
-        <RouterLink :class="{ 'is-active': $route.name === 'orders' }" to="/orders">
-          {{ $t("navOrders") }}
-        </RouterLink>
-        <a href="#contact">{{ $t("navContact") }}</a>
-      </nav>
-      <button class="shop-cta" type="button" @click="toggleCart">
-        {{ $t("cart") }} ({{ cartCount }})
-      </button>
-    </header>
+    <SiteHeader @toggle-cart="toggleCart" />
 
     <CartPanel :open="cartOpen" @close="cartOpen = false" />
 
@@ -63,6 +28,7 @@
     <template v-else>
     <section class="studio-hero">
       <div class="studio-copy">
+        <div class="studio-index"><span>CREATE / 001</span><span>ABIDJAN / DIGITAL ATELIER</span></div>
         <p class="studio-kicker">{{ $t("digitalAtelier") }}</p>
         <h1>{{ $t("studioHeroTitle") }}</h1>
         <p class="studio-sub">
@@ -75,9 +41,16 @@
       </div>
     </section>
 
+    <nav class="atelier-progress" aria-label="Creation steps">
+      <a href="#create-base"><b>01</b><span>Base</span></a>
+      <a href="#create-visual"><b>02</b><span>Visual</span></a>
+      <a href="#create-placement"><b>03</b><span>Placement</span></a>
+      <a href="#create-order"><b>04</b><span>Order</span></a>
+    </nav>
+
     <main class="studio-main">
       <section class="studio-preview">
-        <p class="section-kicker">{{ $t("canvas") }}</p>
+        <div class="panel-heading"><p class="section-kicker">LIVE / {{ $t("canvas") }}</p><span>FRONT VIEW</span></div>
         <div class="mockup-stage">
           <div
             class="mockup-shirt"
@@ -90,6 +63,7 @@
               class="mockup-base"
               :src="selectedColor.mockup"
               :alt="`${selectedTemplate?.label || 'Template'} ${selectedColor?.label || ''}`"
+              decoding="async"
             />
             <template v-if="selectedColor?.needsTint">
               <span
@@ -117,6 +91,7 @@
                 :src="selectedColor.mockup"
                 alt=""
                 aria-hidden="true"
+                decoding="async"
               />
             </template>
             <div
@@ -145,6 +120,7 @@
                   alt=""
                   aria-hidden="true"
                   draggable="false"
+                  decoding="async"
                 />
                 <img
                   class="sticker-art sticker-art-print"
@@ -152,6 +128,7 @@
                   alt=""
                   aria-hidden="true"
                   draggable="false"
+                  decoding="async"
                 />
                 <img
                   class="sticker-art sticker-art-depth"
@@ -159,6 +136,7 @@
                   alt=""
                   aria-hidden="true"
                   draggable="false"
+                  decoding="async"
                 />
                 <span
                   class="sticker-art-fiber"
@@ -171,6 +149,7 @@
                   alt=""
                   aria-hidden="true"
                   draggable="false"
+                  decoding="async"
                 />
               </button>
             </div>
@@ -217,9 +196,10 @@
       </section>
 
       <section class="studio-controls">
-        <p class="section-kicker">{{ $t("controls") }}</p>
+        <div class="panel-heading"><p class="section-kicker">CONTROL / 001</p><span>{{ formatPrice(basePrice) }}</span></div>
 
-        <div class="control-block">
+        <div id="create-base" class="control-block control-step">
+          <span class="control-step-number">01 / BASE</span>
           <h2>{{ $t("template") }}</h2>
           <div class="template-grid">
             <button
@@ -265,7 +245,8 @@
           </div>
         </div>
 
-        <div class="control-block">
+        <div id="create-placement" class="control-block control-step">
+          <span class="control-step-number">03 / PLACEMENT</span>
           <h2>{{ $t("stickerRender") }}</h2>
           <div class="render-mode-grid">
             <button
@@ -389,6 +370,7 @@
         </div>
 
         <button
+          id="create-order"
           class="add-button"
           type="button"
           :disabled="stickers.length === 0"
@@ -399,9 +381,9 @@
       </section>
     </main>
 
-    <section class="design-catalog">
+    <section id="create-visual" class="design-catalog">
       <div class="catalog-head">
-        <p class="section-kicker">{{ $t("stickerLibrary") }}</p>
+        <p class="section-kicker">02 / {{ $t("stickerLibrary") }}</p>
         <h2>{{ $t("pickAndStack") }}</h2>
       </div>
       <div class="design-grid">
@@ -415,7 +397,12 @@
           @dblclick="addSticker(design.id)"
         >
           <div class="design-media">
-            <img :src="design.imagePrimary" :alt="design.title" loading="lazy" />
+            <img
+              :src="design.imagePrimary"
+              :alt="design.title"
+              loading="lazy"
+              decoding="async"
+            />
           </div>
           <p class="design-title">{{ design.title }}</p>
           <p class="design-type">{{ design.category }}</p>
@@ -425,6 +412,16 @@
         {{ $t("catalogHint") }}
       </p>
     </section>
+
+    <div class="studio-mobile-summary">
+      <div>
+        <span>{{ selectedTemplate?.label }} / {{ selectedSize }}</span>
+        <strong>{{ formatPrice(basePrice) }}</strong>
+      </div>
+      <button type="button" :disabled="stickers.length === 0" @click="addStudioItemToCart">
+        04 / {{ $t("addCustomPiece") }}
+      </button>
+    </div>
 
     <SiteFooter />
 
@@ -436,6 +433,7 @@
 </template>
 
 <script>
+import SiteHeader from "./components/SiteHeader.vue";
 import CartPanel from "./components/CartPanel.vue";
 import { cartStore } from "./data/cart.ts";
 import { studioDesigns } from "./data/studioDesigns.ts";
@@ -542,6 +540,7 @@ const renderProfiles = [
 export default {
   name: "StudioPage",
   components: {
+    SiteHeader,
     CartPanel,
   },
   data() {
@@ -1226,6 +1225,7 @@ export default {
         selectedDesignName: designSummary,
         selectedDesignCategory: this.selectedTemplate.family,
         isCustomStudio: true,
+        preorder: true,
       });
 
       this.cartOpen = true;
@@ -1246,8 +1246,6 @@ export default {
 </script>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&display=swap");
-
 :global(*) {
   box-sizing: border-box;
 }
@@ -2067,6 +2065,51 @@ export default {
   transform: translateY(0);
 }
 
+/* Editorial atelier UI */
+.studio-lock-panel { border-radius: var(--ng-radius); padding: clamp(28px,5vw,52px); }
+.studio-hero { padding: clamp(30px,5vw,58px); border-radius: var(--ng-radius); background: #0b0b0b; color: #fff; }
+.studio-index { margin-bottom: 28px; padding: 10px 0; border-top: 1px solid rgba(255,255,255,.42); border-bottom: 1px solid rgba(255,255,255,.2); display: flex; justify-content: space-between; gap: 18px; font: 700 9px/1.2 monospace; letter-spacing: .14em; }
+.studio-copy h1 { max-width: 850px; font-size: clamp(42px,7vw,88px); line-height: .9; }
+.studio-sub { color: rgba(255,255,255,.62); }
+.studio-count { border-radius: var(--ng-radius); border-color: rgba(255,255,255,.25); background: transparent; }
+.studio-count span { color: rgba(255,255,255,.6); }
+.atelier-progress { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.atelier-progress a { min-height: 72px; padding: 16px; border-left: 1px solid var(--line); color: inherit; text-decoration: none; display: flex; align-items: center; gap: 12px; transition: background-color .18s ease,color .18s ease; }
+.atelier-progress b { color: var(--accent); font: 700 11px/1 monospace; }
+.atelier-progress span { font-size: 10px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+.atelier-progress a:hover { background: var(--accent); color: #fff; }
+.atelier-progress a:hover b { color: #fff; }
+.studio-main { grid-template-columns: minmax(0,1.25fr) minmax(360px,.75fr); gap: 0; align-items: start; }
+.studio-preview,
+.studio-controls,
+.design-catalog { border-radius: var(--ng-radius); }
+.studio-preview { position: sticky; top: calc(var(--header-height) + 18px); border-right: 0; }
+.studio-controls { padding: 24px; }
+.panel-heading { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+.panel-heading > span { font: 700 9px/1 monospace; letter-spacing: .14em; text-transform: uppercase; }
+.mockup-stage { border-radius: var(--ng-radius); background: radial-gradient(circle at 50% 35%,#fff 0,transparent 48%),#e8e8e3; }
+.control-block { padding: 18px 0; border-top: 1px solid rgba(0,0,0,.18); }
+.control-step-number { display: block; margin-bottom: 12px; color: var(--accent); font: 700 9px/1 monospace; letter-spacing: .16em; }
+.template-grid button,
+.color-grid button,
+.size-grid button,
+.render-mode-grid button,
+.render-profile-grid button,
+.ghost-btn,
+.danger-btn { min-height: 40px; transition: background-color .18s ease,color .18s ease; }
+.sticker-edit,
+.sticker-edit select { border-radius: var(--ng-radius); }
+.add-button { min-height: 52px; transition: background-color .18s ease; }
+.add-button:hover:not(:disabled) { border-color: var(--accent); background: var(--accent); }
+.design-catalog { margin-top: var(--ng-space-section); padding: clamp(24px,4vw,46px); }
+.catalog-head { display: flex; align-items: end; justify-content: space-between; gap: 20px; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+.catalog-head h2 { max-width: 720px; font-family: "Archivo Black","Space Grotesk",sans-serif; font-size: clamp(30px,5vw,60px); line-height: .94; }
+.design-grid { grid-template-columns: repeat(auto-fill,minmax(150px,1fr)); gap: 0; border-top: 1px solid rgba(0,0,0,.18); border-left: 1px solid rgba(0,0,0,.18); }
+.design-card { border: 0; border-right: 1px solid rgba(0,0,0,.18); border-bottom: 1px solid rgba(0,0,0,.18); border-radius: 0; }
+.design-card.active { background: #0b0b0b; color: #fff; box-shadow: none; }
+.design-media { border-radius: var(--ng-radius); }
+.studio-mobile-summary { display: none; }
+
 @keyframes rise {
   from {
     opacity: 0;
@@ -2082,6 +2125,7 @@ export default {
   .studio-main {
     grid-template-columns: 1fr;
   }
+  .studio-preview { position: static; border-right: 1px solid var(--line); }
 }
 
 @media (max-width: 700px) {
@@ -2105,6 +2149,8 @@ export default {
   .studio-count {
     width: 100%;
   }
+  .atelier-progress { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .atelier-progress a { min-height: 58px; }
 
   .mockup-stage {
     --mockup-stage-height: clamp(280px, 72vw, 420px);
@@ -2143,5 +2189,12 @@ export default {
     left: 16px;
     text-align: center;
   }
+  .studio-mobile-summary { position: fixed; right: 0; bottom: 0; left: 0; z-index: 120; padding: 10px 14px; display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 12px; align-items: center; border-top: 1px solid #0b0b0b; background: rgba(255,255,255,.96); backdrop-filter: blur(14px); }
+  .studio-mobile-summary div { min-width: 0; display: grid; gap: 3px; }
+  .studio-mobile-summary span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 700 9px/1.2 monospace; }
+  .studio-mobile-summary strong { font: 700 11px/1 monospace; }
+  .studio-mobile-summary button { min-height: 42px; max-width: 190px; border: 0; background: var(--accent); color: #fff; padding: 9px 12px; font: 700 8px/1.2 sans-serif; letter-spacing: .1em; text-transform: uppercase; }
+  .studio-mobile-summary button:disabled { opacity: .45; }
+  .studio-page { padding-bottom: 100px; }
 }
 </style>

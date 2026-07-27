@@ -10,12 +10,12 @@
       </nav>
 
       <RouterLink class="arw-brand" to="/lab/arw-studio" aria-label="ARW Studio">
-        <img :src="chromeLogo" alt="ARW Film" />
+        <img :src="chromeLogo" alt="ARW Film" decoding="async" />
       </RouterLink>
 
       <div class="arw-actions">
         <RouterLink to="/lab">Lab</RouterLink>
-        <button type="button" @click="toggleCart">Cart ({{ cartCount }})</button>
+        <button type="button" @click="toggleCart">Panier ({{ cartCount }})</button>
       </div>
     </header>
 
@@ -24,7 +24,14 @@
     <main>
       <section class="arw-hero">
         <div class="hero-copy">
-          <img class="hero-logo" :src="chromeLogo" alt="ARW Film" />
+          <img
+            class="hero-logo"
+            :src="chromeLogo"
+            alt="ARW Film"
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+          />
           <p class="eyebrow">Resident 001 // NewGbonhi Lab</p>
           <h1>L'heritage.<br />Le style.<br />L'attitude.</h1>
           <p>
@@ -39,8 +46,8 @@
         </div>
 
         <div class="hero-visual" aria-hidden="true">
-          <img class="denim-shirt" :src="cityBlackBack" alt="" />
-          <img class="coin-mark" :src="chromeLogo" alt="" />
+          <img class="denim-shirt" :src="cityBlackBack" alt="" decoding="async" />
+          <img class="coin-mark" :src="chromeLogo" alt="" decoding="async" />
           <div class="hero-dots">
             <span></span>
             <span></span>
@@ -81,6 +88,8 @@
                 :class="`product-visual product-visual-${product.slug}`"
                 :src="product.imagePrimary"
                 :alt="product.title"
+                loading="lazy"
+                decoding="async"
               />
             </RouterLink>
             <div class="product-info">
@@ -92,7 +101,7 @@
               :disabled="product.soldOut"
               @click="addToCart(product)"
             >
-              {{ product.soldOut ? "Out of stock" : "Ajouter au panier" }}
+              {{ product.soldOut ? "Out of stock" : "Precommander" }}
             </button>
           </article>
         </div>
@@ -111,7 +120,7 @@
 
     <footer class="arw-footer">
       <div>
-        <img :src="chromeLogo" alt="ARW Film" />
+        <img :src="chromeLogo" alt="ARW Film" loading="lazy" decoding="async" />
         <p>
           ARW Studio presente sa room digitale dans le NewGbonhi Lab: capsule,
           graphisme, film energy et produits references.
@@ -156,9 +165,9 @@ export default {
         { label: "Editorial", href: "/lookbook", icon: "LB" },
       ],
       services: [
-        { title: "Livraison rapide", text: "Abidjan et commandes locales", icon: "01" },
-        { title: "Paiement securise", text: "Validation avant expedition", icon: "02" },
-        { title: "Retours faciles", text: "Support commande direct", icon: "03" },
+        { title: "Precommande", text: "Production lancee apres paiement", icon: "01" },
+        { title: "Paiement securise", text: "Validation avant production", icon: "02" },
+        { title: "Livraison 48/72h", text: "Apres confirmation du paiement", icon: "03" },
         { title: "Produit officiel", text: "Capsule NewGbonhi x ARW", icon: "04" },
       ],
     };
@@ -187,7 +196,10 @@ export default {
       if (!product || product.soldOut) {
         return;
       }
-      cartStore.addToCart(product);
+      cartStore.addToCart({
+        ...product,
+        preorder: true,
+      });
       this.cartOpen = true;
     },
     formatPrice(value) {
@@ -205,8 +217,6 @@ export default {
 </script>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&display=swap");
-
 :global(*) {
   box-sizing: border-box;
 }

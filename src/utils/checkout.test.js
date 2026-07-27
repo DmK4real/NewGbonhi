@@ -35,7 +35,7 @@ describe("checkout utilities", () => {
     expect(normalizeNumber("+225 07 11 11 56 86")).toBe("2250711115686");
   });
 
-  it("falls back to a WhatsApp confirmation message when no payment env is set", async () => {
+  it("builds a preorder WhatsApp confirmation message when no payment env is set", async () => {
     const { buildOrderMessage } = await import("./checkout.ts");
     const message = buildOrderMessage({
       orderId: "NG-123456",
@@ -57,8 +57,13 @@ describe("checkout utilities", () => {
     });
 
     expect(message).toContain("Order ID: NG-123456");
-    expect(message).toMatch(/Delivery: Cocody \(2[\s\u202f]000 FCFA\) - ETA: 45 to 75 min/);
+    expect(message).toContain("*NewGbonhi Preorder Summary*");
+    expect(message).toMatch(
+      /Delivery: Cocody \(2[\s\u202f]000 FCFA\) - Window: 48\/72h after payment confirmation/
+    );
+    expect(message).toContain("Production starts after payment confirmation.");
     expect(message).toContain("Payment details will be confirmed on WhatsApp.");
     expect(message).toMatch(/BLACK CAMELEON \(M\) x2 = 30[\s\u202f]000 FCFA/);
+    expect(message).toContain("Thank you for your preorder!");
   });
 });

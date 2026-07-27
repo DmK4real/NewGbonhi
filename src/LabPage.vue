@@ -1,47 +1,16 @@
-<template>
+﻿<template>
   <div class="lab-page">
-    <header class="shop-header">
-      <div class="brand">
-        <img class="brand-logo" :src="logoUrl" alt="NewGbonhi logo" />
-        <div class="brand-meta">
-          <p class="brand-name">NewGbonhi</p>
-          <p class="brand-tagline">{{ $t("brandTagline") }}</p>
-        </div>
-      </div>
-      <nav class="shop-nav" aria-label="Primary">
-        <RouterLink :class="{ 'is-active': $route.name === 'shop' }" to="/">
-          {{ $t("navShop") }}
-        </RouterLink>
-        <RouterLink
-          :class="{ 'is-active': $route.name === 'lookbook' }"
-          to="/lookbook"
-        >
-          {{ $t("navLookbook") }}
-        </RouterLink>
-        <RouterLink :class="{ 'is-active': $route.name === 'lab' }" to="/lab">
-          {{ $t("navLab") }}
-        </RouterLink>
-        <RouterLink :class="{ 'is-active': $route.name === 'studio' }" to="/studio">
-          {{ $t("navStudio") }}
-        </RouterLink>
-        <RouterLink :class="{ 'is-active': $route.name === 'about' }" to="/about">
-          {{ $t("navAbout") }}
-        </RouterLink>
-        <RouterLink :class="{ 'is-active': $route.name === 'orders' }" to="/orders">
-          {{ $t("navOrders") }}
-        </RouterLink>
-        <a class="nav-contact" href="#contact">{{ $t("navContact") }}</a>
-      </nav>
-      <button class="shop-cta" type="button" @click="toggleCart">
-        {{ $t("cart") }} ({{ cartCount }})
-      </button>
-    </header>
+    <SiteHeader @toggle-cart="toggleCart" />
 
     <CartPanel :open="cartOpen" @close="cartOpen = false" />
 
     <main>
       <section class="lab-hero">
         <div class="hero-copy">
+          <div class="lab-index">
+            <span>LAB / 001</span>
+            <span>ABIDJAN / 05.3484° N</span>
+          </div>
           <p class="eyebrow">{{ pageCopy.heroKicker }}</p>
           <h1>{{ pageCopy.heroTitle }}</h1>
           <p class="hero-sub">{{ pageCopy.heroSub }}</p>
@@ -62,16 +31,29 @@
           </div>
           <div class="showcase-stage">
             <div class="showcase-board">
-              <img class="showcase-logo showcase-logo-arw" :src="arwLogo" alt="ARW Film" />
+              <img
+                class="showcase-logo showcase-logo-arw"
+                :src="arwLogo"
+                alt="ARW Film"
+                decoding="async"
+              />
               <span class="showcase-cross">x</span>
               <img
                 class="showcase-logo showcase-logo-newgbonhi"
                 :src="newgbonhiOval"
                 alt="NewGbonhi"
+                decoding="async"
               />
             </div>
-            <img class="showcase-shirt" :src="cityWhiteTee" alt="" />
-            <img class="showcase-cup" :src="cupSticker" alt="" />
+            <img
+              class="showcase-shirt"
+              :src="cityWhiteTee"
+              alt=""
+              loading="eager"
+              fetchpriority="high"
+              decoding="async"
+            />
+            <img class="showcase-cup" :src="cupSticker" alt="" decoding="async" />
           </div>
           <div class="showcase-footer">
             <span>Drop 03</span>
@@ -80,6 +62,97 @@
         </div>
       </section>
 
+      <section id="clients" class="lab-explorer" aria-labelledby="lab-explorer-title">
+        <div class="explorer-head">
+          <div>
+            <p class="eyebrow">LAB / 002 — {{ labContent.directoryKicker }}</p>
+            <h2 id="lab-explorer-title">{{ labContent.directoryTitle }}</h2>
+          </div>
+          <RouterLink class="lab-button lab-button-light" to="/lab/arw-studio">
+            {{ labContent.openResident }}
+          </RouterLink>
+        </div>
+        <div class="discipline-filters" aria-label="Disciplines">
+          <button
+            v-for="filter in labContent.filters"
+            :key="filter.id"
+            type="button"
+            :class="{ active: activeDiscipline === filter.id }"
+            :aria-pressed="activeDiscipline === filter.id"
+            @click="activeDiscipline = filter.id"
+          >
+            {{ filter.label }}
+          </button>
+        </div>
+        <div class="resident-grid">
+          <component
+            :is="resident.to ? 'RouterLink' : 'article'"
+            v-for="resident in filteredResidents"
+            :key="resident.name"
+            :to="resident.to"
+            class="resident-card"
+          >
+            <div class="resident-visual" :style="{ '--resident-color': resident.color }">
+              <img :src="resident.image" :alt="resident.name" loading="lazy" decoding="async" />
+              <span>{{ resident.code }}</span>
+            </div>
+            <div class="resident-info">
+              <span class="status-dot">{{ resident.status }}</span>
+              <h3>{{ resident.name }}</h3>
+              <p>{{ resident.discipline }} · {{ resident.city }}</p>
+            </div>
+          </component>
+        </div>
+      </section>
+
+      <section class="lab-projects" aria-labelledby="lab-projects-title">
+        <div class="project-intro">
+          <p class="eyebrow">ARCHIVE / 001 — {{ labContent.projectKicker }}</p>
+          <h2 id="lab-projects-title">{{ labContent.projectTitle }}</h2>
+          <p>{{ labContent.projectText }}</p>
+        </div>
+        <div class="project-grid">
+          <RouterLink
+            v-for="project in labProjects"
+            :key="project.number"
+            class="project-card"
+            :to="project.to"
+          >
+            <span>{{ project.number }} / {{ project.status }}</span>
+            <img :src="project.image" :alt="project.title" loading="lazy" decoding="async" />
+            <div>
+              <h3>{{ project.title }}</h3>
+              <p>{{ project.credit }}</p>
+            </div>
+          </RouterLink>
+        </div>
+      </section>
+      <section class="lab-shop" aria-labelledby="lab-shop-title">
+        <div class="lab-shop-head">
+          <div>
+            <p class="eyebrow">DROP / 03 — SHOP CONNECTION</p>
+            <h2 id="lab-shop-title">{{ labContent.shopTitle }}</h2>
+          </div>
+          <RouterLink class="lab-button lab-button-light" to="/#products">
+            {{ labContent.shopCta }}
+          </RouterLink>
+        </div>
+        <div class="lab-product-grid">
+          <RouterLink
+            v-for="product in labProducts"
+            :key="product.slug"
+            class="lab-product"
+            :to="product.url"
+          >
+            <span>{{ product.creatorName }} / {{ product.tags?.[0] || "DROP 03" }}</span>
+            <img :src="product.imagePrimary" :alt="product.title" loading="lazy" decoding="async" />
+            <div>
+              <strong>{{ product.title }}</strong>
+              <em>{{ formatPrice(product.price) }}</em>
+            </div>
+          </RouterLink>
+        </div>
+      </section>
       <section class="lab-system" aria-labelledby="lab-system-title">
         <div class="section-heading">
           <p class="eyebrow">{{ pageCopy.systemKicker }}</p>
@@ -94,7 +167,7 @@
         </div>
       </section>
 
-      <section id="clients" class="client-directory" aria-labelledby="client-directory-title">
+      <section id="lab-services" class="client-directory" aria-labelledby="client-directory-title">
         <div class="directory-topline">
           <span>NEWGBONHI LAB</span>
           <RouterLink to="/lab/arw-studio">{{ pageCopy.directoryClose }}</RouterLink>
@@ -159,6 +232,62 @@
           </div>
         </div>
       </section>
+      <section class="lab-join" aria-labelledby="lab-join-title">
+        <div class="join-intro">
+          <p class="eyebrow">OPEN CALL / 2026</p>
+          <h2 id="lab-join-title">{{ labContent.joinTitle }}</h2>
+          <p>{{ labContent.joinText }}</p>
+        </div>
+        <form class="join-form" @submit.prevent="submitOpenCall">
+          <label>
+            <span>{{ labContent.formName }}</span>
+            <input v-model.trim="openCall.name" type="text" required />
+          </label>
+          <label>
+            <span>{{ labContent.formDiscipline }}</span>
+            <select v-model="openCall.discipline" required>
+              <option value="" disabled>{{ labContent.formChoose }}</option>
+              <option v-for="filter in labContent.filters.slice(1)" :key="filter.id" :value="filter.label">
+                {{ filter.label }}
+              </option>
+            </select>
+          </label>
+          <label>
+            <span>{{ labContent.formCity }}</span>
+            <input v-model.trim="openCall.city" type="text" required />
+          </label>
+          <label>
+            <span>{{ labContent.formLink }}</span>
+            <input v-model.trim="openCall.link" type="url" placeholder="https://" required />
+          </label>
+          <label class="join-form-wide">
+            <span>{{ labContent.formPitch }}</span>
+            <textarea v-model.trim="openCall.pitch" rows="4" maxlength="600" required></textarea>
+          </label>
+          <button class="lab-button" type="submit">{{ labContent.joinCta }}</button>
+          <p v-if="openCallMessage" class="join-message" role="status">{{ openCallMessage }}</p>
+        </form>
+      </section>
+      <section class="lab-agenda" aria-labelledby="lab-agenda-title">
+        <div class="agenda-heading">
+          <div>
+            <p class="eyebrow">{{ labContent.agendaKicker }}</p>
+            <h2 id="lab-agenda-title">{{ labContent.agendaTitle }}</h2>
+          </div>
+          <span>AGENDA / 2026</span>
+        </div>
+        <div class="agenda-list">
+          <article v-for="event in agendaEntries" :key="event.code" class="agenda-row">
+            <time :datetime="event.datetime">{{ event.date }}</time>
+            <div>
+              <span>{{ event.code }} / {{ event.type }}</span>
+              <strong>{{ event.title }}</strong>
+            </div>
+            <span>{{ event.place }} · {{ event.status }}</span>
+            <RouterLink :to="event.to">{{ event.cta }} ↗</RouterLink>
+          </article>
+        </div>
+      </section>
     </main>
 
     <SiteFooter />
@@ -166,8 +295,10 @@
 </template>
 
 <script>
+import SiteHeader from "./components/SiteHeader.vue";
 import CartPanel from "./components/CartPanel.vue";
 import { cartStore } from "./data/cart.ts";
+import { products } from "./data/products.ts";
 import { i18nState } from "./i18n.js";
 
 const logoUrl = new URL("./assets/newgbonhi-logo.png", import.meta.url).href;
@@ -329,6 +460,7 @@ const pageCopies = {
 export default {
   name: "LabPage",
   components: {
+    SiteHeader,
     CartPanel,
   },
   data() {
@@ -339,9 +471,116 @@ export default {
       cityWhiteTee,
       cupSticker,
       cartOpen: false,
+      activeDiscipline: "all",
+      openCall: {
+        name: "",
+        discipline: "",
+        city: "Abidjan",
+        link: "",
+        pitch: "",
+      },
+      openCallMessage: "",
     };
   },
   computed: {
+    labContent() {
+      const fr = i18nState.language === "fr";
+      return {
+        directoryKicker: fr ? "Repertoire creatif / Abidjan" : "Creative directory / Abidjan",
+        directoryTitle: fr ? "Les residents du Lab" : "Lab residents",
+        openResident: fr ? "Ouvrir la room 001" : "Open room 001",
+        filters: [
+          { id: "all", label: fr ? "Tous" : "All" }, { id: "fashion", label: fr ? "Mode" : "Fashion" },
+          { id: "graphic", label: fr ? "Graphisme" : "Graphics" }, { id: "film", label: "Film" },
+          { id: "music", label: fr ? "Musique" : "Music" }, { id: "skate", label: "Skate" },
+          { id: "photo", label: fr ? "Photographie" : "Photography" },
+          { id: "design", label: "Design" },
+          { id: "archive", label: "Archive" },
+        ],
+        projectKicker: fr ? "Projets recents" : "Recent projects",
+        projectTitle: fr ? "Le travail avant les discours" : "Work before words",
+        projectText: fr ? "Chaque room rassemble une identite, un processus, des objets et les personnes qui construisent le projet." : "Every room brings together an identity, a process, objects and the people building the project.",
+        joinTitle: fr ? "Propose ton projet au Lab" : "Submit your project to the Lab",
+        joinText: fr ? "Marque, graphiste, musicien, skater, realisateur ou designer : envoie une presentation courte, un lien et quelques visuels." : "Label, graphic artist, musician, skater, filmmaker or designer: send a short presentation, one link and a few visuals.",
+        joinCta: fr ? "Candidater par email" : "Apply by email",
+        formName: fr ? "Nom / projet" : "Name / project",
+        formDiscipline: "Discipline",
+        formChoose: fr ? "Choisir" : "Choose",
+        formCity: fr ? "Ville" : "City",
+        formLink: "Instagram / portfolio",
+        formPitch: fr ? "Presentation courte" : "Short presentation",
+        formReady: fr
+          ? "Candidature preparee. Ton application email va s'ouvrir."
+          : "Application prepared. Your email app will open.",
+        agendaKicker: fr ? "Agenda du collectif" : "Collective agenda",
+        agendaTitle: fr ? "Prochainement a Abidjan" : "Coming up in Abidjan",
+        agendaEvent: fr ? "Pop-up NewGbonhi Lab" : "NewGbonhi Lab pop-up",
+        soon: fr ? "Date a annoncer" : "Date to be announced",
+        shopTitle: fr ? "Les objets issus du Lab" : "Objects from the Lab",
+        shopCta: fr ? "Voir toute la collection" : "View the full collection",
+      };
+    },
+    residents() {
+      return [
+        { code: "001", name: "ARW Studio", discipline: "Graphic direction / Film", city: "Abidjan", status: "LIVE", category: ["graphic", "film", "fashion"], color: "#e10600", image: this.cityWhiteTee, to: "/lab/arw-studio" },
+        { code: "002", name: "NewGbonhi Collective", discipline: "Fashion / Culture", city: "Abidjan", status: "INDEX", category: ["fashion"], color: "#c7ff00", image: this.newgbonhiOval },
+        { code: "003", name: "Open Residency", discipline: "Music / Skate / Visual arts", city: "Abidjan", status: "OPEN CALL", category: ["music", "skate", "graphic", "photo", "design", "archive"], color: "#5b61ff", image: this.arwLogo },
+      ];
+    },
+    filteredResidents() {
+      if (this.activeDiscipline === "all") return this.residents;
+      return this.residents.filter((resident) => resident.category.includes(this.activeDiscipline));
+    },
+    labProjects() {
+      const fr = i18nState.language === "fr";
+      return [
+        { number: "P001", status: "LIVE", title: "ARW Film x NewGbonhi", credit: fr ? "Direction ARW Studio · Capsule Drop 03" : "ARW Studio direction · Drop 03 capsule", image: this.cityWhiteTee, to: "/lab/arw-studio" },
+        { number: "P002", status: "ARCHIVE", title: "NewGbonhi Visual Index", credit: fr ? "Identite · objets · archives" : "Identity · objects · archives", image: this.newgbonhiOval, to: "/lookbook" },
+      ];
+    },
+    labProducts() {
+      return products
+        .filter((product) => product.creatorName === "ARW Studio")
+        .slice(0, 4);
+    },
+    agendaEntries() {
+      const fr = i18nState.language === "fr";
+      return [
+        {
+          code: "A001",
+          type: "DROP",
+          date: fr ? "EN COURS" : "NOW",
+          datetime: "2026",
+          title: fr ? "Précommandes Drop 03 / ARW Film" : "Drop 03 / ARW Film preorders",
+          place: "ONLINE / ABIDJAN",
+          status: fr ? "OUVERT" : "OPEN",
+          cta: fr ? "Voir le drop" : "View drop",
+          to: "/#products",
+        },
+        {
+          code: "A002",
+          type: "OPEN CALL",
+          date: "2026",
+          datetime: "2026",
+          title: fr ? "Résidence NewGbonhi Lab" : "NewGbonhi Lab residency",
+          place: "ABIDJAN",
+          status: fr ? "CANDIDATURES OUVERTES" : "APPLICATIONS OPEN",
+          cta: fr ? "Candidater" : "Apply",
+          to: "/lab#lab-join-title",
+        },
+        {
+          code: "A003",
+          type: "POP-UP",
+          date: "TBA",
+          datetime: "2026",
+          title: fr ? "Rencontre NewGbonhi Lab" : "NewGbonhi Lab gathering",
+          place: "ABIDJAN",
+          status: fr ? "DATE À ANNONCER" : "DATE TO BE ANNOUNCED",
+          cta: fr ? "Suivre le Journal" : "Follow the Journal",
+          to: "/lookbook",
+        },
+      ];
+    },
     pageCopy() {
       return pageCopies[i18nState.language] || pageCopies.en;
     },
@@ -364,13 +603,48 @@ export default {
     toggleCart() {
       this.cartOpen = !this.cartOpen;
     },
+    formatPrice(value) {
+      return new Intl.NumberFormat("fr-CI", {
+        style: "currency",
+        currency: "XOF",
+        maximumFractionDigits: 0,
+      }).format(Number(value) || 0);
+    },
+    submitOpenCall() {
+      const application = {
+        ...this.openCall,
+        submittedAt: new Date().toISOString(),
+      };
+
+      try {
+        const stored = JSON.parse(localStorage.getItem("newgbonhi-lab-open-calls") || "[]");
+        const applications = Array.isArray(stored) ? stored : [];
+        applications.push(application);
+        localStorage.setItem("newgbonhi-lab-open-calls", JSON.stringify(applications));
+      } catch {
+        // Continue with the email handoff if browser storage is unavailable.
+      }
+
+      const subject = encodeURIComponent(`NewGbonhi Lab Open Call — ${application.name}`);
+      const body = encodeURIComponent(
+        [
+          `Nom / projet: ${application.name}`,
+          `Discipline: ${application.discipline}`,
+          `Ville: ${application.city}`,
+          `Lien: ${application.link}`,
+          "",
+          application.pitch,
+        ].join("\n")
+      );
+
+      this.openCallMessage = this.labContent.formReady;
+      window.location.href = `mailto:hello@newgbonhi.com?subject=${subject}&body=${body}`;
+    },
   },
 };
 </script>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&display=swap");
-
 :global(*) {
   box-sizing: border-box;
 }
@@ -521,8 +795,21 @@ main {
 .hero-showcase,
 .lab-system {
   border: 1px solid var(--line);
-  border-radius: 18px;
+  border-radius: var(--ng-radius);
   background: #fff;
+}
+
+.lab-index {
+  margin-bottom: 30px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid rgba(11, 11, 11, 0.2);
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font: 700 9px/1.2 monospace;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
 .hero-copy {
@@ -578,6 +865,14 @@ main {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  border-radius: var(--ng-radius);
+  transition: background-color 0.18s ease, color 0.18s ease;
+}
+
+.lab-button:hover {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
 }
 
 .lab-button-light {
@@ -649,7 +944,7 @@ main {
   width: min(360px, 52%);
   height: min(350px, 74%);
   border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: 12px;
+  border-radius: var(--ng-radius);
   background: #fff;
   overflow: hidden;
   box-shadow: 0 28px 40px rgba(0, 0, 0, 0.26);
@@ -964,7 +1259,227 @@ main {
   }
 }
 
+
+.lab-explorer,
+.lab-projects,
+.lab-join,
+.lab-agenda {
+  border: 1px solid var(--line);
+  background: #fff;
+}
+
+.lab-explorer,
+.lab-projects { padding: clamp(20px, 4vw, 34px); }
+
+.explorer-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.explorer-head h2,
+.project-intro h2,
+.lab-join h2,
+.lab-agenda h2 {
+  margin: 10px 0 0;
+  font-family: "Archivo Black", "Space Grotesk", Arial, sans-serif;
+  font-size: clamp(30px, 5vw, 58px);
+  line-height: .94;
+  text-transform: uppercase;
+}
+
+.discipline-filters {
+  margin: 28px 0 18px;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.discipline-filters button {
+  border: 1px solid #0b0b0b;
+  background: transparent;
+  padding: 9px 13px;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  font: 700 10px/1 "Space Grotesk", sans-serif;
+  cursor: pointer;
+}
+
+.discipline-filters button.active { background: #0b0b0b; color: #fff; }
+.discipline-filters button { transition: background-color .2s ease, color .2s ease, border-color .2s ease; }
+.discipline-filters button:hover { border-color: #e10600; }
+
+.resident-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.resident-card { color: inherit; text-decoration: none; border: 1px solid rgba(0,0,0,.18); min-width: 0; }
+.resident-card { transition: transform .3s cubic-bezier(.2,.8,.2,1), box-shadow .3s ease; }
+.resident-card:hover { transform: translateY(-5px); box-shadow: 0 18px 38px rgba(0,0,0,.1); }
+.resident-visual { position: relative; aspect-ratio: 4/3; overflow: hidden; background: var(--resident-color); }
+.resident-visual::after { content: ""; position: absolute; inset: 0; background: linear-gradient(135deg, transparent, rgba(0,0,0,.18)); }
+.resident-visual img { width: 100%; height: 100%; object-fit: contain; padding: 14px; filter: drop-shadow(0 16px 18px rgba(0,0,0,.2)); transition: transform .25s ease; }
+.resident-card:hover img { transform: scale(1.05) rotate(-2deg); }
+.resident-visual span { position: absolute; z-index: 2; top: 12px; left: 12px; color: #fff; font-weight: 800; letter-spacing: .18em; }
+.resident-info { padding: 16px; }
+.resident-info h3 { margin: 18px 0 6px; text-transform: uppercase; font-size: 18px; }
+.resident-info p { margin: 0; color: var(--muted); font-size: 12px; }
+.status-dot { font: 800 9px/1 monospace; letter-spacing: .16em; color: var(--accent); }
+.status-dot::before { content: ""; display: inline-block; width: 6px; height: 6px; margin-right: 7px; border-radius: 50%; background: currentColor; }
+
+.lab-projects { background: #0b0b0b; color: #fff; }
+.project-intro { max-width: 760px; }
+.project-intro > p:last-child { color: rgba(255,255,255,.64); line-height: 1.6; }
+.project-grid { margin-top: 26px; display: grid; grid-template-columns: 1.25fr .75fr; gap: 12px; }
+.project-card { border: 1px solid rgba(255,255,255,.18); color: #fff; text-decoration: none; padding: 14px; }
+.project-card > span { font: 700 9px/1 monospace; letter-spacing: .16em; color: rgba(255,255,255,.55); }
+.project-card img { width: 100%; height: 320px; object-fit: contain; margin: 10px 0; }
+.project-card h3 { margin: 0; text-transform: uppercase; font-size: clamp(18px, 3vw, 30px); }
+.project-card p { margin: 7px 0 0; color: rgba(255,255,255,.58); font-size: 12px; }
+.lab-shop {
+  padding: clamp(28px, 5vw, 56px);
+  border: 1px solid var(--line);
+  background: #f5f5f1;
+}
+.lab-shop-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+}
+.lab-shop-head h2 {
+  margin: 10px 0 0;
+  max-width: 700px;
+  font-family: "Archivo Black", "Space Grotesk", sans-serif;
+  font-size: clamp(34px, 6vw, 72px);
+  line-height: .92;
+  text-transform: uppercase;
+}
+.lab-product-grid {
+  margin-top: 34px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+}
+.lab-product {
+  min-width: 0;
+  padding: 14px;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  color: inherit;
+  text-decoration: none;
+  transition: background-color .2s ease, color .2s ease;
+}
+.lab-product > span {
+  font: 700 8px/1.2 monospace;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.lab-product img {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: contain;
+  transition: transform .25s ease;
+}
+.lab-product div {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 10px;
+}
+.lab-product strong {
+  font-size: 11px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.lab-product em {
+  white-space: nowrap;
+  font: 700 10px/1 monospace;
+  font-style: normal;
+}
+.lab-product:hover {
+  background: var(--accent);
+  color: #fff;
+}
+.lab-product:hover img { transform: scale(1.04); }
+
+.lab-join { padding: clamp(24px, 5vw, 48px); display: grid; grid-template-columns: .8fr 1.2fr; gap: clamp(30px, 6vw, 80px); align-items: start; background: #c7ff00; }
+.join-intro > p:last-child { margin: 20px 0 0; line-height: 1.6; }
+.join-form { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.join-form label { display: grid; gap: 7px; }
+.join-form label > span { text-transform: uppercase; letter-spacing: .14em; font: 800 9px/1 monospace; }
+.join-form input,
+.join-form select,
+.join-form textarea { width: 100%; border: 1px solid #0b0b0b; border-radius: 0; background: rgba(255,255,255,.48); padding: 12px; color: #0b0b0b; font: inherit; }
+.join-form textarea { resize: vertical; }
+.join-form-wide,
+.join-form .lab-button,
+.join-message { grid-column: 1 / -1; }
+.join-form .lab-button { width: 100%; }
+.join-message { margin: 0; font: 700 11px/1.5 monospace; }
+.lab-agenda { padding: clamp(24px, 5vw, 56px); }
+.agenda-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+}
+.agenda-heading > span {
+  font: 700 9px/1.2 monospace;
+  letter-spacing: .16em;
+}
+.agenda-list { margin-top: 28px; border-bottom: 1px solid; }
+.agenda-row {
+  padding: 18px 0;
+  border-top: 1px solid;
+  display: grid;
+  grid-template-columns: 90px minmax(220px, 1fr) minmax(180px, auto) auto;
+  gap: 18px;
+  align-items: center;
+}
+.agenda-row div { display: grid; gap: 6px; }
+.agenda-row strong { text-transform: uppercase; }
+.agenda-row time,
+.agenda-row span {
+  font: 700 9px/1.3 monospace;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.agenda-row div span { color: var(--accent); }
+.agenda-row > span { text-align: right; }
+.agenda-row a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid;
+  padding-bottom: 4px;
+  font: 700 9px/1.2 monospace;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.agenda-row a:hover { color: var(--accent); }
+
+@media (max-width: 800px) {
+  .resident-grid { grid-template-columns: 1fr 1fr; }
+  .project-grid { grid-template-columns: 1fr; }
+  .lab-join { grid-template-columns: 1fr; align-items: start; }
+}
+
+@media (max-width: 560px) {
+  .explorer-head { align-items: start; flex-direction: column; }
+  .resident-grid { grid-template-columns: 1fr; }
+  .project-card img { height: 260px; }
+  .agenda-heading { align-items: flex-start; flex-direction: column; }
+  .agenda-row { grid-template-columns: 1fr; }
+  .agenda-row > span { text-align: left; }
+  .join-form { grid-template-columns: 1fr; }
+  .join-form label,
+  .join-form-wide,
+  .join-form .lab-button,
+  .join-message { grid-column: 1; }
+}
 @media (max-width: 980px) {
+  .lab-product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .shop-header {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
@@ -1028,6 +1543,8 @@ main {
 }
 
 @media (max-width: 700px) {
+  .discipline-filters { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x proximity; scrollbar-width: none; }
+  .discipline-filters button { flex: 0 0 auto; scroll-snap-align: start; }
   .lab-page {
     padding: 20px 14px 36px;
   }

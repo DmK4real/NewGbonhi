@@ -1,4 +1,10 @@
-const STATUS_VALUES = new Set(["sent", "paid_reported", "paid", "delivered"]);
+const STATUS_VALUES = new Set([
+  "sent",
+  "paid_reported",
+  "paid",
+  "production",
+  "delivered",
+]);
 const DEFAULT_TOKEN_TTL_MS = 1000 * 60 * 60 * 8;
 const ORDERS_KEY = "orders.v1";
 const AUDIT_KEY = "orders.audit.v1";
@@ -32,6 +38,13 @@ const safeInteger = (value, fallback = 0) => {
     return fallback;
   }
   return Math.max(0, Math.round(parsed));
+};
+
+const DEFAULT_FULFILLMENT = {
+  mode: "preorder",
+  paymentRequired: true,
+  productionWindow: "Production starts after payment confirmation",
+  deliveryWindow: "48/72h after payment confirmation",
 };
 
 const textEncoder = new TextEncoder();
@@ -229,6 +242,12 @@ const normalizeItems = (items) => {
       selectedDesignName: safeString(item.selectedDesignName, 120) || null,
       selectedDesignCategory: safeString(item.selectedDesignCategory, 32) || null,
       isCustomStudio: Boolean(item.isCustomStudio),
+      preorder: item.preorder !== false,
+      productionWindow:
+        safeString(item.productionWindow, 120) ||
+        DEFAULT_FULFILLMENT.productionWindow,
+      deliveryWindow:
+        safeString(item.deliveryWindow, 120) || DEFAULT_FULFILLMENT.deliveryWindow,
     };
   });
 };
@@ -245,6 +264,21 @@ const normalizeShipping = (shipping) => {
   };
 };
 
+const normalizeFulfillment = (fulfillment) => {
+  const source =
+    fulfillment && typeof fulfillment === "object" ? fulfillment : DEFAULT_FULFILLMENT;
+
+  return {
+    mode: safeString(source.mode, 32) || DEFAULT_FULFILLMENT.mode,
+    paymentRequired: source.paymentRequired !== false,
+    productionWindow:
+      safeString(source.productionWindow, 120) ||
+      DEFAULT_FULFILLMENT.productionWindow,
+    deliveryWindow:
+      safeString(source.deliveryWindow, 120) || DEFAULT_FULFILLMENT.deliveryWindow,
+  };
+};
+
 const buildOrderFromDraft = (draft) => {
   if (!draft || typeof draft !== "object") {
     throw new Error("Order payload is missing.");
@@ -253,17 +287,20 @@ const buildOrderFromDraft = (draft) => {
   const customer = normalizeCustomer(draft.customer);
   const items = normalizeItems(draft.items);
   const shipping = normalizeShipping(draft.shipping);
+  const fulfillment = normalizeFulfillment(draft.fulfillment);
   const subtotal = items.reduce((sum, item) => sum + item.qty * item.price, 0);
   const total = subtotal + shipping.fee;
 
   return {
     id: buildOrderId(),
+    type: safeString(draft.type, 32) || "preorder",
     status: "sent",
     createdAt: new Date().toISOString(),
     customer,
     items,
     subtotal,
     shipping,
+    fulfillment,
     total,
   };
 };

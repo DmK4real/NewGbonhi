@@ -1,46 +1,12 @@
-<template>
+﻿<template>
   <div class="about-page">
-    <header class="shop-header">
-      <div class="brand">
-        <img class="brand-logo" :src="logoUrl" alt="NewGbonhi logo" />
-        <div class="brand-meta">
-          <p class="brand-name">NewGbonhi</p>
-          <p class="brand-tagline">{{ $t("brandTagline") }}</p>
-        </div>
-      </div>
-      <nav class="shop-nav" aria-label="Primary">
-        <RouterLink :class="{ 'is-active': $route.name === 'shop' }" to="/">
-          {{ $t("navShop") }}
-        </RouterLink>
-        <RouterLink
-          :class="{ 'is-active': $route.name === 'lookbook' }"
-          to="/lookbook"
-        >
-          {{ $t("navLookbook") }}
-        </RouterLink>
-        <RouterLink :class="{ 'is-active': $route.name === 'lab' }" to="/lab">
-          {{ $t("navLab") }}
-        </RouterLink>
-        <RouterLink :class="{ 'is-active': $route.name === 'studio' }" to="/studio">
-          {{ $t("navStudio") }}
-        </RouterLink>
-        <RouterLink :class="{ 'is-active': $route.name === 'about' }" to="/about">
-          {{ $t("navAbout") }}
-        </RouterLink>
-        <RouterLink :class="{ 'is-active': $route.name === 'orders' }" to="/orders">
-          {{ $t("navOrders") }}
-        </RouterLink>
-        <a href="#contact">{{ $t("navContact") }}</a>
-      </nav>
-      <button class="shop-cta" type="button" @click="toggleCart">
-        {{ $t("cart") }} ({{ cartCount }})
-      </button>
-    </header>
+    <SiteHeader @toggle-cart="toggleCart" />
 
     <CartPanel :open="cartOpen" @close="cartOpen = false" />
 
     <section class="about-hero">
       <div class="hero-copy">
+        <div class="about-index"><span>ABOUT / 001</span><span>ABIDJAN / 2026</span></div>
         <p class="hero-kicker">{{ $t("about") }}</p>
         <h1>{{ $t("dropDetails") }}</h1>
         <p class="hero-sub">
@@ -48,7 +14,7 @@
         </p>
       </div>
       <div class="hero-panel">
-        <img class="hero-logo" :src="logoUrl" alt="" />
+        <img class="hero-logo" :src="logoUrl" alt="" decoding="async" />
         <div class="hero-strip">{{ $t("technicalNotes") }}</div>
       </div>
     </section>
@@ -99,6 +65,11 @@
         <p>
           {{ $t("storyTwo") }}
         </p>
+        <blockquote>NEWGBONHI IS A LIVING ARCHIVE OF OBJECTS, PEOPLE AND IDEAS FROM ABIDJAN.</blockquote>
+        <div class="story-links">
+          <RouterLink to="/lab">Explore Lab ↗</RouterLink>
+          <RouterLink to="/lookbook">Open Journal ↗</RouterLink>
+        </div>
       </div>
     </section>
 
@@ -107,6 +78,7 @@
 </template>
 
 <script>
+import SiteHeader from "./components/SiteHeader.vue";
 import CartPanel from "./components/CartPanel.vue";
 import { cartStore } from "./data/cart.ts";
 
@@ -115,6 +87,7 @@ const logoUrl = new URL("./assets/newgbonhi-logo.png", import.meta.url).href;
 export default {
   name: "AboutPage",
   components: {
+    SiteHeader,
     CartPanel,
   },
   data() {
@@ -163,8 +136,6 @@ export default {
 </script>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&display=swap");
-
 :global(*) {
   box-sizing: border-box;
 }
@@ -451,6 +422,68 @@ export default {
   text-decoration: none;
 }
 
+/* Editorial about page */
+.about-hero { padding: clamp(28px,5vw,62px); border-radius: var(--ng-radius); background: #0b0b0b; color: #fff; }
+.about-index { margin-bottom: 28px; padding: 10px 0; border-top: 1px solid rgba(255,255,255,.4); border-bottom: 1px solid rgba(255,255,255,.2); display: flex; justify-content: space-between; gap: 16px; font: 700 9px/1.2 monospace; letter-spacing: .14em; }
+.hero-copy h1 { font-size: clamp(42px,7vw,86px); line-height: .9; }
+.hero-sub { color: rgba(255,255,255,.64); line-height: 1.7; }
+.hero-panel { border-radius: var(--ng-radius); border: 1px solid rgba(255,255,255,.24); }
+.hero-strip { border-radius: var(--ng-radius); }
+.drop-specs,
+.fit-section,
+.story-section { margin-top: var(--ng-space-section); padding: clamp(24px,5vw,54px); border-radius: var(--ng-radius); }
+.specs-head h2,
+.fit-head h2,
+.story-head h2 { max-width: 850px; font-family: "Archivo Black","Space Grotesk",sans-serif; font-size: clamp(30px,5vw,60px); line-height: .94; }
+.specs-grid { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 0; border-top: 1px solid rgba(0,0,0,.18); border-left: 1px solid rgba(0,0,0,.18); }
+.spec-card,
+.fit-card { border-radius: var(--ng-radius); background: transparent; }
+.spec-card { min-height: 150px; border: 0; border-right: 1px solid rgba(0,0,0,.18); border-bottom: 1px solid rgba(0,0,0,.18); padding: 20px; }
+.fit-grid { gap: 0; }
+.fit-card { padding: 24px; border-right: 0; border-bottom: 0; border-top: 1px solid rgba(0,0,0,.18); }
+.story-section {
+  display: grid;
+  grid-template-columns: minmax(280px, .72fr) minmax(0, 1.28fr);
+  gap: clamp(40px, 7vw, 104px);
+  align-items: start;
+  background: #e10600;
+  color: #fff;
+}
+.story-head p,
+.story-copy p { color: inherit; }
+.story-head h2 {
+  max-width: 430px;
+  margin-top: 18px;
+  font-size: clamp(36px, 4.2vw, 64px);
+  line-height: .94;
+  letter-spacing: 0;
+  text-wrap: balance;
+}
+.story-copy {
+  margin: 0;
+  max-width: 820px;
+  gap: 20px;
+  font-size: clamp(16px, 1.65vw, 21px);
+  line-height: 1.55;
+}
+.story-copy p {
+  max-width: 760px;
+  text-wrap: pretty;
+}
+.story-copy blockquote {
+  max-width: 760px;
+  margin: 34px 0 0;
+  padding-top: 30px;
+  border-top: 1px solid rgba(255,255,255,.45);
+  font-family: "Archivo Black","Space Grotesk",sans-serif;
+  font-size: clamp(25px, 3.2vw, 44px);
+  line-height: 1.02;
+  letter-spacing: -.02em;
+  text-wrap: balance;
+}
+.story-links { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 28px; }
+.story-links a { color: #fff; text-decoration: none; border-bottom: 1px solid; padding-bottom: 5px; font: 700 10px/1.2 monospace; letter-spacing: .12em; text-transform: uppercase; }
+
 @keyframes rise {
   from {
     opacity: 0;
@@ -466,6 +499,7 @@ export default {
   .about-hero {
     grid-template-columns: 1fr;
   }
+  .story-section { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 700px) {
@@ -484,5 +518,7 @@ export default {
   .footer-links {
     flex-direction: column;
   }
+  .specs-grid { grid-template-columns: 1fr; }
+  .about-index { flex-direction: column; }
 }
 </style>

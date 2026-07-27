@@ -1,47 +1,16 @@
-<template>
+﻿<template>
   <div class="shop-page">
-    <header class="shop-header">
-      <div class="brand">
-        <img class="brand-logo" :src="logoUrl" alt="NewGbonhi logo" />
-        <div class="brand-meta">
-          <p class="brand-name">NewGbonhi</p>
-          <p class="brand-tagline">{{ $t("brandTagline") }}</p>
-        </div>
-      </div>
-      <nav class="shop-nav" aria-label="Primary">
-        <RouterLink :class="{ 'is-active': $route.name === 'shop' }" to="/">
-          {{ $t("navShop") }}
-        </RouterLink>
-        <RouterLink
-          :class="{ 'is-active': $route.name === 'lookbook' }"
-          to="/lookbook"
-        >
-          {{ $t("navLookbook") }}
-        </RouterLink>
-        <RouterLink :class="{ 'is-active': $route.name === 'lab' }" to="/lab">
-          {{ $t("navLab") }}
-        </RouterLink>
-        <RouterLink :class="{ 'is-active': $route.name === 'studio' }" to="/studio">
-          {{ $t("navStudio") }}
-        </RouterLink>
-        <RouterLink :class="{ 'is-active': $route.name === 'about' }" to="/about">
-          {{ $t("navAbout") }}
-        </RouterLink>
-        <RouterLink :class="{ 'is-active': $route.name === 'orders' }" to="/orders">
-          {{ $t("navOrders") }}
-        </RouterLink>
-        <a href="#contact">{{ $t("navContact") }}</a>
-      </nav>
-      <button class="shop-cta" type="button" @click="toggleCart">
-        {{ $t("cart") }} ({{ cartCount }})
-      </button>
-    </header>
+    <SiteHeader @toggle-cart="toggleCart" @focus-search="focusSearch" />
 
     <CartPanel :open="cartOpen" @close="cartOpen = false" />
 
     <section class="hero">
       <div class="hero-copy">
-        <p class="hero-kicker">{{ $t("nextDrop") }}</p>
+        <div class="editorial-index" aria-label="Drop information">
+          <span>DROP / 03</span>
+          <span>{{ $t("dropDate") }}</span>
+        </div>
+        <p class="hero-kicker">{{ $t("dropStatus") }}</p>
         <h1>{{ $t("drop02Prep") }}</h1>
         <p class="hero-sub">
           {{ $t("shopHeroSub") }}
@@ -61,45 +30,74 @@
           :src="logoUrl"
           alt=""
           aria-hidden="true"
-        />
-        <img
-          class="hero-sticker hero-sticker-oval"
-          :src="stickerOval"
-          alt=""
-          aria-hidden="true"
-        />
-        <img
-          class="hero-sticker hero-sticker-arw"
-          :src="stickerArwFilm"
-          alt=""
-          aria-hidden="true"
-        />
-        <img
-          class="hero-sticker hero-sticker-arw-alt"
-          :src="stickerArwFilm"
-          alt=""
-          aria-hidden="true"
-        />
-        <img
-          class="hero-sticker hero-sticker-cup"
-          :src="stickerCup"
-          alt=""
-          aria-hidden="true"
+          decoding="async"
         />
         <span class="hero-sticker hero-sticker-text" aria-hidden="true">
           NewGbonhi
         </span>
         <span class="hero-sticker hero-sticker-drop" aria-hidden="true">
-          Drop 03
+          Drop 04
         </span>
-        <img class="hero-photo" :src="heroImage" alt="Next drop preview" />
+        <img
+          class="hero-photo"
+          :src="heroImage"
+          alt="Next drop preview"
+          loading="eager"
+          fetchpriority="high"
+          decoding="async"
+        />
+      </div>
+    </section>
+
+    <section class="featured-drop" aria-labelledby="featured-drop-title">
+      <div class="featured-drop-head">
+        <div>
+          <p>DROP / 04 — {{ $t("featuredDropKicker") }}</p>
+          <h2 id="featured-drop-title">{{ $t("featuredDropTitle") }}</h2>
+        </div>
+        <button type="button" @click="scrollToProducts">
+          {{ $t("viewFullCollection") }} <span>↓</span>
+        </button>
+      </div>
+      <div class="camo-editorial" aria-labelledby="camo-editorial-title" tabindex="0" @keydown.left.prevent="previousCamoSlide" @keydown.right.prevent="nextCamoSlide">
+      <div class="camo-editorial-copy">
+        <div>
+          <p>{{ $t("camoEditorialKicker") }}</p>
+          <h2 id="camo-editorial-title">{{ $t("camoEditorialTitle") }}</h2>
+          <span>{{ $t("camoEditorialText") }}</span>
+        </div>
+        <div class="camo-editorial-footer">
+          <RouterLink to="/product/t-shirt-newgbonhi-camo">{{ $t("camoEditorialCta") }} ↗</RouterLink>
+          <span>{{ String(camoSlide + 1).padStart(2, "0") }} / {{ String(camoEditorialImages.length).padStart(2, "0") }}</span>
+        </div>
+      </div>
+      <div class="camo-slider">
+        <div class="camo-slider-track" :style="{ transform: `translateX(-${camoSlide * 100}%)` }">
+          <figure v-for="(image, index) in camoEditorialImages" :key="image.src">
+            <img :src="image.src" :alt="image.alt" :loading="index === 0 ? 'eager' : 'lazy'" decoding="async" />
+            <figcaption>CAMPAIGN IMAGE / {{ String(index + 1).padStart(2, "0") }}</figcaption>
+          </figure>
+        </div>
+        <div class="camo-slider-controls">
+          <button type="button" aria-label="Photo précédente" @click="previousCamoSlide">←</button>
+          <div role="tablist" aria-label="Photos de campagne">
+            <button v-for="(_, index) in camoEditorialImages" :key="index" type="button" :class="{ active: camoSlide === index }" :aria-label="`Image ${index + 1}`" :aria-selected="camoSlide === index" role="tab" @click="camoSlide = index"></button>
+          </div>
+          <button type="button" aria-label="Photo suivante" @click="nextCamoSlide">→</button>
+        </div>
+      </div>
       </div>
     </section>
 
     <section class="collab-feature" aria-labelledby="collab-title">
       <div class="collab-copy">
         <div class="collab-lockup">
-          <img :src="collabLockup" :alt="$t('collabLogoAlt')" />
+          <img
+            :src="collabLockup"
+            :alt="$t('collabLogoAlt')"
+            loading="lazy"
+            decoding="async"
+          />
         </div>
         <p class="collab-kicker">{{ $t("collabKicker") }}</p>
         <h2 id="collab-title">{{ $t("collabTitle") }}</h2>
@@ -121,15 +119,30 @@
 
       <div class="collab-gallery" aria-label="ARW Film collaboration previews">
         <figure class="collab-frame collab-frame-main collab-frame-cutout">
-          <img :src="collabCityWhiteTeeCutout" :alt="$t('collabCityWhiteAlt')" />
+          <img
+            :src="collabCityWhiteTeeCutout"
+            :alt="$t('collabCityWhiteAlt')"
+            loading="lazy"
+            decoding="async"
+          />
           <figcaption>{{ $t("collabEditorialLabel") }}</figcaption>
         </figure>
         <figure class="collab-frame collab-frame-side collab-frame-cutout">
-          <img :src="collabCityBlackTeeCutout" :alt="$t('collabCityBlackAlt')" />
+          <img
+            :src="collabCityBlackTeeCutout"
+            :alt="$t('collabCityBlackAlt')"
+            loading="lazy"
+            decoding="async"
+          />
           <figcaption>{{ $t("collabPieceLabel") }}</figcaption>
         </figure>
         <figure class="collab-frame collab-frame-mark collab-frame-cutout">
-          <img :src="collabChromeLogo" :alt="$t('collabChromeAlt')" />
+          <img
+            :src="collabChromeLogo"
+            :alt="$t('collabChromeAlt')"
+            loading="lazy"
+            decoding="async"
+          />
           <figcaption>{{ $t("collabMarkLabel") }}</figcaption>
         </figure>
       </div>
@@ -147,8 +160,37 @@
       <RouterLink class="lab-entry-profile" to="/lab/arw-studio">
         <span>{{ $t("labHomeCreatorKicker") }}</span>
         <strong>ARW Studio</strong>
-        <img :src="collabCityWhiteTeeCutout" alt="" />
+        <img :src="collabCityWhiteTeeCutout" alt="" loading="lazy" decoding="async" />
       </RouterLink>
+    </section>
+
+    <section class="manifesto-entry" aria-labelledby="manifesto-title">
+      <p>{{ $t("manifestoKicker") }}</p>
+      <h2 id="manifesto-title">{{ $t("manifestoTitle") }}</h2>
+      <RouterLink to="/about">{{ $t("manifestoCta") }} <span>↗</span></RouterLink>
+    </section>
+
+    <section class="early-access" aria-labelledby="early-access-title">
+      <div>
+        <p>{{ $t("earlyAccessKicker") }}</p>
+        <h2 id="early-access-title">{{ $t("earlyAccessTitle") }}</h2>
+        <span>{{ $t("earlyAccessText") }}</span>
+      </div>
+      <form @submit.prevent="joinEarlyAccess">
+        <label class="early-access-label" for="early-access-email">
+          {{ $t("earlyAccessPlaceholder") }}
+        </label>
+        <input
+          id="early-access-email"
+          v-model.trim="earlyAccessEmail"
+          type="email"
+          autocomplete="email"
+          placeholder="nom@email.com"
+          required
+        />
+        <button type="submit">{{ $t("earlyAccessCta") }}</button>
+        <p v-if="earlyAccessMessage" role="status">{{ earlyAccessMessage }}</p>
+      </form>
     </section>
 
     <section class="drop-details">
@@ -172,7 +214,7 @@
       </div>
     </section>
 
-    <main class="shop-main" ref="productsSection">
+    <main id="products" class="shop-main" ref="productsSection">
       <aside class="shop-sidebar">
         <div class="sidebar-block">
           <h2>{{ $t("categories") }}</h2>
@@ -231,6 +273,7 @@
           <label for="search" class="sr-only">{{ $t("searchProducts") }}</label>
           <input
             id="search"
+            ref="searchInput"
             v-model="searchQuery"
             type="search"
             :placeholder="$t('searchPlaceholder')"
@@ -318,17 +361,18 @@
 </template>
 
 <script>
+import SiteHeader from "./components/SiteHeader.vue";
 import ProductGrid from "./components/ProductGrid.vue";
 import CartPanel from "./components/CartPanel.vue";
+import LanguageSwitch from "./components/LanguageSwitch.vue";
 import { products } from "./data/products.ts";
 import { cartStore } from "./data/cart.ts";
 
 const logoUrl = new URL("./assets/newgbonhi-logo.png", import.meta.url).href;
 const heroImage = new URL(
-  "./assets/ARW FILM CITY TEE WHITE FRONT CUTOUT.png",
+  "./assets/NEW GBONHI CAMO TEE WHITE CUTOUT.png",
   import.meta.url
 ).href;
-const stickerOval = new URL("./assets/NEW GBONHI OVAL.png", import.meta.url).href;
 const stickerArwFilm = new URL("./assets/ARW FILM.png", import.meta.url).href;
 const stickerCup = new URL("./assets/ARW FILM CUP STICKER.png", import.meta.url).href;
 const collabLockup = new URL("./assets/ARW FILM X NEW GBONHI.jpeg", import.meta.url).href;
@@ -344,6 +388,12 @@ const collabChromeLogo = new URL(
   "./assets/ARW FILM CHROME LOGO CUTOUT.png",
   import.meta.url
 ).href;
+const camoEditorialImages = [
+  { src: new URL("./assets/editorial/cameleon-worn-01.jpg", import.meta.url).href, alt: "NewGbonhi Cameleon Camo tee porté à Abidjan" },
+  { src: new URL("./assets/editorial/cameleon-worn-02.jpg", import.meta.url).href, alt: "Vue rapprochée du graphisme Cameleon Camo NewGbonhi" },
+  { src: new URL("./assets/editorial/cameleon-worn-03.jpg", import.meta.url).href, alt: "Portrait de campagne du tee Cameleon Camo" },
+  { src: new URL("./assets/editorial/cameleon-worn-04.jpg", import.meta.url).href, alt: "Coupe portée du tee blanc NewGbonhi Cameleon Camo" },
+];
 
 const arwStudioOnlySlugs = new Set([
   "arw-film-logo-tee",
@@ -353,14 +403,15 @@ const arwStudioOnlySlugs = new Set([
 export default {
   name: "ShopPage",
   components: {
+    SiteHeader,
     ProductGrid,
     CartPanel,
+    LanguageSwitch,
   },
   data() {
     return {
       logoUrl,
       heroImage,
-      stickerOval,
       stickerArwFilm,
       stickerCup,
       collabLockup,
@@ -372,9 +423,14 @@ export default {
       toastMessage: "",
       toastVisible: false,
       cartOpen: false,
+      menuOpen: false,
+      earlyAccessEmail: "",
+      earlyAccessMessage: "",
+      camoEditorialImages,
+      camoSlide: 0,
       filtersOpen: false,
       filters: [
-        { id: "drop03", labelKey: "filterDrop02" },
+        { id: "drop04", labelKey: "filterDrop02" },
         { id: "new", labelKey: "filterNew" },
         { id: "soldOut", labelKey: "filterSoldOut" },
         { id: "restock", labelKey: "filterRestock" },
@@ -466,7 +522,7 @@ export default {
         ? this.activeCategory
         : "all";
 
-      const query = this.searchQuery.toLowerCase(); // New search query processing
+      const query = this.searchQuery.toLowerCase();
 
       return this.shopProducts.filter((product) => {
         const productCategory = String(product?.category || "")
@@ -479,15 +535,14 @@ export default {
 
         if (this.activeFilter === "soldOut") {
           filterMatch = Boolean(product.soldOut);
-        } else if (this.activeFilter === "drop03") {
-          filterMatch = tagList.includes("drop03");
+        } else if (this.activeFilter === "drop04") {
+          filterMatch = tagList.includes("drop04");
         } else if (this.activeFilter === "new") {
           filterMatch = tagList.includes("new");
         } else if (this.activeFilter === "restock") {
           filterMatch = tagList.includes("restock");
         }
 
-        // New search logic
         const searchMatch =
           !query ||
           (product.title && product.title.toLowerCase().includes(query)) ||
@@ -496,7 +551,14 @@ export default {
         return categoryMatch && filterMatch && searchMatch;
       });
     },
-  },  methods: {
+  },
+  methods: {
+    nextCamoSlide() {
+      this.camoSlide = (this.camoSlide + 1) % this.camoEditorialImages.length;
+    },
+    previousCamoSlide() {
+      this.camoSlide = (this.camoSlide - 1 + this.camoEditorialImages.length) % this.camoEditorialImages.length;
+    },
     setCategory(categoryId) {
       this.activeCategory = categoryId;
     },
@@ -510,10 +572,49 @@ export default {
       this.activeFilter = this.activeFilter === filterId ? null : filterId;
     },
     toggleCart() {
+      this.menuOpen = false;
       this.cartOpen = !this.cartOpen;
     },
+    focusSearch() {
+      this.menuOpen = false;
+      this.scrollToProducts();
+      this.$nextTick(() => {
+        this.$refs.searchInput?.focus();
+      });
+    },
+    featuredProducts() {
+      const selected = this.shopProducts.filter(
+        (product) => product.tags?.includes("drop04") || product.tags?.includes("featured")
+      );
+      const fallback = this.shopProducts.filter((product) => !selected.includes(product));
+      return [...selected, ...fallback].slice(0, 6);
+    },
+    joinEarlyAccess() {
+      const email = this.earlyAccessEmail.trim().toLowerCase();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        this.earlyAccessMessage = this.$t("emailRequired");
+        return;
+      }
+
+      try {
+        const stored = JSON.parse(localStorage.getItem("newgbonhi-early-access") || "[]");
+        const emails = Array.isArray(stored) ? stored : [];
+        if (!emails.includes(email)) {
+          emails.push(email);
+          localStorage.setItem("newgbonhi-early-access", JSON.stringify(emails));
+        }
+      } catch {
+        // The confirmation remains useful when storage is unavailable.
+      }
+
+      this.earlyAccessMessage = this.$t("earlyAccessSuccess");
+      this.earlyAccessEmail = "";
+    },
     addToCart(product) {
-      cartStore.addToCart(product);
+      cartStore.addToCart({
+        ...product,
+        preorder: true,
+      });
       this.cartOpen = true;
       this.showToast(`${product.title} ${this.$t("addedToCart").toLowerCase()}`);
     },
@@ -555,8 +656,6 @@ export default {
 </script>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&display=swap");
-
 :global(*) {
   box-sizing: border-box;
 }
@@ -579,8 +678,25 @@ export default {
   padding: 32px 24px 48px;
   position: relative;
   z-index: 0;
+  display: flex;
+  flex-direction: column;
 }
 
+
+.shop-header { order: 1; }
+.hero { order: 2; }
+.featured-drop { order: 3; }
+.camo-editorial { order: 4; }
+.shop-main { order: 5; }
+.collab-feature { order: 6; }
+.lab-entry { order: 7; }
+.manifesto-entry { order: 8; }
+.early-access { order: 9; }
+.drop-details { order: 10; }
+.site-footer { order: 11; }
+.filter-backdrop,
+.filter-drawer,
+.toast { order: 12; }
 .shop-page::before {
   content: "";
   position: fixed;
@@ -617,6 +733,8 @@ export default {
   display: flex;
   align-items: center;
   gap: 14px;
+  color: inherit;
+  text-decoration: none;
 }
 
 .brand-logo {
@@ -667,6 +785,45 @@ export default {
   border-color: var(--accent);
 }
 
+.nav-tools {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.header-language :deep(.language-switch) {
+  gap: 3px;
+}
+
+.nav-tool {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  padding: 8px 4px;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font: 700 9px/1 "Space Grotesk", Arial, sans-serif;
+  cursor: pointer;
+}
+
+.shop-cta span {
+  display: inline-grid;
+  min-width: 20px;
+  height: 20px;
+  margin-left: 5px;
+  place-items: center;
+  border-radius: 50%;
+  background: #0b0b0b;
+  color: #fff;
+}
+
+.menu-toggle,
+.mobile-campaign {
+  display: none;
+}
+
 .shop-cta {
   border: 1px solid var(--line);
   background: #fff;
@@ -696,10 +853,29 @@ export default {
   animation: rise 0.7s ease both;
 }
 
+.hero-copy {
+  align-self: center;
+  padding: clamp(18px, 4vw, 42px) 0;
+}
+
+.editorial-index {
+  margin-bottom: 28px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid rgba(11, 11, 11, 0.24);
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  font: 700 9px/1.2 monospace;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
 .hero-copy h1 {
   margin: 8px 0 12px;
   font-family: "Archivo Black", "Space Grotesk", Arial, sans-serif;
-  font-size: 36px;
+  font-size: clamp(38px, 6vw, 74px);
+  line-height: 0.9;
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
@@ -738,11 +914,24 @@ export default {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  min-height: var(--ng-action-height);
+  transition: background-color 0.18s ease, color 0.18s ease;
+}
+
+.hero-button:hover {
+  border-color: var(--accent);
+  background: var(--accent);
 }
 
 .hero-button.ghost {
   background: #fff;
   color: var(--text);
+}
+
+.hero-button.ghost:hover {
+  border-color: var(--text);
+  background: var(--text);
+  color: #fff;
 }
 
 .hero-panel {
@@ -786,14 +975,6 @@ export default {
   animation: sticker-float-a 5.8s ease-in-out infinite;
 }
 
-.hero-sticker-oval {
-  width: clamp(86px, 13vw, 150px);
-  right: 6%;
-  top: 16%;
-  transform: rotate(8deg);
-  animation: sticker-float-b 6.6s ease-in-out infinite;
-}
-
 .hero-sticker-arw {
   width: clamp(82px, 12vw, 138px);
   left: 13%;
@@ -823,7 +1004,7 @@ export default {
 .hero-sticker-text,
 .hero-sticker-drop {
   border: 1px solid #0b0b0b;
-  border-radius: 999px;
+  border-radius: var(--ng-radius);
   background: #fff;
   color: #0b0b0b;
   padding: 8px 12px;
@@ -833,6 +1014,135 @@ export default {
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
+
+.hero-sticker {
+  animation: none;
+}
+
+.featured-drop {
+  margin-top: 38px;
+  padding: clamp(22px, 4vw, 38px) 0 44px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid rgba(0,0,0,.18);
+}
+
+.featured-drop-head {
+  margin-bottom: 26px;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.featured-drop-head p {
+  margin: 0;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: .24em;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.featured-drop-head h2 {
+  margin: 10px 0 0;
+  font-family: "Archivo Black", "Space Grotesk", sans-serif;
+  font-size: clamp(32px, 5vw, 58px);
+  line-height: .95;
+  text-transform: uppercase;
+}
+
+.featured-drop-head button {
+  border: 0;
+  border-bottom: 1px solid;
+  background: transparent;
+  padding: 9px 0;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.featured-drop-head button span {
+  margin-left: 8px;
+  color: var(--accent);
+  font-size: 16px;
+}
+
+.camo-editorial {
+  margin-top: var(--ng-space-section);
+  display: grid;
+  grid-template-columns: minmax(390px, .82fr) minmax(0, 1.18fr);
+  border: 1px solid var(--line);
+  background: #0b0b0b;
+  color: #fff;
+  overflow: hidden;
+}
+.featured-drop .camo-editorial { margin-top: 28px; }
+.camo-editorial-copy {
+  min-height: 620px;
+  padding: clamp(28px, 4vw, 48px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-right: 1px solid rgba(255,255,255,.2);
+}
+.camo-editorial-copy > div:first-child {
+  width: 100%;
+  margin-block: auto;
+}
+.camo-editorial-copy p {
+  margin: 0;
+  color: var(--accent);
+  font: 700 9px/1.2 monospace;
+  letter-spacing: .17em;
+  text-transform: uppercase;
+}
+.camo-editorial-copy h2 {
+  margin: 18px 0 22px;
+  font-family: "Archivo Black", "Space Grotesk", sans-serif;
+  max-width: 100%;
+  font-size: clamp(36px, 4vw, 58px);
+  line-height: .92;
+  text-transform: uppercase;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+.camo-editorial-copy > div > span {
+  display: block;
+  max-width: 460px;
+  color: rgba(255,255,255,.62);
+  line-height: 1.65;
+}
+.camo-editorial-footer {
+  padding-top: 24px;
+  border-top: 1px solid rgba(255,255,255,.22);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+.camo-editorial-footer a {
+  color: #fff;
+  text-decoration: none;
+  border-bottom: 1px solid;
+  padding-bottom: 5px;
+  font: 700 9px/1.2 monospace;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.camo-editorial-footer > span { font: 700 10px/1 monospace; }
+.camo-slider { min-width: 0; position: relative; overflow: hidden; background: #e10600; }
+.camo-slider-track { height: 100%; display: flex; transition: transform .55s cubic-bezier(.76,0,.24,1); }
+.camo-slider figure { min-width: 100%; height: 100%; margin: 0; position: relative; }
+.camo-slider img { width: 100%; height: 100%; min-height: 620px; display: block; object-fit: cover; }
+.camo-slider figcaption { position: absolute; top: 16px; left: 16px; padding: 7px 9px; background: rgba(11,11,11,.86); color: #fff; font: 700 8px/1 monospace; letter-spacing: .12em; }
+.camo-slider-controls { position: absolute; right: 16px; bottom: 16px; left: 16px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 14px; }
+.camo-slider-controls > button { width: 44px; height: 44px; border: 1px solid #fff; background: #fff; color: #0b0b0b; font-size: 18px; cursor: pointer; }
+.camo-slider-controls > div { justify-self: center; padding: 10px 12px; display: flex; gap: 7px; background: rgba(11,11,11,.72); }
+.camo-slider-controls > div button { width: 20px; height: 3px; border: 0; padding: 0; background: rgba(255,255,255,.4); cursor: pointer; }
+.camo-slider-controls > div button.active { background: #fff; }
+.camo-editorial:focus-visible { outline-offset: 5px; }
 
 .hero-sticker-text {
   left: 6%;
@@ -1131,6 +1441,130 @@ export default {
 .lab-entry-profile:hover img,
 .lab-entry-profile:focus-visible img {
   transform: scale(1.06) rotate(-1deg);
+}
+
+.manifesto-entry > p,
+.early-access > div > p {
+  margin: 0;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: .24em;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.early-access h2 {
+  margin: 12px 0;
+  font-family: "Archivo Black", "Space Grotesk", sans-serif;
+  font-size: clamp(28px, 4vw, 48px);
+  line-height: .95;
+  text-transform: uppercase;
+}
+
+.early-access > div > span {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.manifesto-entry {
+  margin-top: 24px;
+  padding: clamp(28px, 6vw, 72px);
+  background: #e10600;
+  color: #fff;
+}
+
+.manifesto-entry > p { color: rgba(255,255,255,.72); }
+
+.manifesto-entry h2 {
+  max-width: 1000px;
+  margin: 22px 0 38px;
+  font-family: "Archivo Black", "Space Grotesk", sans-serif;
+  font-size: clamp(38px, 7vw, 88px);
+  line-height: .92;
+  text-transform: uppercase;
+}
+
+.manifesto-entry a {
+  color: #fff;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: .16em;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.manifesto-entry a span { margin-left: 8px; font-size: 18px; }
+
+.early-access {
+  margin-top: 24px;
+  padding: clamp(24px, 5vw, 48px);
+  border: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(28px, 6vw, 80px);
+  align-items: end;
+  background: #0b0b0b;
+  color: #fff;
+}
+
+.early-access > div > span { color: rgba(255,255,255,.62); }
+
+.early-access form {
+  display: grid;
+  grid-template-columns: auto minmax(160px, 1fr) auto;
+  align-items: stretch;
+  align-self: center;
+  transform: translateY(-8px);
+  border: 1px solid rgba(255,255,255,.54);
+}
+
+.early-access-label {
+  min-height: 52px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  border-right: 1px solid rgba(255,255,255,.32);
+  color: rgba(255,255,255,.7);
+  font: 700 9px/1.2 monospace;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.early-access input,
+.early-access button {
+  min-height: 52px;
+  border: 0;
+  border-radius: 0;
+  font: inherit;
+}
+
+.early-access input {
+  min-width: 0;
+  padding: 0 16px;
+  background: transparent;
+  color: #fff;
+}
+
+.early-access button {
+  padding: 0 18px;
+  background: #fff;
+  color: #0b0b0b;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  border-left: 1px solid rgba(255,255,255,.54);
+}
+
+.early-access form p {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 10px 14px;
+  border-top: 1px solid rgba(255,255,255,.24);
+  color: #c7ff00;
+  font-size: 12px;
 }
 
 .drop-details {
@@ -1600,7 +2034,149 @@ export default {
 }
 
 @media (max-width: 980px) {
+  .camo-editorial { grid-template-columns: 1fr; }
+  .camo-editorial-copy { min-height: 0; border-right: 0; border-bottom: 1px solid rgba(255,255,255,.2); }
+  .camo-editorial-footer { margin-top: 48px; }
+  .camo-slider img { min-height: 0; aspect-ratio: 16 / 10; }
+  .shop-header {
+    gap: 14px;
+  }
+
+  .brand-meta,
+  .header-language,
+  .nav-tools .nav-tool {
+    display: none;
+  }
+
+  .menu-toggle {
+    order: 3;
+    display: inline-flex;
+    min-width: 76px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border: 1px solid currentColor;
+    background: transparent;
+    color: inherit;
+    padding: 10px 12px;
+    text-transform: uppercase;
+    letter-spacing: .14em;
+    font: 700 10px/1 "Space Grotesk", Arial, sans-serif;
+  }
+
+  .menu-toggle i,
+  .menu-toggle i::before {
+    display: block;
+    width: 15px;
+    height: 1px;
+    background: currentColor;
+    content: "";
+    transition: transform .2s ease;
+  }
+
+  .menu-toggle i::before {
+    transform: translateY(5px);
+  }
+
+  .shop-header.menu-open .menu-toggle i {
+    transform: rotate(45deg);
+  }
+
+  .shop-header.menu-open .menu-toggle i::before {
+    transform: rotate(90deg);
+  }
+
+  .shop-header .shop-nav {
+    display: none;
+  }
+
+  .shop-header.menu-open {
+    height: 100dvh;
+    overflow-y: auto;
+    align-content: start;
+    background: #0b0b0b;
+    color: #f6f3ea;
+  }
+
+  .shop-header.menu-open .shop-nav {
+    order: 4;
+    width: 100%;
+    padding: clamp(28px, 8vh, 72px) 0 24px;
+    display: grid;
+    gap: 0;
+    overflow: visible;
+  }
+
+  .shop-header.menu-open .shop-nav a {
+    padding: 14px 0;
+    border: 0;
+    border-bottom: 1px solid rgba(255,255,255,.18);
+    font-family: "Archivo Black", "Space Grotesk", sans-serif;
+    font-size: clamp(28px, 8vw, 54px);
+    line-height: .95;
+    letter-spacing: .02em;
+  }
+
+  .shop-header.menu-open .nav-tools {
+    order: 5;
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .shop-header.menu-open .header-language,
+  .shop-header.menu-open .nav-tools .nav-tool {
+    display: flex;
+  }
+
+  .shop-header.menu-open .shop-cta {
+    grid-column: 1 / -1;
+    border-color: #f6f3ea;
+    background: #f6f3ea;
+    color: #0b0b0b;
+  }
+
+  .shop-header.menu-open .mobile-campaign {
+    order: 6;
+    min-height: 180px;
+    margin-top: 22px;
+    display: grid;
+    grid-template-columns: minmax(120px, .7fr) 1fr;
+    align-items: end;
+    border: 1px solid rgba(255,255,255,.2);
+    overflow: hidden;
+    background: #e10600;
+  }
+
+  .mobile-campaign img {
+    width: 100%;
+    height: 190px;
+    object-fit: contain;
+    align-self: end;
+  }
+
+  .mobile-campaign div {
+    padding: 18px;
+    display: grid;
+    gap: 8px;
+  }
+
+  .mobile-campaign span {
+    font: 700 9px/1 monospace;
+    letter-spacing: .14em;
+  }
+
+  .mobile-campaign strong {
+    font-family: "Archivo Black", "Space Grotesk", sans-serif;
+    font-size: clamp(20px, 5vw, 32px);
+    line-height: .95;
+  }
+
   .hero {
+    grid-template-columns: 1fr;
+  }
+
+  .early-access {
     grid-template-columns: 1fr;
   }
 
@@ -1631,7 +2207,22 @@ export default {
     gap: 16px;
   }
 
-  .hero-copy h1 {
+  .featured-drop-head {
+    align-items: start;
+    flex-direction: column;
+  }
+  .camo-editorial { margin-top: 56px; }
+  .camo-editorial-copy { padding: 24px 18px; }
+  .camo-editorial-footer { align-items: flex-start; flex-direction: column; }
+  .camo-slider img { aspect-ratio: 4 / 5; }
+  .camo-slider-controls { right: 10px; bottom: 10px; left: 10px; }
+
+  .hero-copy {
+  align-self: center;
+  padding: clamp(18px, 4vw, 42px) 0;
+}
+
+.hero-copy h1 {
     font-size: 28px;
   }
 
@@ -1665,12 +2256,6 @@ export default {
     left: 5%;
     top: 7%;
     width: 52px;
-  }
-
-  .hero-sticker-oval {
-    right: 4%;
-    top: 10%;
-    width: 82px;
   }
 
   .hero-sticker-arw {
@@ -1750,6 +2335,10 @@ export default {
     padding: 18px;
   }
 
+  .early-access form {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
   .lab-entry-copy .hero-button {
     width: 100%;
   }
@@ -1759,11 +2348,26 @@ export default {
   }
 
   .shop-header {
-    align-items: flex-start;
+    align-items: center;
   }
 
-  .shop-cta {
-    width: 100%;
+  .nav-tools {
+    margin-left: auto;
+  }
+
+  .shop-header:not(.menu-open) .shop-cta {
+    width: auto;
+    padding: 9px 10px;
+    font-size: 0;
+  }
+
+  .shop-header:not(.menu-open) .shop-cta::before {
+    content: "BAG";
+    font-size: 9px;
+  }
+
+  .shop-header:not(.menu-open) .shop-cta span {
+    font-size: 9px;
   }
 
   .content-head {
@@ -1809,5 +2413,13 @@ export default {
     left: 16px;
     text-align: center;
   }
+}
+
+@media (max-width: 520px) {
+  .early-access form { grid-template-columns: 1fr; border: 0; gap: 8px; transform: none; }
+  .early-access-label { min-height: auto; padding: 0 0 6px; border: 0; }
+  .early-access input,
+  .early-access button { width: 100%; border: 1px solid rgba(255,255,255,.54); }
+  .early-access form p { border: 0; padding: 4px 0 0; }
 }
 </style>

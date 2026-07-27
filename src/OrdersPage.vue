@@ -1,45 +1,12 @@
-<template>
+﻿<template>
   <div class="orders-page">
-    <header class="shop-header">
-      <div class="brand">
-        <img class="brand-logo" :src="logoUrl" alt="NewGbonhi logo" />
-        <div class="brand-meta">
-          <p class="brand-name">NewGbonhi</p>
-          <p class="brand-tagline">{{ $t("brandTagline") }}</p>
-        </div>
-      </div>
-      <nav class="shop-nav" aria-label="Primary">
-        <RouterLink :class="{ 'is-active': $route.name === 'shop' }" to="/">
-          {{ $t("navShop") }}
-        </RouterLink>
-        <RouterLink
-          :class="{ 'is-active': $route.name === 'lookbook' }"
-          to="/lookbook"
-        >
-          {{ $t("navLookbook") }}
-        </RouterLink>
-        <RouterLink :class="{ 'is-active': $route.name === 'lab' }" to="/lab">
-          {{ $t("navLab") }}
-        </RouterLink>
-        <RouterLink :class="{ 'is-active': $route.name === 'studio' }" to="/studio">
-          {{ $t("navStudio") }}
-        </RouterLink>
-        <RouterLink :class="{ 'is-active': $route.name === 'about' }" to="/about">
-          {{ $t("navAbout") }}
-        </RouterLink>
-        <RouterLink :class="{ 'is-active': $route.name === 'orders' }" to="/orders">
-          {{ $t("navOrders") }}
-        </RouterLink>
-      </nav>
-      <button class="shop-cta" type="button" @click="toggleCart">
-        {{ $t("cart") }} ({{ cartCount }})
-      </button>
-    </header>
+    <SiteHeader @toggle-cart="toggleCart" />
 
     <CartPanel :open="cartOpen" @close="cartOpen = false" />
 
     <main class="orders-main">
       <div class="orders-head">
+        <div class="orders-index"><span>ADMIN / ORDERS</span><span>NEWGBONHI / 2026</span></div>
         <p>{{ $t("navOrders") }}</p>
         <div class="orders-title">
           <h1>{{ $t("orderHistory") }}</h1>
@@ -48,6 +15,13 @@
           </button>
         </div>
       </div>
+
+      <section v-if="isAuthorized" class="orders-stats" aria-label="Order overview">
+        <article><span>ALL</span><strong>{{ orders.length }}</strong></article>
+        <article><span>TO VALIDATE</span><strong>{{ pendingOrders }}</strong></article>
+        <article><span>PRODUCTION</span><strong>{{ productionOrders }}</strong></article>
+        <article><span>DELIVERED</span><strong>{{ deliveredOrders }}</strong></article>
+      </section>
 
       <div v-if="!isAuthorized" class="orders-login">
         <p>{{ $t("adminRequired") }}</p>
@@ -98,6 +72,17 @@
             </p>
           </div>
 
+          <div v-if="order.fulfillment" class="order-fulfillment">
+            <span>{{ $t("preorderBadge") }}</span>
+            <strong>
+              {{ order.fulfillment.productionWindow || $t("productionAfterPayment") }}
+            </strong>
+            <p>
+              {{ $t("deliveryWindow") }}:
+              {{ order.fulfillment.deliveryWindow || $t("deliveryWindow48h72h") }}
+            </p>
+          </div>
+
           <div class="order-items">
             <div v-for="item in order.items" :key="item.key" class="order-item">
               <span>
@@ -105,6 +90,7 @@
                 <em v-if="item.selectedSize">({{ item.selectedSize }})</em>
                 <em v-if="item.selectedColor"> - {{ item.selectedColor }}</em>
                 <em v-if="item.selectedDesignName"> - {{ item.selectedDesignName }}</em>
+                <em v-if="item.preorder"> - {{ $t("preorderBadge") }}</em>
               </span>
               <span>x{{ item.qty }}</span>
               <strong>{{ formatPrice(item.qty * item.price) }}</strong>
@@ -131,12 +117,22 @@
               {{ $t("copySummary") }}
             </button>
             <button
+              v-if="order.status !== 'production' && order.status !== 'delivered'"
               type="button"
               class="pay-button"
               :disabled="isSaving"
-              @click="markPaid(order)"
+              @click="advanceOrder(order)"
             >
-              {{ $t("markPaid") }}
+              {{ primaryActionLabel(order) }}
+            </button>
+            <button
+              v-if="order.status === 'production'"
+              type="button"
+              class="pay-button"
+              :disabled="isSaving"
+              @click="markDelivered(order)"
+            >
+              {{ $t("markDelivered") }}
             </button>
             <button
               type="button"
@@ -156,6 +152,7 @@
 </template>
 
 <script>
+import SiteHeader from "./components/SiteHeader.vue";
 import CartPanel from "./components/CartPanel.vue";
 import { cartStore } from "./data/cart.ts";
 import {
@@ -171,6 +168,7 @@ const AUTH_KEY = "newgbonhi.orders.token";
 export default {
   name: "OrdersPage",
   components: {
+    SiteHeader,
     CartPanel,
   },
   data() {
@@ -211,6 +209,15 @@ export default {
     canUnlock() {
       return Boolean(this.adminPasswordInput) && !this.isLoading;
     },
+    pendingOrders() {
+      return this.orders.filter((order) => ["sent", "paid_reported", "paid"].includes(order.status)).length;
+    },
+    productionOrders() {
+      return this.orders.filter((order) => order.status === "production").length;
+    },
+    deliveredOrders() {
+      return this.orders.filter((order) => order.status === "delivered").length;
+    },
   },
   methods: {
     toggleCart() {
@@ -240,15 +247,22 @@ export default {
       const map = {
         sent: this.$t("sent"),
         paid_reported: this.$t("paidReported"),
-        paid: this.$t("paid"),
+        paid: this.$t("paidStatus"),
+        production: this.$t("production"),
         delivered: this.$t("delivered"),
       };
       return map[status] || status || this.$t("sent");
     },
+    primaryActionLabel(order) {
+      return order?.status === "paid"
+        ? this.$t("launchProduction")
+        : this.$t("markPaid");
+    },
     buildOrderSummary(order) {
       const lines = [
-        "NewGbonhi Order",
+        "NewGbonhi Preorder",
         `Order ID: ${order.id}`,
+        `Status: ${this.formatStatus(order.status)}`,
         `Name: ${order.customer.firstName} ${order.customer.lastName}`,
         `Phone: ${order.customer.phone}`,
         `Email: ${order.customer.email}`,
@@ -256,8 +270,22 @@ export default {
         `Delivery: ${order.shipping?.label || "-"} (${this.formatPrice(
           order.shipping?.fee || 0
         )})`,
-        "Items:",
       ];
+
+      if (order.fulfillment) {
+        lines.push(
+          `Production: ${
+            order.fulfillment.productionWindow || this.$t("productionAfterPayment")
+          }`
+        );
+        lines.push(
+          `Delivery window: ${
+            order.fulfillment.deliveryWindow || this.$t("deliveryWindow48h72h")
+          }`
+        );
+      }
+
+      lines.push("Items:");
 
       order.items.forEach((item) => {
         const details = [
@@ -284,14 +312,30 @@ export default {
         // noop
       }
     },
-    async markPaid(order) {
+    async advanceOrder(order) {
       if (this.isSaving || !this.adminToken) {
         return;
       }
       this.authError = "";
       this.isSaving = true;
       try {
-        this.orders = await updateOrderStatus(order.id, "paid", this.adminToken);
+        const nextStatus = order.status === "paid" ? "production" : "paid";
+        this.orders = await updateOrderStatus(order.id, nextStatus, this.adminToken);
+      } catch (error) {
+        this.authError =
+          error instanceof Error ? error.message : "Unable to update order.";
+      } finally {
+        this.isSaving = false;
+      }
+    },
+    async markDelivered(order) {
+      if (this.isSaving || !this.adminToken) {
+        return;
+      }
+      this.authError = "";
+      this.isSaving = true;
+      try {
+        this.orders = await updateOrderStatus(order.id, "delivered", this.adminToken);
       } catch (error) {
         this.authError =
           error instanceof Error ? error.message : "Unable to update order.";
@@ -359,8 +403,6 @@ export default {
 </script>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&display=swap");
-
 :global(*) {
   box-sizing: border-box;
 }
@@ -625,6 +667,10 @@ export default {
   background: #e7f8ed;
 }
 
+.order-status.production {
+  background: #eef2ff;
+}
+
 .order-status.delivered {
   background: #e7f0ff;
 }
@@ -647,6 +693,32 @@ export default {
 .order-contact,
 .order-address {
   margin: 0;
+}
+
+.order-fulfillment {
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  border-radius: 12px;
+  padding: 10px;
+  background: #fafafa;
+  display: grid;
+  gap: 4px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.order-fulfillment span {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.order-fulfillment strong,
+.order-fulfillment p {
+  margin: 0;
+}
+
+.order-fulfillment p {
+  color: var(--muted);
 }
 
 .order-items {
@@ -750,6 +822,27 @@ export default {
   text-decoration: none;
 }
 
+/* Operational dashboard */
+.orders-index { margin-bottom: 24px; padding: 10px 0; border-top: 1px solid var(--line); border-bottom: 1px solid rgba(0,0,0,.2); display: flex; justify-content: space-between; gap: 16px; font: 700 9px/1.2 monospace; letter-spacing: .14em; }
+.orders-head h1 { font-family: "Archivo Black","Space Grotesk",sans-serif; font-size: clamp(36px,6vw,72px); line-height: .94; }
+.orders-stats { margin-top: 28px; display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+.orders-stats article { min-height: 110px; padding: 18px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); display: flex; flex-direction: column; justify-content: space-between; }
+.orders-stats span { font: 700 9px/1 monospace; letter-spacing: .14em; }
+.orders-stats strong { font-family: "Archivo Black","Space Grotesk",sans-serif; font-size: 34px; }
+.orders-login,
+.orders-empty,
+.order-card,
+.order-fulfillment { border-radius: var(--ng-radius); }
+.orders-login { width: min(520px,100%); margin: 40px auto 0; padding: clamp(24px,5vw,48px); }
+.orders-login input { min-height: 48px; }
+.order-card { padding: clamp(18px,3vw,30px); border-color: var(--line); }
+.order-status { border-radius: var(--ng-radius); font-family: monospace; }
+.order-item { padding: 10px 0; border-top: 1px solid rgba(0,0,0,.12); }
+.pay-button,
+.ghost-button,
+.delete-button { min-height: 44px; }
+.pay-button:hover:not(:disabled) { border-color: var(--accent); background: var(--accent); }
+
 @keyframes rise {
   from {
     opacity: 0;
@@ -765,6 +858,8 @@ export default {
   .orders-page {
     padding: 24px 16px 40px;
   }
+  .orders-index { flex-direction: column; }
+  .orders-stats { grid-template-columns: repeat(2,minmax(0,1fr)); }
 
   .shop-header {
     align-items: flex-start;

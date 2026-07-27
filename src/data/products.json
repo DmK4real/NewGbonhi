@@ -1,5 +1,20 @@
 [
   {
+    "id": 10,
+    "title": "T-SHIRT NEWGBONHI CAMO",
+    "slug": "t-shirt-newgbonhi-camo",
+    "description": "Drop 04 NewGbonhi CAMO T-shirt with camouflage chameleon chest graphic, available in white and black.",
+    "price": 15000,
+    "imageKey": "newGbonhiCamoWhite",
+    "category": "t-shirts",
+    "sizes": ["S", "M", "L", "XL", "XXL"],
+    "tags": ["new", "drop04", "featured"],
+    "variants": [
+      { "id": "white", "label": "White", "imageKey": "newGbonhiCamoWhite" },
+      { "id": "black", "label": "Black", "imageKey": "newGbonhiCamoBlack" }
+    ]
+  },
+  {
     "id": 6,
     "title": "ARW FILM LOGO TEE",
     "slug": "arw-film-logo-tee",

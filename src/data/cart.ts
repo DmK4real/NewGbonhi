@@ -17,6 +17,9 @@ export type ProductLike = {
   selectedDesignName?: string | null;
   selectedDesignCategory?: string | null;
   isCustomStudio?: boolean;
+  preorder?: boolean;
+  productionWindow?: string | null;
+  deliveryWindow?: string | null;
 };
 
 export type CartItem = {
@@ -34,8 +37,14 @@ export type CartItem = {
   selectedDesignName: string | null;
   selectedDesignCategory: string | null;
   isCustomStudio: boolean;
+  preorder: boolean;
+  productionWindow: string | null;
+  deliveryWindow: string | null;
   qty: number;
 };
+
+const DEFAULT_PRODUCTION_WINDOW = "Production lancee apres paiement confirme";
+const DEFAULT_DELIVERY_WINDOW = "48/72h apres paiement confirme";
 
 type CartState = {
   items: CartItem[];
@@ -102,6 +111,13 @@ const normalizeStoredItem = (item: unknown): CartItem | null => {
       ? String(record.selectedDesignCategory)
       : null,
     isCustomStudio: Boolean(record.isCustomStudio),
+    preorder: record.preorder !== false,
+    productionWindow: record.productionWindow
+      ? String(record.productionWindow)
+      : DEFAULT_PRODUCTION_WINDOW,
+    deliveryWindow: record.deliveryWindow
+      ? String(record.deliveryWindow)
+      : DEFAULT_DELIVERY_WINDOW,
     qty: Math.max(1, Math.round(qtyValue)),
   };
 };
@@ -178,6 +194,9 @@ const addToCart = (product: ProductLike | null | undefined): void => {
     selectedDesignName: product.selectedDesignName || null,
     selectedDesignCategory: product.selectedDesignCategory || null,
     isCustomStudio: Boolean(product.isCustomStudio),
+    preorder: product.preorder !== false,
+    productionWindow: product.productionWindow || DEFAULT_PRODUCTION_WINDOW,
+    deliveryWindow: product.deliveryWindow || DEFAULT_DELIVERY_WINDOW,
     qty: 1,
   });
 };

@@ -23,6 +23,14 @@ export type OrderItem = {
   selectedSize?: string | null;
   selectedColor?: string | null;
   selectedDesignName?: string | null;
+  preorder?: boolean;
+};
+
+export type OrderFulfillment = {
+  mode: string;
+  paymentRequired: boolean;
+  productionWindow: string;
+  deliveryWindow: string;
 };
 
 export type BuildOrderMessageInput = {
@@ -32,6 +40,14 @@ export type BuildOrderMessageInput = {
   selectedShipping?: ShippingOption | null;
   shippingFee: number;
   totalWithShipping: number;
+  fulfillment?: OrderFulfillment | null;
+};
+
+export const DEFAULT_PREORDER_FULFILLMENT: OrderFulfillment = {
+  mode: "preorder",
+  paymentRequired: true,
+  productionWindow: "Production starts after payment confirmation",
+  deliveryWindow: "48/72h after payment confirmation",
 };
 
 export const SHIPPING_OPTIONS: ShippingOption[] = [
@@ -39,37 +55,37 @@ export const SHIPPING_OPTIONS: ShippingOption[] = [
     id: "abidjan-cocody",
     label: "Cocody",
     fee: 2000,
-    eta: "45 to 75 min",
+    eta: "48/72h apres paiement confirme",
   },
   {
     id: "abidjan-plateau",
     label: "Plateau",
     fee: 2500,
-    eta: "35 to 60 min",
+    eta: "48/72h apres paiement confirme",
   },
   {
     id: "abidjan-yopougon",
     label: "Yopougon",
     fee: 3000,
-    eta: "60 to 90 min",
+    eta: "48/72h apres paiement confirme",
   },
   {
     id: "abidjan-marcory",
     label: "Marcory",
     fee: 2000,
-    eta: "35 to 60 min",
+    eta: "48/72h apres paiement confirme",
   },
   {
     id: "abidjan-bingerville",
     label: "Bingerville",
     fee: 3500,
-    eta: "60 to 90 min",
+    eta: "48/72h apres paiement confirme",
   },
   {
     id: "abidjan-other",
     label: "Other area in Abidjan",
     fee: 4000,
-    eta: "Quote confirmed on WhatsApp",
+    eta: "48/72h apres paiement confirme",
   },
 ];
 
@@ -132,13 +148,15 @@ export const buildOrderMessage = ({
   selectedShipping,
   shippingFee,
   totalWithShipping,
+  fulfillment,
 }: BuildOrderMessageInput): string => {
+  const preorderFulfillment = fulfillment || DEFAULT_PREORDER_FULFILLMENT;
   const shippingLine = selectedShipping
-    ? `Delivery: ${selectedShipping.label} (${formatPrice(shippingFee)}) - ETA: ${selectedShipping.eta}`
+    ? `Delivery: ${selectedShipping.label} (${formatPrice(shippingFee)}) - Window: ${preorderFulfillment.deliveryWindow}`
     : "Delivery: -";
   const orderIdLine = orderId ? `Order ID: ${orderId}` : "";
   const lines = [
-    "*NewGbonhi Order Summary*\n",
+    "*NewGbonhi Preorder Summary*\n",
     orderIdLine,
     `*Customer Details*`,
     `Name: ${customer.firstName} ${customer.lastName}`,
@@ -146,6 +164,11 @@ export const buildOrderMessage = ({
     `Email: ${customer.email}`,
     `Address: ${customer.address}, ${customer.city}`,
     shippingLine,
+    "\n*Preorder Process*:",
+    "1. Pay the item amount to confirm the preorder.",
+    `2. ${preorderFulfillment.productionWindow}.`,
+    `3. Delivery is planned in ${preorderFulfillment.deliveryWindow}.`,
+    "4. Delivery fee is paid to the courier on arrival.",
     "\n*Order Items*:",
   ];
 
@@ -177,13 +200,13 @@ export const buildOrderMessage = ({
 
   lines.push("\n*Payment Instructions:*");
   if (paymentLines.length > 0) {
-    lines.push("Please make your payment via Mobile Money to one of the following numbers:");
+    lines.push("Please pay the item amount via Mobile Money to one of the following numbers:");
     lines.push(...paymentLines);
   } else {
     lines.push("Payment details will be confirmed on WhatsApp.");
   }
   lines.push(`\n${VITE_PAYMENT_NOTE}`);
-  lines.push("Thank you for your order!");
+  lines.push("Thank you for your preorder!");
 
   return lines.filter(Boolean).join("\n");
 };

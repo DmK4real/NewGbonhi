@@ -50,6 +50,9 @@
           <span class="pg-placeholder-text">{{ $t("imageComingSoon") }}</span>
         </div>
         <div class="pg-badges">
+          <span v-if="!product.soldOut" class="pg-badge pg-badge-preorder">
+            {{ $t("preorderBadge") }}
+          </span>
           <span v-if="product.soldOut" class="pg-badge pg-badge-soldout">
             {{ $t("outOfStock") }}
           </span>
@@ -137,6 +140,7 @@ export default {
         restock: this.$t("filterRestock"),
         drop02: "Drop 02",
         drop03: "Drop 03",
+        drop04: "Drop 04",
       };
       return product.tags
         .map((tag) => map[tag] || "")
@@ -188,13 +192,17 @@ export default {
 
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 26px 18px;
+  gap: 34px 14px;
   font-family: "Space Grotesk", "Karla", Arial, sans-serif;
 }
 
 .pg-card {
   margin: 0;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s cubic-bezier(.2,.8,.2,1);
 }
 
 .pg-card:hover {
@@ -208,7 +216,7 @@ export default {
   overflow: hidden;
   background: var(--pg-image-bg);
   border: 1px solid var(--pg-border);
-  border-radius: 14px;
+  border-radius: var(--ng-radius, 2px);
   text-decoration: none;
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
@@ -217,7 +225,7 @@ export default {
   content: "";
   position: absolute;
   inset: 10px;
-  border-radius: 12px;
+  border-radius: var(--ng-radius, 2px);
   border: 1px solid rgba(0, 0, 0, 0.08);
   opacity: 0;
   transition: opacity 0.2s ease;
@@ -230,7 +238,7 @@ export default {
 }
 
 .pg-card:hover .pg-image-wrap {
-  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.16);
+  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.12);
   border-color: #000;
 }
 
@@ -318,7 +326,7 @@ export default {
   right: 12px;
   bottom: 12px;
   padding: 6px 10px;
-  border-radius: 999px;
+  border-radius: var(--ng-radius, 2px);
   border: 1px solid var(--pg-border);
   background: #fff;
   font: 600 10px/1 "Space Grotesk", "Karla", Arial, sans-serif;
@@ -342,8 +350,14 @@ export default {
   margin-left: auto;
 }
 
+.pg-badge-preorder {
+  background: #fff;
+  color: var(--pg-text);
+  border: 1px solid var(--pg-border);
+}
+
 .pg-title {
-  margin: 12px 0 4px;
+  margin: 14px 0 5px;
   font: 600 14px/1.4 "Space Grotesk", "Karla", Arial, sans-serif;
   text-align: left;
   letter-spacing: 0.02em;
@@ -376,7 +390,7 @@ export default {
 .pg-price {
   margin: 0;
   text-align: left;
-  font: 500 14px/1.4 "Space Grotesk", "Karla", Arial, sans-serif;
+  font: 700 13px/1.4 "Space Grotesk", "Karla", Arial, sans-serif;
   color: var(--pg-text);
 }
 
@@ -399,7 +413,8 @@ export default {
 }
 
 .pg-add {
-  margin-top: 10px;
+  margin-top: auto;
+  min-height: 44px;
   width: 100%;
   border: 1px solid var(--pg-border);
   background: #0b0b0b;
@@ -409,12 +424,12 @@ export default {
   letter-spacing: 0.18em;
   font-size: 10px;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: background-color .2s ease, border-color .2s ease, color .2s ease;
 }
 
 .pg-add:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.18);
+  border-color: var(--pg-accent);
+  background: var(--pg-accent);
 }
 
 .pg-add:disabled {
@@ -441,7 +456,7 @@ export default {
   font: 700 11px/1 "Space Grotesk", "Karla", Arial, sans-serif;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  border-radius: 999px;
+  border-radius: var(--ng-radius, 2px);
 }
 
 @media (max-width: 700px) {

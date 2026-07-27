@@ -1,4 +1,5 @@
-<template>
+﻿<template>
+  <a class="skip-link" href="#app-content">Skip to content</a>
   <ScrollProgress v-if="!appError.active" />
   <main v-if="appError.active" class="app-error-shell">
     <section class="app-error-panel" role="alert" aria-live="assertive">
@@ -22,7 +23,16 @@
       </div>
     </section>
   </main>
-  <RouterView v-else />
+  <div v-else id="app-content" tabindex="-1">
+    <RouterView v-slot="{ Component, route }">
+      <Transition
+        :name="route.name === 'lab' || route.name === 'arw-studio' ? 'lab-page' : 'page'"
+        mode="out-in"
+      >
+        <component :is="Component" :key="route.path" />
+      </Transition>
+    </RouterView>
+  </div>
 </template>
 
 <script>
@@ -135,10 +145,105 @@ export default {
 <style>
 :root {
   --header-height: 88px;
+  --ng-ink: #0b0b0b;
+  --ng-paper: #f5f5f1;
+  --ng-white: #fff;
+  --ng-red: #e10600;
+  --ng-muted: #606060;
+  --ng-line: rgba(11, 11, 11, 0.22);
+  --ng-space-section: clamp(56px, 8vw, 112px);
+  --ng-space-page: clamp(16px, 3vw, 32px);
+  --ng-radius: 2px;
+  --ng-action-height: 44px;
+  --ng-title-xl: clamp(38px, 5.4vw, 76px);
+  --ng-title-lg: clamp(32px, 4.2vw, 58px);
+  --ng-title-md: clamp(26px, 3.2vw, 46px);
+}
+
+/* Global typography safety: editorial scale without cropped or overflowing words. */
+:where(h1, h2, h3, h4, blockquote) {
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-break: normal;
+  text-wrap: balance;
+}
+
+:where(p, li, figcaption, label, a, button, span, strong) {
+  overflow-wrap: break-word;
+}
+
+:is(.section-head, .orders-head, .product-info, .studio-copy, .hero-copy) h1 {
+  font-size: var(--ng-title-lg) !important;
+  line-height: .96 !important;
+  letter-spacing: -.025em !important;
+}
+
+:is(.story-head, .catalog-head, .lab-shop-head, .related-products, .product-story-copy) h2 {
+  font-size: var(--ng-title-md) !important;
+  line-height: 1 !important;
+  letter-spacing: -.02em !important;
+}
+
+.manifesto-entry h2,
+.featured-drop h2,
+.camo-editorial h2,
+.journal-feature h2,
+.journal-index h2,
+.lab-explorer h2,
+.lab-projects h2,
+.lab-join h2,
+.lab-agenda h2,
+.campaign-gallery h2 {
+  max-width: 100% !important;
+  font-size: var(--ng-title-lg) !important;
+  line-height: .98 !important;
+  letter-spacing: -.025em !important;
+  overflow-wrap: break-word;
+}
+
+@media (min-width: 701px) and (max-width: 1180px) {
+  :root {
+    --ng-title-xl: clamp(36px, 5vw, 62px);
+    --ng-title-lg: clamp(30px, 4.4vw, 50px);
+    --ng-title-md: clamp(25px, 3.6vw, 42px);
+  }
+}
+
+@media (max-width: 700px) {
+  :root {
+    --ng-title-xl: clamp(34px, 12vw, 54px);
+    --ng-title-lg: clamp(30px, 10vw, 44px);
+    --ng-title-md: clamp(25px, 8vw, 38px);
+  }
+
+  :where(h1, h2, h3, h4, blockquote) {
+    text-wrap: pretty;
+  }
 }
 
 html {
   scroll-padding-top: var(--header-height);
+}
+
+.skip-link { position: fixed; top: 10px; left: 10px; z-index: 1000; padding: 12px 16px; background: #0b0b0b; color: #fff; text-decoration: none; text-transform: uppercase; letter-spacing: .12em; font-size: 10px; transform: translateY(-150%); }
+.skip-link:focus { transform: translateY(0); }
+:where(a, button, input, select, textarea):focus-visible { outline: 2px solid var(--ng-red); outline-offset: 3px; }
+img { max-width: 100%; }
+
+.page-enter-active,
+.page-leave-active { transition: opacity .22s ease, transform .22s ease; }
+.page-enter-from { opacity: 0; transform: translateY(10px); }
+.page-leave-to { opacity: 0; transform: translateY(-6px); }
+.lab-page-enter-active,
+.lab-page-leave-active { transition: opacity .32s ease, clip-path .42s cubic-bezier(.76,0,.24,1); }
+.lab-page-enter-from { opacity: 0; clip-path: inset(0 100% 0 0); }
+.lab-page-leave-to { opacity: 0; clip-path: inset(0 0 0 100%); }
+
+@media (prefers-reduced-motion: reduce) {
+  .page-enter-active,
+  .page-leave-active,
+  .lab-page-enter-active,
+  .lab-page-leave-active { transition: none; }
 }
 
 body {
@@ -158,7 +263,7 @@ body {
 .app-error-panel {
   width: min(560px, 100%);
   border: 1px solid rgba(0, 0, 0, 0.14);
-  border-radius: 24px;
+  border-radius: var(--ng-radius);
   background: rgba(255, 255, 255, 0.96);
   padding: 28px;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.12);
@@ -239,6 +344,13 @@ body {
   max-width: 100%;
 }
 
+
+/* Utility destinations remain available in the footer and account tools. */
+.shop-nav > a[href="/about"],
+.shop-nav > a[href="/orders"],
+.shop-nav > a[href="#contact"] {
+  display: none;
+}
 .header-hidden .shop-header {
   transform: translateY(-120%);
   opacity: 0;
@@ -248,6 +360,16 @@ body {
 @media (max-width: 700px) {
   .shop-header {
     padding: 10px 12px;
+  }
+}
+
+/* The mobile/tablet navigation must remain reachable at every scroll position. */
+@media (max-width: 1100px) {
+  .header-hidden .shop-header,
+  .header-hidden .shop-header.menu-open {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
   }
 }
 </style>

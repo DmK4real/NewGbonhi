@@ -1,24 +1,33 @@
 <template>
   <div v-if="open" class="cart-layer">
-    <button class="cart-backdrop" type="button" @click="$emit('close')" />
-    <aside class="cart-panel" role="dialog" :aria-label="$t('cart')">
+    <button class="cart-backdrop" type="button" :aria-label="$t('close')" @click="$emit('close')" />
+    <aside class="cart-panel" role="dialog" aria-modal="true" :aria-label="$t('cart')">
       <header class="cart-header">
-        <h3>{{ $t("cart") }}</h3>
-        <button class="cart-close" type="button" @click="$emit('close')">
+        <div><span>BAG / {{ cartItems.length.toString().padStart(2, "0") }}</span><h3>{{ $t("cart") }}</h3></div>
+        <button ref="closeButton" class="cart-close" type="button" @click="$emit('close')">
           {{ $t("close") }}
         </button>
       </header>
 
-      <p v-if="cartItems.length === 0" class="cart-empty">
-        {{ $t("emptyCart") }}
-      </p>
+      <div class="cart-progress" aria-label="Checkout progress">
+        <span class="active">01 / BAG</span><span>02 / DELIVERY</span><span>03 / PAYMENT</span>
+      </div>
+
+      <div v-if="cartItems.length === 0" class="cart-empty">
+        <span>BAG / EMPTY</span>
+        <strong>{{ $t("emptyCart") }}</strong>
+        <RouterLink to="/#products" @click="$emit('close')">{{ $t("navShop") }} ↗</RouterLink>
+      </div>
 
       <div v-else class="cart-items">
         <article
           v-for="item in cartItems"
           :key="item.key"
           class="cart-item"
-          :class="{ 'is-custom-studio': item.isCustomStudio }"
+          :class="{
+            'is-custom-studio': item.isCustomStudio,
+            'is-preorder': item.preorder,
+          }"
         >
           <img
             v-if="item.imagePrimary"
@@ -28,6 +37,9 @@
             decoding="async"
           />
           <div class="cart-item-body">
+            <p v-if="item.preorder" class="cart-badge cart-preorder">
+              {{ $t("preorderBadge") }}
+            </p>
             <p v-if="item.isCustomStudio" class="cart-badge">{{ $t("customStudio") }}</p>
             <h4>{{ item.title }}</h4>
             <p v-if="item.selectedSize" class="cart-size">
@@ -38,6 +50,9 @@
             </p>
             <p v-if="item.selectedDesignName" class="cart-design">
               {{ $t("design") }}: {{ item.selectedDesignName }}
+            </p>
+            <p v-if="item.preorder" class="cart-preorder-note">
+              {{ $t("deliveryAfterPayment") }}: {{ item.deliveryWindow }}
             </p>
             <div class="cart-qty">
               <button
@@ -69,6 +84,10 @@
       </div>
 
       <footer v-if="cartItems.length" class="cart-footer">
+        <div class="cart-assurance">
+          <span>✓ PREORDER SECURED AFTER PAYMENT</span>
+          <span>✓ DELIVERY 48–72H AFTER PRODUCTION</span>
+        </div>
         <div class="cart-total">
           <span>{{ $t("total") }}</span>
           <strong>{{ formatPrice(cartTotal) }}</strong>
@@ -108,7 +127,27 @@ export default {
       return cartStore.cartTotal.value;
     },
   },
+  watch: {
+    open: {
+      immediate: true,
+      handler(open) {
+        if (typeof document === "undefined") return;
+        document.documentElement.classList.toggle("cart-open", open);
+        if (open) this.$nextTick(() => this.$refs.closeButton?.focus());
+      },
+    },
+  },
+  mounted() {
+    window.addEventListener("keydown", this.onKeydown);
+  },
+  beforeUnmount() {
+    window.removeEventListener("keydown", this.onKeydown);
+    document.documentElement.classList.remove("cart-open");
+  },
   methods: {
+    onKeydown(event) {
+      if (event.key === "Escape" && this.open) this.$emit("close");
+    },
     formatPrice(value) {
       if (typeof value !== "number" || Number.isNaN(value)) {
         return "";
@@ -136,6 +175,7 @@ export default {
 </script>
 
 <style scoped>
+:global(html.cart-open) { overflow: hidden; }
 .cart-layer {
   position: fixed;
   inset: 0;
@@ -228,6 +268,10 @@ export default {
   border-color: rgba(225, 6, 0, 0.28);
 }
 
+.cart-item.is-preorder {
+  border-color: rgba(0, 0, 0, 0.28);
+}
+
 .cart-item.is-custom-studio img {
   border: 1px solid rgba(225, 6, 0, 0.22);
   background: #f7f7f7;
@@ -253,6 +297,12 @@ export default {
   font-size: 9px;
 }
 
+.cart-preorder {
+  border-color: rgba(0, 0, 0, 0.5);
+  background: #0b0b0b;
+  color: #fff;
+}
+
 .cart-size {
   margin: 0 0 6px;
   font-size: 11px;
@@ -275,6 +325,14 @@ export default {
   color: #606060;
   text-transform: uppercase;
   letter-spacing: 0.12em;
+}
+
+.cart-preorder-note {
+  margin: 0 0 8px;
+  font-size: 10px;
+  color: #0b0b0b;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
 
 .cart-qty {
@@ -345,6 +403,31 @@ export default {
   background: #fff;
   color: #0b0b0b;
 }
+
+/* Editorial cart */
+.cart-panel { width: min(480px,96vw); padding: 0; gap: 0; }
+.cart-header { padding: 22px 24px; border-bottom: 1px solid #0b0b0b; }
+.cart-header > div { display: grid; gap: 5px; }
+.cart-header span { color: #e10600; font: 700 9px/1 monospace; }
+.cart-header h3 { font-family: "Archivo Black","Space Grotesk",sans-serif; font-size: 24px; }
+.cart-progress { display: grid; grid-template-columns: repeat(3,1fr); border-bottom: 1px solid rgba(0,0,0,.2); }
+.cart-progress span { padding: 12px 8px; border-right: 1px solid rgba(0,0,0,.2); color: #777; font: 700 8px/1.2 monospace; text-align: center; }
+.cart-progress span:last-child { border-right: 0; }
+.cart-progress .active { background: #0b0b0b; color: #fff; }
+.cart-empty { min-height: 55vh; padding: 36px 24px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 16px; }
+.cart-empty span { color: #e10600; font: 700 9px/1 monospace; letter-spacing: .16em; }
+.cart-empty strong { max-width: 320px; font-family: "Archivo Black","Space Grotesk",sans-serif; font-size: clamp(28px,7vw,44px); line-height: .94; text-transform: uppercase; }
+.cart-empty a { margin-top: 8px; padding-bottom: 5px; border-bottom: 1px solid; color: inherit; text-decoration: none; font: 700 10px/1 monospace; letter-spacing: .14em; text-transform: uppercase; }
+.cart-items { padding: 8px 24px 24px; }
+.cart-item { padding: 14px 0; border-width: 0 0 1px; border-radius: var(--ng-radius); }
+.cart-item img { border-radius: var(--ng-radius); background: #efefeb; }
+.cart-badge,
+.cart-qty { border-radius: var(--ng-radius); }
+.cart-footer { position: sticky; bottom: 0; padding: 20px 24px; border-top: 1px solid #0b0b0b; background: #fff; }
+.cart-assurance { display: grid; gap: 5px; padding-bottom: 10px; color: #606060; font: 700 8px/1.3 monospace; letter-spacing: .08em; }
+.cart-checkout,
+.cart-clear { min-height: 48px; }
+.cart-checkout:hover { border-color: #e10600; background: #e10600; }
 
 @keyframes slideIn {
   from {

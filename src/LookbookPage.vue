@@ -1,46 +1,15 @@
-<template>
+﻿<template>
   <div class="lookbook-page">
-    <header class="shop-header">
-      <div class="brand">
-        <img class="brand-logo" :src="logoUrl" alt="NewGbonhi logo" />
-        <div class="brand-meta">
-          <p class="brand-name">NewGbonhi</p>
-          <p class="brand-tagline">{{ $t("brandTagline") }}</p>
-        </div>
-      </div>
-      <nav class="shop-nav" aria-label="Primary">
-        <RouterLink :class="{ 'is-active': $route.name === 'shop' }" to="/">
-          {{ $t("navShop") }}
-        </RouterLink>
-        <RouterLink
-          :class="{ 'is-active': $route.name === 'lookbook' }"
-          to="/lookbook"
-        >
-          {{ $t("navLookbook") }}
-        </RouterLink>
-        <RouterLink :class="{ 'is-active': $route.name === 'lab' }" to="/lab">
-          {{ $t("navLab") }}
-        </RouterLink>
-        <RouterLink :class="{ 'is-active': $route.name === 'studio' }" to="/studio">
-          {{ $t("navStudio") }}
-        </RouterLink>
-        <RouterLink :class="{ 'is-active': $route.name === 'about' }" to="/about">
-          {{ $t("navAbout") }}
-        </RouterLink>
-        <RouterLink :class="{ 'is-active': $route.name === 'orders' }" to="/orders">
-          {{ $t("navOrders") }}
-        </RouterLink>
-        <a href="#contact">{{ $t("navContact") }}</a>
-      </nav>
-      <button class="shop-cta" type="button" @click="toggleCart">
-        {{ $t("cart") }} ({{ cartCount }})
-      </button>
-    </header>
+    <SiteHeader @toggle-cart="toggleCart" />
 
     <CartPanel :open="cartOpen" @close="cartOpen = false" />
 
     <section class="lookbook-hero">
       <div class="hero-copy">
+        <div class="journal-index">
+          <span>ARCHIVE / 001</span>
+          <span>ABIDJAN / 2026</span>
+        </div>
         <p class="hero-kicker">{{ $t("navLookbook") }}</p>
         <h1>{{ $t("galleryWornLooks") }}</h1>
         <p class="hero-sub">
@@ -48,20 +17,71 @@
         </p>
       </div>
       <div class="hero-panel">
-        <img class="hero-logo" :src="logoUrl" alt="" />
+        <img class="hero-logo" :src="logoUrl" alt="" decoding="async" />
         <div class="hero-strip">{{ $t("streetLooks") }}</div>
+      </div>
+    </section>
+
+    <section class="journal-feature" aria-labelledby="journal-feature-title">
+      <div class="journal-feature-copy">
+        <p>STORY / 001 — ABIDJAN</p>
+        <h2 id="journal-feature-title">ARW Film enters the NewGbonhi archive</h2>
+        <blockquote>
+          A capsule built around the city, chrome identities and the people shaping a new visual language.
+        </blockquote>
+        <dl>
+          <div><dt>Direction</dt><dd>ARW Studio</dd></div>
+          <div><dt>Series</dt><dd>Drop 03 / 2026</dd></div>
+          <div><dt>Location</dt><dd>Abidjan, Côte d’Ivoire</dd></div>
+        </dl>
+        <RouterLink to="/lab/arw-studio">Open the resident room <span>↗</span></RouterLink>
+      </div>
+      <div class="journal-feature-visual">
+        <img :src="arwFilmCityWhiteFrontUrl" alt="ARW Film City Tee, white edition" />
+        <span>ARCHIVE IMAGE / 03—001</span>
+      </div>
+    </section>
+
+    <section class="journal-index-section" aria-labelledby="journal-index-title">
+      <header>
+        <div>
+          <p>JOURNAL / INDEX</p>
+          <h2 id="journal-index-title">Stories, process and objects</h2>
+        </div>
+        <span>03 ENTRIES / 2026</span>
+      </header>
+      <div class="journal-story-grid">
+        <RouterLink
+          v-for="(story, index) in journalStories"
+          :key="story.title"
+          :to="story.to"
+          class="journal-story"
+        >
+          <div class="journal-story-media">
+            <img :src="story.image" :alt="story.title" loading="lazy" decoding="async" />
+            <span>0{{ index + 2 }}</span>
+          </div>
+          <div class="journal-story-copy">
+            <p>{{ story.type }} / {{ story.date }}</p>
+            <h3>{{ story.title }}</h3>
+            <span>{{ story.excerpt }}</span>
+            <b>{{ story.cta }} ↗</b>
+          </div>
+        </RouterLink>
       </div>
     </section>
 
     <section class="looks-gallery">
       <div class="gallery-head">
-        <p>{{ $t("wornLooks") }}</p>
+        <p>ARCHIVE / 002 — {{ $t("wornLooks") }}</p>
         <h2>{{ $t("editorialSelection") }}</h2>
       </div>
       <div class="gallery-grid">
-        <article
+        <component
+          :is="look.to ? 'RouterLink' : 'article'"
           v-for="look in wornLooks"
           :key="look.title"
+          :to="look.to"
           class="look-card"
           :class="{ 'is-cutout': look.cutout }"
         >
@@ -69,12 +89,13 @@
             class="look-media"
             :class="{ 'look-media-dual': look.secondarySrc }"
           >
-            <img :src="look.src" :alt="look.title" loading="lazy" />
+            <img :src="look.src" :alt="look.title" loading="lazy" decoding="async" />
             <img
               v-if="look.secondarySrc"
               :src="look.secondarySrc"
               :alt="`${look.title} back`"
               loading="lazy"
+              decoding="async"
             />
           </div>
           <div class="look-info">
@@ -82,7 +103,7 @@
             <h3>{{ look.title }}</h3>
             <p>{{ look.note }}</p>
           </div>
-        </article>
+        </component>
       </div>
     </section>
 
@@ -112,6 +133,7 @@
 </template>
 
 <script>
+import SiteHeader from "./components/SiteHeader.vue";
 import CartPanel from "./components/CartPanel.vue";
 import { cartStore } from "./data/cart.ts";
 
@@ -146,10 +168,6 @@ const arwFilmLogoTeeUrl = new URL(
   "./assets/ARW FILM TEE FRONT CUTOUT.png",
   import.meta.url
 ).href;
-const arwFilmDopamineTeeUrl = new URL(
-  "./assets/ARW FILM DOPAMINE TEE CUTOUT.png",
-  import.meta.url
-).href;
 const arwFilmCityBlackFrontUrl = new URL(
   "./assets/ARW FILM CITY TEE BLACK FRONT CUTOUT.png",
   import.meta.url
@@ -170,12 +188,43 @@ const arwFilmCityWhiteBackUrl = new URL(
 export default {
   name: "LookbookPage",
   components: {
+    SiteHeader,
     CartPanel,
   },
   data() {
     return {
       logoUrl,
+      arwFilmCityWhiteFrontUrl,
       cartOpen: false,
+      journalStories: [
+        {
+          type: "PROCESS",
+          date: "JUL 2026",
+          title: "Inside the ARW Studio room",
+          excerpt: "Chrome marks, city references and the visual process behind Drop 03.",
+          cta: "Open the room",
+          image: arwFilmLogoTeeUrl,
+          to: "/lab/arw-studio",
+        },
+        {
+          type: "OBJECT",
+          date: "DROP 03",
+          title: "The City Tee, front to back",
+          excerpt: "A closer look at the white edition and its architectural back graphic.",
+          cta: "View the piece",
+          image: arwFilmCityWhiteBackUrl,
+          to: "/product/arw-film-city-tee-white",
+        },
+        {
+          type: "STUDIO",
+          date: "ONGOING",
+          title: "Compose your own NewGbonhi piece",
+          excerpt: "Choose a base, place the visual and build an individual edition.",
+          cta: "Enter Create",
+          image: onTopCameleonUrl,
+          to: "/studio",
+        },
+      ],
       wornLooks: [
         {
           src: arwFilmCityWhiteFrontUrl,
@@ -183,6 +232,7 @@ export default {
           title: "ARW FILM CITY TEE / White",
           scene: "Drop 03 / Front + back",
           note: "White edition with NewGbonhi x ARW Film chest marks and the city building back print.",
+          to: "/product/arw-film-city-tee-white",
         },
         {
           src: arwFilmCityBlackFrontUrl,
@@ -190,20 +240,7 @@ export default {
           title: "ARW FILM CITY TEE / Black",
           scene: "Drop 03 / Front + back",
           note: "Black edition with NewGbonhi x ARW Film chest marks and the city building back print.",
-        },
-        {
-          src: arwFilmDopamineTeeUrl,
-          title: "ARW FILM DOPAMINE TEE",
-          scene: "Drop 03 / Collab",
-          note: "Editorial graphic on a black washed base for the ARW Film x NewGbonhi capsule.",
-          cutout: true,
-        },
-        {
-          src: arwFilmLogoTeeUrl,
-          title: "ARW FILM LOGO TEE",
-          scene: "Drop 03 / Chrome mark",
-          note: "Chrome ARW Film identity placed clean on the chest for the new collab.",
-          cutout: true,
+          to: "/product/arw-film-city-tee-black",
         },
         {
           src: safeZoneBlackUrl,
@@ -270,8 +307,6 @@ export default {
 </script>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&display=swap");
-
 :global(*) {
   box-sizing: border-box;
 }
@@ -403,12 +438,25 @@ export default {
   margin-top: 32px;
   padding: 28px;
   border: 1px solid var(--line);
-  border-radius: 20px;
+  border-radius: var(--ng-radius);
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
   gap: 24px;
   background: #fff;
   animation: rise 0.7s ease both;
+}
+
+.journal-index {
+  margin-bottom: 28px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid rgba(11, 11, 11, 0.2);
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font: 700 9px/1.2 monospace;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
 }
 
 .hero-copy h1 {
@@ -436,7 +484,7 @@ export default {
 
 .hero-panel {
   background: #0b0b0b;
-  border-radius: 16px;
+  border-radius: var(--ng-radius);
   padding: 18px;
   color: #fff;
   display: flex;
@@ -458,15 +506,179 @@ export default {
   letter-spacing: 0.22em;
   background: var(--accent);
   padding: 8px 12px;
-  border-radius: 999px;
+  border-radius: var(--ng-radius);
   color: #fff;
 }
 
+.journal-feature {
+  margin-top: 32px;
+  display: grid;
+  grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+  border: 1px solid var(--line);
+  background: #0b0b0b;
+  color: #fff;
+}
+.journal-feature-copy {
+  padding: clamp(28px, 5vw, 64px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.journal-feature-copy > p,
+.journal-feature-visual > span {
+  margin: 0;
+  font: 700 9px/1.2 monospace;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.58);
+}
+.journal-feature-copy h2 {
+  margin: 18px 0 24px;
+  font-family: "Archivo Black", "Space Grotesk", sans-serif;
+  font-size: clamp(32px, 5vw, 64px);
+  line-height: .94;
+  text-transform: uppercase;
+}
+.journal-feature-copy blockquote {
+  margin: 0;
+  max-width: 520px;
+  font-size: clamp(17px, 2vw, 23px);
+  line-height: 1.45;
+}
+.journal-feature-copy dl { margin: 32px 0; }
+.journal-feature-copy dl div {
+  padding: 9px 0;
+  border-top: 1px solid rgba(255,255,255,.22);
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 12px;
+  font: 700 10px/1.3 monospace;
+  text-transform: uppercase;
+}
+.journal-feature-copy dt { color: rgba(255,255,255,.5); }
+.journal-feature-copy dd { margin: 0; }
+.journal-feature-copy a {
+  align-self: flex-start;
+  color: #fff;
+  text-decoration: none;
+  border-bottom: 1px solid;
+  padding-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  font-size: 10px;
+}
+.journal-feature-copy a span { color: var(--accent); }
+.journal-feature-visual {
+  min-height: 620px;
+  padding: 18px;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  background: var(--accent);
+}
+.journal-feature-visual img {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: contain;
+}
+.journal-index-section {
+  margin-top: 32px;
+  padding: clamp(24px, 4vw, 46px);
+  border: 1px solid var(--line);
+  background: #fff;
+}
+.journal-index-section > header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--line);
+}
+.journal-index-section header p,
+.journal-index-section header > span {
+  margin: 0;
+  font: 700 9px/1.2 monospace;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.journal-index-section h2 {
+  margin: 9px 0 0;
+  font-family: "Archivo Black", "Space Grotesk", sans-serif;
+  font-size: clamp(30px, 5vw, 58px);
+  line-height: .95;
+  text-transform: uppercase;
+}
+.journal-story-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.journal-story {
+  min-width: 0;
+  padding: 22px;
+  border-right: 1px solid var(--line);
+  color: inherit;
+  text-decoration: none;
+}
+.journal-story:last-child { border-right: 0; }
+.journal-story-media {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  background: #f0f0ec;
+  overflow: hidden;
+}
+.journal-story-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform .3s ease;
+}
+.journal-story-media > span {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 6px 8px;
+  background: #0b0b0b;
+  color: #fff;
+  font: 700 9px/1 monospace;
+}
+.journal-story-copy { padding-top: 18px; }
+.journal-story-copy p {
+  margin: 0;
+  color: var(--accent);
+  font: 700 9px/1.2 monospace;
+  letter-spacing: .15em;
+}
+.journal-story-copy h3 {
+  margin: 12px 0;
+  font-size: clamp(18px, 2.2vw, 28px);
+  line-height: 1;
+  text-transform: uppercase;
+}
+.journal-story-copy > span {
+  display: block;
+  min-height: 58px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.journal-story-copy b {
+  display: inline-block;
+  margin-top: 18px;
+  border-bottom: 1px solid;
+  padding-bottom: 5px;
+  font-size: 9px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.journal-story:hover .journal-story-media img { transform: scale(1.06); }
+.journal-story:hover .journal-story-copy b { color: var(--accent); }
 .looks-gallery {
   margin-top: 32px;
   padding: 24px;
   border: 1px solid var(--line);
-  border-radius: 18px;
+  border-radius: var(--ng-radius);
   background: #fff;
 }
 
@@ -493,10 +705,17 @@ export default {
 
 .look-card {
   border: 1px solid rgba(0, 0, 0, 0.25);
-  border-radius: 18px;
+  border-radius: var(--ng-radius);
   background: #fff;
   overflow: hidden;
   display: grid;
+  color: inherit;
+  text-decoration: none;
+  transition: border-color .2s ease, transform .2s ease;
+}
+.look-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-3px);
 }
 
 .look-media {
@@ -556,7 +775,7 @@ export default {
   margin-top: 28px;
   padding: 24px;
   border: 1px solid var(--line);
-  border-radius: 18px;
+  border-radius: var(--ng-radius);
   background: #fff;
 }
 
@@ -583,7 +802,7 @@ export default {
 
 .note-card {
   border: 1px solid rgba(0, 0, 0, 0.16);
-  border-radius: 14px;
+  border-radius: var(--ng-radius);
   padding: 14px;
   background: #fafafa;
 }
@@ -641,6 +860,10 @@ export default {
   .lookbook-hero {
     grid-template-columns: 1fr;
   }
+  .journal-feature { grid-template-columns: 1fr; }
+  .journal-feature-visual { min-height: 460px; }
+  .journal-story-grid { grid-template-columns: 1fr; }
+  .journal-story { border-right: 0; border-bottom: 1px solid var(--line); }
 }
 
 @media (max-width: 700px) {

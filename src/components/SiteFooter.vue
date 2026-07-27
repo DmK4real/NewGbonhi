@@ -1,6 +1,16 @@
-<template>
+﻿<template>
   <footer class="site-footer" id="contact">
+    <div class="footer-index"><span>ABIDJAN / CÔTE D’IVOIRE</span><span>INDEPENDENT CULTURE / SINCE 2024</span></div>
+    <div class="footer-mark" aria-hidden="true">NEWGBONHI</div>
     <LanguageSwitch />
+    <nav class="footer-sitemap" aria-label="Footer">
+      <RouterLink to="/">{{ $t("navShop") }}</RouterLink>
+      <RouterLink to="/lookbook">{{ $t("navLookbook") }}</RouterLink>
+      <RouterLink to="/lab">{{ $t("navLab") }}</RouterLink>
+      <RouterLink to="/studio">{{ $t("navStudio") }}</RouterLink>
+      <RouterLink to="/about">{{ $t("navAbout") }}</RouterLink>
+      <RouterLink to="/orders">{{ $t("navOrders") }}</RouterLink>
+    </nav>
     <div class="footer-contact">
       <p>{{ $t("copyright") }}</p>
       <div class="footer-links">
@@ -50,11 +60,56 @@ export default {
   text-align: center;
 }
 
+.footer-mark {
+  grid-column: 1 / -1;
+  width: 100%;
+  overflow: hidden;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 18px;
+  font-family: "Archivo Black", "Space Grotesk", sans-serif;
+  font-size: clamp(48px, 12vw, 154px);
+  line-height: .78;
+  letter-spacing: -.055em;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.footer-index {
+  grid-column: 1 / -1;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font: 700 8px/1.2 monospace;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
 .site-footer :deep(.language-switch) {
   justify-self: start;
   align-self: end;
 }
 
+
+.footer-sitemap {
+  grid-column: 1 / -1;
+  width: 100%;
+  padding-bottom: 22px;
+  border-bottom: 1px solid currentColor;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px 28px;
+}
+
+.footer-sitemap a {
+  color: inherit;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 10px;
+  font-weight: 700;
+}
 .footer-contact {
   display: grid;
   gap: 12px;
@@ -105,5 +160,9 @@ export default {
   .site-footer :deep(.payment-methods) {
     grid-column: auto;
   }
+  .footer-mark { font-size: clamp(42px, 18vw, 92px); }
+  .footer-index { align-items: flex-start; flex-direction: column; }
+  .footer-sitemap { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); text-align: left; }
+  .footer-links { width: 100%; display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
 }
 </style>
