@@ -173,8 +173,8 @@ export default {
 
   html,
   body {
-    background: #101010;
-    color: #f3f0e8;
+    background: #101010 !important;
+    color: #f3f0e8 !important;
   }
 
   :where(
@@ -191,6 +191,7 @@ export default {
     --text: #f3f0e8 !important;
     --muted: #aaa79f !important;
     --line: rgba(243, 240, 232, .28) !important;
+    background-color: #101010 !important;
     color: var(--text) !important;
   }
 
@@ -208,6 +209,17 @@ export default {
   .site-home-search:focus-within {
     border-color: var(--ng-red) !important;
     background: rgba(255, 255, 255, .07) !important;
+  }
+
+  .site-cart {
+    border-color: rgba(243, 240, 232, .5) !important;
+    background: #181818 !important;
+    color: #f3f0e8 !important;
+  }
+
+  .site-cart span {
+    background: #f3f0e8 !important;
+    color: #101010 !important;
   }
 
   .site-home-search input,
@@ -249,15 +261,39 @@ export default {
     .design-card,
     .cart-panel,
     .cart-item,
-    .cart-footer
+    .cart-footer,
+    .collections-hero,
+    .collab-lockup,
+    .detail-card,
+    .lab-shop,
+    .preorder-banner,
+    .delivery-box,
+    .payment-box,
+    .journal-story-media,
+    .note-card,
+    .order-fulfillment,
+    .preorder-note,
+    .studio-count,
+    .design-media,
+    .fit-card
   ) {
     border-color: rgba(243, 240, 232, .24) !important;
     background-color: #181818 !important;
     color: #f3f0e8 !important;
   }
 
+  :where(.shop-page, .collections-page, .lab-page, .product-page, .checkout-page, .orders-page, .studio-page, .lookbook-page, .about-page)
+  :where(section, article, aside, main, nav, form) {
+    border-color: rgba(243, 240, 232, .24);
+  }
+
   :where(
     .drop-tabs button,
+    .shop-cta,
+    .hero-button.ghost,
+    .lab-button-light,
+    .collab-feature .hero-button,
+    .early-access button,
     .pill,
     .chip,
     .ghost-button,
@@ -268,6 +304,8 @@ export default {
     .cart-qty,
     .cart-clear,
     .drawer-close,
+    .danger-btn,
+    .delete-button,
     .studio-lock-form input,
     .render-profile-grid button,
     .sticker-edit select
