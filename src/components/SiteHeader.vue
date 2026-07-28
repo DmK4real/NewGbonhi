@@ -432,6 +432,10 @@ export default {
     display: none;
   }
 
+  .menu-open .site-search-trigger {
+    display: none !important;
+  }
+
   .site-brand div,
   .site-language,
   .site-tools .site-tool {
