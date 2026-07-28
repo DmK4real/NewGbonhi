@@ -521,4 +521,24 @@ export default {
   .specs-grid { grid-template-columns: 1fr; }
   .about-index { flex-direction: column; }
 }
+
+@media (prefers-color-scheme: dark) {
+  .drop-specs,
+  .fit-section,
+  .story-section {
+    --text: #f3f0e8;
+    --muted: #aaa79f;
+    --line: rgba(243, 240, 232, .24);
+    border-color: rgba(243, 240, 232, .24) !important;
+    background: #181818 !important;
+    color: #f3f0e8 !important;
+  }
+
+  .spec-card,
+  .fit-card {
+    border-color: rgba(243, 240, 232, .22) !important;
+    background: #151515 !important;
+    color: #f3f0e8 !important;
+  }
+}
 </style>

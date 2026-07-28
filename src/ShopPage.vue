@@ -2446,4 +2446,21 @@ export default {
   .early-access button { width: 100%; border: 1px solid rgba(255,255,255,.54); }
   .early-access form p { border: 0; padding: 4px 0 0; }
 }
+
+@media (prefers-color-scheme: dark) {
+  .drop-details {
+    --text: #f3f0e8;
+    --muted: #aaa79f;
+    --line: rgba(243, 240, 232, .24);
+    border-color: rgba(243, 240, 232, .24) !important;
+    background: #181818 !important;
+    color: #f3f0e8 !important;
+  }
+
+  .drop-details .detail-card {
+    border-color: rgba(243, 240, 232, .24) !important;
+    background: #151515 !important;
+    color: #f3f0e8 !important;
+  }
+}
 </style>

@@ -1114,4 +1114,37 @@ export default {
   .checkout-mobile-bar button:disabled { opacity: .45; }
   .checkout-page { padding-bottom: 100px; }
 }
+
+@media (prefers-color-scheme: dark) {
+  .checkout-form,
+  .checkout-summary {
+    --text: #f3f0e8;
+    --muted: #aaa79f;
+    --line: rgba(243, 240, 232, .24);
+    border-color: rgba(243, 240, 232, .24) !important;
+    background: #181818 !important;
+    color: #f3f0e8 !important;
+  }
+
+  .checkout-progress {
+    border-color: rgba(243, 240, 232, .28) !important;
+    background: #151515 !important;
+  }
+
+  .checkout-progress span,
+  .checkout-progress .done,
+  .checkout-progress .active {
+    border-color: rgba(243, 240, 232, .22) !important;
+  }
+
+  .checkout-progress .done {
+    background: #222 !important;
+    color: #f3f0e8 !important;
+  }
+
+  .checkout-progress .active {
+    background: #0b0b0b !important;
+    color: #fff !important;
+  }
+}
 </style>
