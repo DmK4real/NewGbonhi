@@ -45,6 +45,24 @@
       </RouterLink>
       </nav>
 
+      <form
+        v-if="$route.name === 'shop'"
+        class="site-home-search"
+        role="search"
+        @submit.prevent="submitSearch"
+      >
+        <label class="sr-only" for="header-product-search">{{ $t("searchProducts") }}</label>
+        <input
+          id="header-product-search"
+          v-model="headerSearchQuery"
+          type="search"
+          :placeholder="$t('searchPlaceholder')"
+          autocomplete="off"
+          @input="$emit('update-search', headerSearchQuery)"
+        />
+        <button type="submit">OK</button>
+      </form>
+
       <div class="site-tools">
       <LanguageSwitch class="site-language" />
       <RouterLink class="site-tool" to="/orders" @click="closeMenu">{{ $t("navOrders") }}</RouterLink>
@@ -79,12 +97,13 @@ export default {
   components: {
     LanguageSwitch,
   },
-  emits: ["toggle-cart"],
+  emits: ["toggle-cart", "update-search", "submit-search"],
   data() {
     return {
       logoUrl,
       campaignImage,
       menuOpen: false,
+      headerSearchQuery: "",
     };
   },
   computed: {
@@ -118,6 +137,9 @@ export default {
       this.closeMenu();
       this.$emit("toggle-cart");
     },
+    submitSearch() {
+      this.$emit("submit-search", this.headerSearchQuery.trim());
+    },
   },
 };
 </script>
@@ -131,7 +153,7 @@ export default {
 .site-header {
   width: 100%;
   display: grid;
-  grid-template-columns: auto minmax(300px, 1fr) auto;
+  grid-template-columns: auto minmax(300px, 1fr) minmax(150px, 220px) auto;
   align-items: center;
   gap: clamp(18px, 3vw, 42px);
 }
@@ -189,6 +211,45 @@ export default {
 
 .site-navigation a.is-active {
   border-color: #e10600;
+}
+
+.site-home-search {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  border-bottom: 1px solid #0b0b0b;
+}
+
+.site-home-search input {
+  min-width: 0;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  padding: 9px 6px 9px 0;
+  color: inherit;
+  font: 500 10px/1 "Space Grotesk", sans-serif;
+  letter-spacing: .08em;
+  outline: none;
+}
+
+.site-home-search input::placeholder {
+  color: #707070;
+  text-transform: uppercase;
+}
+
+.site-home-search:focus-within {
+  border-color: #e10600;
+}
+
+.site-home-search button {
+  border: 0;
+  background: transparent;
+  color: #e10600;
+  padding: 8px 0 8px 8px;
+  font: 700 9px/1 "Space Grotesk", sans-serif;
+  letter-spacing: .12em;
+  cursor: pointer;
 }
 
 .site-tools {
@@ -265,11 +326,26 @@ export default {
     font-size: 8px;
     letter-spacing: .08em;
   }
+
+  .site-home-search {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
 }
 
 @media (max-width: 760px) {
   .site-header {
     grid-template-columns: auto 1fr auto;
+  }
+
+  .site-home-search {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    margin-top: 4px;
+  }
+
+  .menu-open .site-home-search {
+    display: none;
   }
 
   .site-brand div,

@@ -6,14 +6,16 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   const targetPort = env.API_PORT || "8787";
   const frontendPort = Number(env.VITE_PORT || 4000);
+  const optimizeImages = env.SKIP_IMAGE_OPTIMIZER !== "true";
 
   return {
     plugins: [
       vue(),
-      ViteImageOptimizer({
-        /* no default options */
-      }),
-    ],
+      optimizeImages &&
+        ViteImageOptimizer({
+          /* no default options */
+        }),
+    ].filter(Boolean),
     server: {
       port: frontendPort,
       strictPort: false,
