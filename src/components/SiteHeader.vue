@@ -46,7 +46,7 @@
       </nav>
 
       <form
-        v-if="$route.name === 'shop'"
+        v-if="$route.name === 'shop' && searchOpen"
         class="site-home-search"
         role="search"
         @submit.prevent="submitSearch"
@@ -60,11 +60,23 @@
           autocomplete="off"
           @input="$emit('update-search', headerSearchQuery)"
         />
-        <button type="submit">OK</button>
+        <button type="submit" :aria-label="$t('searchProducts')">
+          <span class="site-search-icon" aria-hidden="true"></span>
+        </button>
       </form>
 
       <div class="site-tools">
       <LanguageSwitch class="site-language" />
+      <button
+        v-if="$route.name === 'shop'"
+        type="button"
+        class="site-tool site-search-trigger"
+        :aria-expanded="searchOpen"
+        aria-controls="header-product-search"
+        @click="toggleSearch"
+      >
+        {{ searchOpen ? $t("close") : $t("navSearch") }}
+      </button>
       <RouterLink class="site-tool" to="/orders" @click="closeMenu">{{ $t("navOrders") }}</RouterLink>
       <button class="site-cart" type="button" @click="openCart">
         {{ $t("cart") }} <span>{{ cartCount }}</span>
@@ -104,6 +116,7 @@ export default {
       campaignImage,
       menuOpen: false,
       headerSearchQuery: "",
+      searchOpen: false,
     };
   },
   computed: {
@@ -114,6 +127,7 @@ export default {
   watch: {
     $route() {
       this.closeMenu();
+      this.searchOpen = false;
     },
     menuOpen(open) {
       document.documentElement.classList.toggle("navigation-open", open);
@@ -139,6 +153,13 @@ export default {
     },
     submitSearch() {
       this.$emit("submit-search", this.headerSearchQuery.trim());
+    },
+    toggleSearch() {
+      this.closeMenu();
+      this.searchOpen = !this.searchOpen;
+      if (this.searchOpen) {
+        this.$nextTick(() => document.getElementById("header-product-search")?.focus());
+      }
     },
   },
 };
@@ -214,11 +235,41 @@ export default {
 }
 
 .site-home-search {
+  grid-column: 1 / -1;
+  grid-row: 2;
   min-width: 0;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  border-bottom: 1px solid #0b0b0b;
+  min-height: 34px;
+  padding: 0 8px 0 11px;
+  border: 1px solid rgba(11, 11, 11, .34);
+  background: rgba(255, 255, 255, .7);
+  transition: border-color .2s ease, background-color .2s ease;
+}
+
+.site-search-trigger {
+  position: relative;
+}
+
+.site-search-trigger::after {
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  left: 3px;
+  height: 1px;
+  background: #e10600;
+  content: "";
+  opacity: 0;
+  transform: scaleX(.45);
+  transition: opacity .2s ease, transform .2s ease;
+}
+
+.site-search-trigger:hover::after,
+.site-search-trigger:focus-visible::after,
+.site-search-trigger[aria-expanded="true"]::after {
+  opacity: 1;
+  transform: scaleX(1);
 }
 
 .site-home-search input {
@@ -226,10 +277,10 @@ export default {
   width: 100%;
   border: 0;
   background: transparent;
-  padding: 9px 6px 9px 0;
+  padding: 8px 7px 8px 0;
   color: inherit;
-  font: 500 10px/1 "Space Grotesk", sans-serif;
-  letter-spacing: .08em;
+  font: 500 9px/1 "Space Grotesk", sans-serif;
+  letter-spacing: .1em;
   outline: none;
 }
 
@@ -240,16 +291,45 @@ export default {
 
 .site-home-search:focus-within {
   border-color: #e10600;
+  background: #fff;
 }
 
 .site-home-search button {
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
   border: 0;
   background: transparent;
-  color: #e10600;
-  padding: 8px 0 8px 8px;
-  font: 700 9px/1 "Space Grotesk", sans-serif;
-  letter-spacing: .12em;
+  color: #0b0b0b;
+  padding: 0;
   cursor: pointer;
+}
+
+.site-search-icon {
+  position: relative;
+  display: block;
+  width: 10px;
+  height: 10px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+}
+
+.site-search-icon::after {
+  position: absolute;
+  right: -4px;
+  bottom: -3px;
+  width: 5px;
+  height: 1px;
+  background: currentColor;
+  content: "";
+  transform: rotate(45deg);
+  transform-origin: left center;
+}
+
+.site-home-search button:hover,
+.site-home-search button:focus-visible {
+  color: #e10600;
 }
 
 .site-tools {
@@ -342,6 +422,10 @@ export default {
     grid-column: 1 / -1;
     grid-row: 2;
     margin-top: 4px;
+  }
+
+  .site-header-shell:not(.menu-open) .site-search-trigger {
+    display: inline-flex;
   }
 
   .menu-open .site-home-search {
