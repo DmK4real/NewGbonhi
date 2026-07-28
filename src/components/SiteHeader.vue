@@ -47,7 +47,6 @@
 
       <div class="site-tools">
       <LanguageSwitch class="site-language" />
-      <button type="button" class="site-tool" @click="openSearch">{{ $t("navSearch") }}</button>
       <RouterLink class="site-tool" to="/orders" @click="closeMenu">{{ $t("navOrders") }}</RouterLink>
       <button class="site-cart" type="button" @click="openCart">
         {{ $t("cart") }} <span>{{ cartCount }}</span>
@@ -80,7 +79,7 @@ export default {
   components: {
     LanguageSwitch,
   },
-  emits: ["toggle-cart", "focus-search"],
+  emits: ["toggle-cart"],
   data() {
     return {
       logoUrl,
@@ -118,14 +117,6 @@ export default {
     openCart() {
       this.closeMenu();
       this.$emit("toggle-cart");
-    },
-    async openSearch() {
-      this.closeMenu();
-      if (this.$route.name === "shop") {
-        this.$emit("focus-search");
-        return;
-      }
-      await this.$router.push({ name: "shop", hash: "#products", query: { focus: "search" } });
     },
   },
 };
@@ -376,7 +367,7 @@ export default {
 
   .menu-open .site-navigation a {
     display: grid;
-    grid-template-columns: clamp(38px, 6vw, 64px) 1fr auto;
+    grid-template-columns: clamp(38px, 6vw, 64px) 1fr;
     align-items: baseline;
     padding: 13px 0;
     border: 0;
@@ -404,6 +395,9 @@ export default {
   }
 
   .menu-open .site-navigation a:nth-of-type(2) { animation-delay: .035s; }
+
+  .menu-open .site-navigation a::after { display: none; }
+
   .menu-open .site-navigation a:nth-of-type(3) { animation-delay: .07s; }
   .menu-open .site-navigation a:nth-of-type(4) { animation-delay: .105s; }
   .menu-open .site-navigation a:nth-of-type(5) { animation-delay: .14s; }

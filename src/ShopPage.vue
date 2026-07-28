@@ -1,6 +1,6 @@
 ﻿<template>
   <div class="shop-page">
-    <SiteHeader @toggle-cart="toggleCart" @focus-search="focusSearch" />
+    <SiteHeader @toggle-cart="toggleCart" />
 
     <CartPanel :open="cartOpen" @close="cartOpen = false" />
 
@@ -226,6 +226,18 @@
     </section>
 
     <main id="products" class="shop-main" ref="productsSection">
+      <div class="search-input-wrap">
+        <label for="search">{{ $t("searchProducts") }}</label>
+        <input
+          id="search"
+          ref="searchInput"
+          v-model="searchQuery"
+          type="search"
+          :placeholder="$t('searchPlaceholder')"
+          class="search-input"
+        />
+      </div>
+
       <aside class="shop-sidebar">
         <div class="sidebar-block">
           <h2>{{ $t("categories") }}</h2>
@@ -278,18 +290,6 @@
           >
             {{ $t("filters") }}
           </button>
-        </div>
-
-        <div class="search-input-wrap">
-          <label for="search" class="sr-only">{{ $t("searchProducts") }}</label>
-          <input
-            id="search"
-            ref="searchInput"
-            v-model="searchQuery"
-            type="search"
-            :placeholder="$t('searchPlaceholder')"
-            class="search-input"
-          />
         </div>
 
         <div class="content-head">
@@ -626,13 +626,6 @@ export default {
     toggleCart() {
       this.menuOpen = false;
       this.cartOpen = !this.cartOpen;
-    },
-    focusSearch() {
-      this.menuOpen = false;
-      this.scrollToProducts();
-      this.$nextTick(() => {
-        this.$refs.searchInput?.focus();
-      });
     },
     featuredProducts() {
       const selected = this.shopProducts.filter(
@@ -1786,16 +1779,37 @@ export default {
 }
 
 .search-input-wrap {
-  margin-top: 10px;
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: auto minmax(220px, 1fr);
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 6px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+
+.search-input-wrap label {
+  text-transform: uppercase;
+  font: 700 10px/1 "Space Grotesk", sans-serif;
+  letter-spacing: .16em;
 }
 
 .search-input {
   width: 100%;
-  border: 1px solid var(--line);
-  padding: 10px 14px;
+  min-width: 0;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  padding: 9px 2px;
   font-size: 14px;
   font-family: inherit;
-  border-radius: 8px;
+  border-radius: 0;
+  outline: none;
+}
+
+.search-input:focus {
+  border-color: var(--accent);
 }
 
 .search-input::placeholder {
@@ -2250,6 +2264,12 @@ export default {
 }
 
 @media (max-width: 700px) {
+  .search-input-wrap {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 14px;
+  }
+
   .shop-page {
     padding: 24px 16px 40px;
   }
