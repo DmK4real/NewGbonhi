@@ -144,6 +144,7 @@ export default {
 
 <style>
 :root {
+  color-scheme: light;
   --header-height: 88px;
   --ng-ink: #0b0b0b;
   --ng-paper: #f5f5f1;
@@ -158,6 +159,152 @@ export default {
   --ng-title-xl: clamp(38px, 5.4vw, 76px);
   --ng-title-lg: clamp(32px, 4.2vw, 58px);
   --ng-title-md: clamp(26px, 3.2vw, 46px);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --ng-ink: #f3f0e8;
+    --ng-paper: #101010;
+    --ng-white: #181818;
+    --ng-muted: #aaa79f;
+    --ng-line: rgba(243, 240, 232, .24);
+  }
+
+  html,
+  body {
+    background: #101010;
+    color: #f3f0e8;
+  }
+
+  :where(
+    .shop-page,
+    .collections-page,
+    .lab-page,
+    .product-page,
+    .checkout-page,
+    .orders-page,
+    .studio-page,
+    .lookbook-page,
+    .about-page
+  ) {
+    --text: #f3f0e8 !important;
+    --muted: #aaa79f !important;
+    --line: rgba(243, 240, 232, .28) !important;
+    color: var(--text) !important;
+  }
+
+  .shop-header {
+    border-bottom-color: rgba(243, 240, 232, .14) !important;
+    background: rgba(16, 16, 16, .94) !important;
+    color: #f3f0e8;
+  }
+
+  .site-home-search {
+    border-color: rgba(243, 240, 232, .34) !important;
+    background: rgba(255, 255, 255, .035) !important;
+  }
+
+  .site-home-search:focus-within {
+    border-color: var(--ng-red) !important;
+    background: rgba(255, 255, 255, .07) !important;
+  }
+
+  .site-home-search input,
+  :where(input, select, textarea) {
+    color: #f3f0e8;
+  }
+
+  .site-home-search input::placeholder,
+  :where(input, textarea)::placeholder {
+    color: #8e8b84 !important;
+  }
+
+  :where(
+    .about-hero,
+    .story-section,
+    .checkout-summary,
+    .delivery-select,
+    .summary-item,
+    .lab-system,
+    .showcase-board,
+    .lab-agenda,
+    .lookbook-hero,
+    .journal-index-section,
+    .looks-gallery,
+    .look-card,
+    .styling-notes,
+    .orders-login,
+    .orders-empty,
+    .order-card,
+    .product-hero,
+    .product-media,
+    .product-missing,
+    .lab-entry,
+    .drop-details,
+    .filter-drawer,
+    .studio-lock-panel,
+    .studio-hero,
+    .design-catalog,
+    .design-card,
+    .cart-panel,
+    .cart-item,
+    .cart-footer
+  ) {
+    border-color: rgba(243, 240, 232, .24) !important;
+    background-color: #181818 !important;
+    color: #f3f0e8 !important;
+  }
+
+  :where(
+    .drop-tabs button,
+    .pill,
+    .chip,
+    .ghost-button,
+    .product-actions .ghost,
+    .color-grid button,
+    .size-grid button,
+    .cart-close,
+    .cart-qty,
+    .cart-clear,
+    .drawer-close,
+    .studio-lock-form input,
+    .render-profile-grid button,
+    .sticker-edit select
+  ) {
+    border-color: rgba(243, 240, 232, .3) !important;
+    background-color: #1d1d1d !important;
+    color: #f3f0e8 !important;
+  }
+
+  /* Product photography keeps a neutral studio background in both themes. */
+  :where(
+    .pg-image-wrap,
+    .pg-image,
+    .pg-picture,
+    .product-media img,
+    .product-detail-image,
+    .summary-item img,
+    .cart-item img,
+    .look-media
+  ) {
+    background-color: #fff !important;
+  }
+
+  .app-error-shell {
+    background: linear-gradient(180deg, rgba(225, 6, 0, .14), rgba(16, 16, 16, .97)), #101010;
+  }
+
+  .app-error-panel {
+    border-color: rgba(243, 240, 232, .2);
+    background: rgba(24, 24, 24, .97);
+  }
+
+  .app-error-copy,
+  .app-error-kicker,
+  .app-error-source {
+    color: #aaa79f;
+  }
 }
 
 /* Global typography safety: editorial scale without cropped or overflowing words. */
