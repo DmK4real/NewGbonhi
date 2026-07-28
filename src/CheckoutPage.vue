@@ -1071,6 +1071,16 @@ export default {
     padding: 24px 16px 40px;
   }
 
+  .checkout-form .section-head h1 {
+    max-width: 100%;
+    font-size: clamp(25px, 8vw, 34px) !important;
+    line-height: 1 !important;
+    letter-spacing: -.03em !important;
+    overflow-wrap: normal;
+    word-break: normal;
+    text-wrap: balance;
+  }
+
   .checkout-form,
   .checkout-summary {
     padding: 18px;
