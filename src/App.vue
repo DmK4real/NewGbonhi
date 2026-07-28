@@ -253,9 +253,11 @@ export default {
   :where(
     .about-hero,
     .story-section,
+    .spec-card,
     .hero-copy,
     .hero-showcase,
     .checkout-summary,
+    .checkout-mobile-bar,
     .confirmation,
     .delivery-select,
     .summary-item,
@@ -277,9 +279,11 @@ export default {
     .product-hero,
     .product-media,
     .product-media.is-cutout,
+    .mobile-buy-bar,
     .product-missing,
     .lab-entry,
     .drop-details,
+    .mobile-filters,
     .filter-drawer,
     .studio-lock-panel,
     .studio-hero,
@@ -301,6 +305,7 @@ export default {
     .order-fulfillment,
     .preorder-note,
     .studio-count,
+    .studio-mobile-summary,
     .design-media,
     .fit-card,
     .pg-placeholder-text,
@@ -310,6 +315,31 @@ export default {
   ) {
     border-color: rgba(243, 240, 232, .24) !important;
     background-color: #181818 !important;
+    color: #f3f0e8 !important;
+  }
+
+  :where(
+    .shop-page,
+    .collections-page,
+    .lab-page,
+    .product-page,
+    .checkout-page,
+    .orders-page,
+    .studio-page,
+    .lookbook-page,
+    .about-page
+  ) :where(
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="url"],
+    input[type="password"],
+    input[type="number"],
+    select,
+    textarea
+  ) {
+    border-color: rgba(243, 240, 232, .3) !important;
+    background-color: #1d1d1d !important;
     color: #f3f0e8 !important;
   }
 
@@ -488,6 +518,27 @@ export default {
 
   :where(h1, h2, h3, h4, blockquote) {
     text-wrap: pretty;
+  }
+
+  :where(
+    .shop-page,
+    .collections-page,
+    .lab-page,
+    .product-page,
+    .checkout-page,
+    .orders-page,
+    .studio-page,
+    .lookbook-page,
+    .about-page
+  ) :where(main, section, article, aside, form) {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  :where(.checkout-mobile-bar, .mobile-buy-bar, .studio-mobile-summary) {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100vw;
   }
 }
 
