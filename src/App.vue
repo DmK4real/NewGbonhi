@@ -172,7 +172,9 @@ export default {
   }
 
   html,
-  body {
+  body,
+  #app,
+  #app-content {
     background: #101010 !important;
     color: #f3f0e8 !important;
   }
@@ -193,6 +195,22 @@ export default {
     --line: rgba(243, 240, 232, .28) !important;
     background-color: #101010 !important;
     color: var(--text) !important;
+  }
+
+  :where(
+    .shop-page,
+    .collections-page,
+    .lab-page,
+    .product-page,
+    .checkout-page,
+    .orders-page,
+    .studio-page,
+    .lookbook-page,
+    .about-page
+  )::before {
+    background:
+      repeating-linear-gradient(90deg, rgba(243, 240, 232, .085) 0 1px, transparent 1px 48px),
+      repeating-linear-gradient(0deg, rgba(243, 240, 232, .085) 0 1px, transparent 1px 48px) !important;
   }
 
   .shop-header {
@@ -235,10 +253,15 @@ export default {
   :where(
     .about-hero,
     .story-section,
+    .hero-copy,
+    .hero-showcase,
     .checkout-summary,
+    .confirmation,
     .delivery-select,
     .summary-item,
     .lab-system,
+    .lab-explorer,
+    .client-directory,
     .showcase-board,
     .lab-agenda,
     .lookbook-hero,
@@ -249,8 +272,11 @@ export default {
     .orders-login,
     .orders-empty,
     .order-card,
+    .order-status.sent,
+    .order-status.paid_reported,
     .product-hero,
     .product-media,
+    .product-media.is-cutout,
     .product-missing,
     .lab-entry,
     .drop-details,
@@ -261,6 +287,7 @@ export default {
     .design-card,
     .cart-panel,
     .cart-item,
+    .cart-product-details,
     .cart-footer,
     .collections-hero,
     .collab-lockup,
@@ -275,7 +302,11 @@ export default {
     .preorder-note,
     .studio-count,
     .design-media,
-    .fit-card
+    .fit-card,
+    .pg-placeholder-text,
+    .pg-placeholder,
+    .pg-view,
+    .pg-badges
   ) {
     border-color: rgba(243, 240, 232, .24) !important;
     background-color: #181818 !important;
@@ -289,6 +320,8 @@ export default {
 
   :where(
     .drop-tabs button,
+    .category,
+    .hero-sticker-drop,
     .shop-cta,
     .hero-button.ghost,
     .lab-button-light,
@@ -308,14 +341,63 @@ export default {
     .delete-button,
     .studio-lock-form input,
     .render-profile-grid button,
-    .sticker-edit select
+    .sticker-edit select,
+    .camo-slider-controls > button,
+    .camo-slider-controls > div button.active,
+    .discipline-filters button
   ) {
     border-color: rgba(243, 240, 232, .3) !important;
     background-color: #1d1d1d !important;
     color: #f3f0e8 !important;
   }
 
-  /* Product photography keeps a neutral studio background in both themes. */
+  :where(.category.active, .pill.active, .discipline-filters button.active) {
+    border-color: var(--ng-red) !important;
+    background-color: var(--ng-red) !important;
+    color: #fff !important;
+  }
+
+  /* The Lab open-call card keeps its signature lime identity in both themes. */
+  .lab-join {
+    --text: #0b0b0b !important;
+    --muted: #343434 !important;
+    --line: #0b0b0b !important;
+    border-color: #0b0b0b !important;
+    background: #c7ff00 !important;
+    color: #0b0b0b !important;
+  }
+
+  .lab-join :where(input, select, textarea) {
+    border-color: #0b0b0b !important;
+    background: rgba(255, 255, 255, .48) !important;
+    color: #0b0b0b !important;
+  }
+
+  .pg-grid {
+    --pg-card-bg: #181818 !important;
+    --pg-image-bg: #181818 !important;
+    --pg-text: #f3f0e8 !important;
+    --pg-muted: #aaa79f !important;
+    --pg-border: rgba(243, 240, 232, .24) !important;
+  }
+
+  .pg-badges {
+    border-color: rgba(243, 240, 232, .42) !important;
+    background: rgba(24, 24, 24, .94) !important;
+    box-shadow: 0 5px 18px rgba(0, 0, 0, .28) !important;
+  }
+
+  .pg-badge,
+  .pg-badge-tag {
+    color: #f3f0e8 !important;
+  }
+
+  .pg-badge-preorder,
+  .pg-badge-soldout {
+    color: #ff3b35 !important;
+  }
+
+  /* Every frame follows the active theme; only the pixels inside product photos remain untouched. */
   :where(
     .pg-image-wrap,
     .pg-image,
@@ -323,10 +405,13 @@ export default {
     .product-media img,
     .product-detail-image,
     .summary-item img,
+    .summary-item.is-custom-studio img,
     .cart-item img,
+    .cart-item.is-custom-studio img,
     .look-media
   ) {
-    background-color: #fff !important;
+    border-color: rgba(243, 240, 232, .24) !important;
+    background-color: #181818 !important;
   }
 
   .app-error-shell {
