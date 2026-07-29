@@ -939,5 +939,27 @@ export default {
   .order-actions .delete-button {
     width: 100%;
   }
+
+  .order-actions button {
+    min-height: 50px;
+    touch-action: manipulation;
+  }
+
+  .order-actions .delete-button.is-confirming {
+    min-height: 54px;
+    padding-inline: 12px;
+    font-size: 10px;
+    line-height: 1.3;
+    white-space: normal;
+  }
+
+  .orders-feedback {
+    position: sticky;
+    top: 92px;
+    z-index: 5;
+    padding: 14px;
+    background: var(--surface, #fff);
+    line-height: 1.45;
+  }
 }
 </style>
