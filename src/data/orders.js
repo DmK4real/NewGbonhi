@@ -2,6 +2,8 @@ const RAW_API_BASE = import.meta.env.VITE_API_BASE || "/api";
 const DEFAULT_ERROR = "Orders service unavailable.";
 const isGitHubPages =
   typeof window !== "undefined" && window.location.hostname.endsWith("github.io");
+const isCloudflarePages =
+  typeof window !== "undefined" && window.location.hostname.endsWith("pages.dev");
 
 const trimTrailingSlash = (value) => String(value || "").replace(/\/+$/, "");
 const stripEndpointSuffix = (value) =>
@@ -25,7 +27,15 @@ const buildApiBaseCandidates = (rawBase) => {
     candidates.add("/api");
   }
 
-  return Array.from(candidates);
+  const resolved = Array.from(candidates);
+
+  // Prefer the same-origin Pages Function proxy in production. Some mobile
+  // networks and privacy filters block direct workers.dev requests.
+  if (isCloudflarePages) {
+    return ["/api", ...resolved.filter((candidate) => candidate !== "/api")];
+  }
+
+  return resolved;
 };
 
 const API_BASE_CANDIDATES = buildApiBaseCandidates(RAW_API_BASE);
