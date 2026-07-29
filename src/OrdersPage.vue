@@ -23,6 +23,13 @@
         <article><span>DELIVERED</span><strong>{{ deliveredOrders }}</strong></article>
       </section>
 
+      <p v-if="isAuthorized && authError" class="orders-feedback orders-error" role="alert">
+        {{ authError }}
+      </p>
+      <p v-if="isAuthorized && actionSuccess" class="orders-feedback orders-success" role="status" aria-live="polite">
+        {{ actionSuccess }}
+      </p>
+
       <div v-if="!isAuthorized" class="orders-login">
         <p>{{ $t("adminRequired") }}</p>
         <p class="orders-hint">{{ $t("adminHint") }}</p>
@@ -137,10 +144,20 @@
             <button
               type="button"
               class="delete-button"
+              :class="{ 'is-confirming': pendingDeleteId === order.id }"
               :disabled="isSaving"
               @click="removeOrder(order)"
             >
-              {{ $t("delete") }}
+              {{ pendingDeleteId === order.id ? $t("confirmDelete") : $t("delete") }}
+            </button>
+            <button
+              v-if="pendingDeleteId === order.id"
+              type="button"
+              class="ghost-button"
+              :disabled="isSaving"
+              @click="pendingDeleteId = ''"
+            >
+              {{ $t("cancel") }}
             </button>
           </footer>
         </article>
@@ -182,6 +199,8 @@ export default {
       adminToken: "",
       isLoading: false,
       isSaving: false,
+      pendingDeleteId: "",
+      actionSuccess: "",
     };
   },
   async created() {
@@ -347,16 +366,18 @@ export default {
       if (this.isSaving || !this.adminToken) {
         return;
       }
-      const confirmed = window.confirm(
-        `Delete order ${order.id}? This cannot be undone.`
-      );
-      if (!confirmed) {
+      if (this.pendingDeleteId !== order.id) {
+        this.pendingDeleteId = order.id;
+        this.actionSuccess = "";
         return;
       }
       this.authError = "";
+      this.actionSuccess = "";
       this.isSaving = true;
       try {
         this.orders = await deleteOrder(order.id, this.adminToken);
+        this.pendingDeleteId = "";
+        this.actionSuccess = this.$t("orderDeleted");
       } catch (error) {
         this.authError =
           error instanceof Error ? error.message : "Unable to delete order.";
@@ -598,6 +619,19 @@ export default {
   font-size: 10px;
 }
 
+.orders-feedback {
+  margin-top: 18px;
+  padding: 14px 16px;
+  border: 1px solid currentColor;
+}
+
+.orders-success {
+  color: #18733c;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 10px;
+}
+
 .orders-empty {
   margin-top: 18px;
   border: 1px solid rgba(0, 0, 0, 0.2);
@@ -795,6 +829,11 @@ export default {
   letter-spacing: 0.18em;
   font-size: 10px;
   cursor: pointer;
+}
+
+.delete-button.is-confirming {
+  background: #a00000;
+  color: #fff;
 }
 
 .shop-footer {

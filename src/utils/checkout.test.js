@@ -35,6 +35,24 @@ describe("checkout utilities", () => {
     expect(normalizeNumber("+225 07 11 11 56 86")).toBe("2250711115686");
   });
 
+  it("validates complete customer details", async () => {
+    const { isValidCustomer } = await import("./checkout.ts");
+    const customer = {
+      firstName: "Kouadio",
+      lastName: "Bhegnino",
+      email: "test@example.com",
+      phone: "+225 07 11 11 56 86",
+      address: "Cocody Angre",
+      city: "Abidjan",
+      zip: "00225",
+    };
+
+    expect(isValidCustomer(customer)).toBe(true);
+    expect(isValidCustomer({ ...customer, email: "test@" })).toBe(false);
+    expect(isValidCustomer({ ...customer, phone: "123" })).toBe(false);
+    expect(isValidCustomer({ ...customer, zip: "" })).toBe(false);
+  });
+
   it("builds a preorder WhatsApp confirmation message when no payment env is set", async () => {
     const { buildOrderMessage } = await import("./checkout.ts");
     const message = buildOrderMessage({

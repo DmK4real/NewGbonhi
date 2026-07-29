@@ -59,7 +59,7 @@
             </label>
             <label>
               {{ $t("phone") }}
-              <input v-model.trim="customer.phone" type="tel" autocomplete="tel" inputmode="tel" required />
+              <input v-model.trim="customer.phone" type="tel" autocomplete="tel" inputmode="tel" minlength="8" maxlength="20" required />
             </label>
             <label class="full">
               {{ $t("address") }}
@@ -151,8 +151,8 @@
             Email: {{ contactEmail }}
           </p>
 
-          <p v-if="error" class="error">{{ error }}</p>
-          <p v-if="success" class="success">{{ success }}</p>
+          <p v-if="error" class="error" role="alert">{{ error }}</p>
+          <p v-if="success" class="success" role="status" aria-live="polite">{{ success }}</p>
         </form>
       </section>
 
@@ -234,6 +234,7 @@ import {
   buildOrderMessage,
   formatPhoneDisplay,
   formatPrice,
+  isValidCustomer,
   normalizeNumber,
   VITE_WHATSAPP_NUMBER,
   VITE_CONTACT_EMAIL,
@@ -328,21 +329,14 @@ export default {
       return `https://wa.me/${normalized}?text=${message}`;
     },
     isFormValid() {
-      const customer = this.customer;
-      return (
-        customer.firstName &&
-        customer.lastName &&
-        customer.email &&
-        customer.phone &&
-        customer.address &&
-        customer.city
-      );
+      return isValidCustomer(this.customer);
     },
     canSend() {
       return (
         this.cartItems.length > 0 &&
         this.cartTotal > 0 &&
         this.isFormValid &&
+        Boolean(this.selectedShipping) &&
         !this.isSubmitting &&
         Boolean(this.whatsappUrl)
       );

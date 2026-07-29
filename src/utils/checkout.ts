@@ -122,6 +122,25 @@ export const normalizeNumber = (value: string | number | null | undefined): stri
     .replace(/[^\d]/g, "")
     .replace(/^00/, "");
 
+export const isValidCustomer = (customer: Partial<OrderCustomer> & { zip?: string } = {}): boolean => {
+  const requiredFields = [
+    customer.firstName,
+    customer.lastName,
+    customer.address,
+    customer.city,
+    customer.zip,
+  ];
+  const email = String(customer.email || "").trim();
+  const phone = normalizeNumber(customer.phone);
+
+  return (
+    requiredFields.every((value) => String(value || "").trim().length > 0) &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) &&
+    phone.length >= 8 &&
+    phone.length <= 15
+  );
+};
+
 export const formatPhoneDisplay = (
   value: string | number | null | undefined
 ): string => {
