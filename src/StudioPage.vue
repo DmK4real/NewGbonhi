@@ -441,7 +441,7 @@ import studioMockups from "./data/studioMockups.json";
 
 const logoUrl = new URL("./assets/newgbonhi-logo.png", import.meta.url).href;
 const studioAccessStorageKey = "newgbonhi-studio-access";
-const studioPassword = import.meta.env.VITE_STUDIO_PASSWORD || "newgbonhi-studio";
+const studioPassword = import.meta.env.VITE_STUDIO_PASSWORD || "NEWGBONHICREW2026";
 const mockupModules = import.meta.glob("./assets/studio/mockups/*.png", {
   eager: true,
   import: "default",
@@ -715,7 +715,7 @@ export default {
       this.cartOpen = !this.cartOpen;
     },
     unlockStudio() {
-      if (this.studioPasswordInput !== studioPassword) {
+      if (this.studioPasswordInput.trim() !== studioPassword.trim()) {
         this.studioPasswordError = this.$t("invalidPassword");
         return;
       }
