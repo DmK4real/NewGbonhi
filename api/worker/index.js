@@ -326,6 +326,21 @@ const constantTimeEqual = (left, right) => {
   return mismatch === 0;
 };
 
+// Emergency admin credential reset. Only the SHA-256 fingerprint is stored in
+// source; the plaintext password is never shipped to the client bundle.
+const ADMIN_PASSWORD_SHA256 =
+  "23b10ab3813d43f62b47d08f66be3a5aede1b293b8246e44087a1f1ca0c987e1";
+
+const sha256Hex = async (value) => {
+  const digest = await crypto.subtle.digest(
+    "SHA-256",
+    textEncoder.encode(String(value || "").trim())
+  );
+  return Array.from(new Uint8Array(digest), (byte) =>
+    byte.toString(16).padStart(2, "0")
+  ).join("");
+};
+
 const parseJsonBody = async (request) => {
   try {
     return await request.json();
@@ -412,7 +427,8 @@ export class OrdersStore {
         }
 
         const payload = await parseJsonBody(request);
-        if (!constantTimeEqual(payload.password, this.adminPassword)) {
+        const passwordFingerprint = await sha256Hex(payload.password);
+        if (!constantTimeEqual(passwordFingerprint, ADMIN_PASSWORD_SHA256)) {
           return json(401, { error: "Incorrect password." });
         }
 
