@@ -11,6 +11,18 @@ export const onRequest = async (context) => {
     return Response.redirect(url.toString(), 301);
   }
 
+  const withHtmlCachePolicy = (response) => {
+    const contentType = response.headers.get("Content-Type") || "";
+    if (!contentType.includes("text/html")) return response;
+    const headers = new Headers(response.headers);
+    headers.set("Cache-Control", "no-cache, no-store, must-revalidate");
+    return new Response(response.body, {
+      status: response.status,
+      statusText: response.statusText,
+      headers,
+    });
+  };
+
   const response = await context.next();
   const acceptsHtml = context.request.headers
     .get("Accept")
@@ -22,8 +34,11 @@ export const onRequest = async (context) => {
 
   if (response.status === 404 && isAppRoute) {
     const indexUrl = new URL("/index.html", url);
-    return context.env.ASSETS.fetch(new Request(indexUrl, context.request));
+    const indexResponse = await context.env.ASSETS.fetch(
+      new Request(indexUrl, context.request)
+    );
+    return withHtmlCachePolicy(indexResponse);
   }
 
-  return response;
+  return withHtmlCachePolicy(response);
 };

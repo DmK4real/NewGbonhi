@@ -54,11 +54,11 @@ export default {
 }
 
 .is-orange-money {
-  color: #ff7900;
+  color: #9b4500;
 }
 
 .is-mtn-money {
-  color: #d5aa00;
+  color: #665400;
 }
 
 .is-moov-money {
@@ -66,7 +66,7 @@ export default {
 }
 
 .is-wave {
-  color: #168fc2;
+  color: #00658f;
 }
 
 @media (max-width: 700px) {

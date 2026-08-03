@@ -49,6 +49,8 @@ export default {
       lastScrollY: 0,
       headerObserver: null,
       observedHeader: null,
+      headerMeasureFrame: null,
+      headerHidden: false,
       appError: appErrorState,
     };
   },
@@ -63,10 +65,10 @@ export default {
   mounted() {
     this.lastScrollY = window.scrollY || 0;
     if (this.lastScrollY > 0) {
+      this.headerHidden = true;
       document.documentElement.classList.add("header-hidden");
     }
     window.addEventListener("scroll", this.onScroll, { passive: true });
-    window.addEventListener("resize", this.syncHeaderHeight, { passive: true });
     this.$nextTick(() => {
       this.observeHeader();
     });
@@ -76,7 +78,7 @@ export default {
   },
   beforeUnmount() {
     window.removeEventListener("scroll", this.onScroll);
-    window.removeEventListener("resize", this.syncHeaderHeight);
+    if (this.headerMeasureFrame) cancelAnimationFrame(this.headerMeasureFrame);
     this.disconnectHeaderObserver();
     document.documentElement.classList.remove("header-hidden");
     document.documentElement.style.removeProperty("--header-height");
@@ -84,10 +86,7 @@ export default {
   methods: {
     observeHeader() {
       const header = document.querySelector(".shop-header");
-      if (header === this.observedHeader) {
-        this.syncHeaderHeight();
-        return;
-      }
+      if (header === this.observedHeader) return;
 
       this.disconnectHeaderObserver();
       this.observedHeader = header;
@@ -114,18 +113,25 @@ export default {
       this.observedHeader = null;
     },
     syncHeaderHeight() {
-      const header = this.observedHeader || document.querySelector(".shop-header");
-      if (!header) {
-        document.documentElement.style.setProperty("--header-height", "88px");
-        return;
-      }
-      const measured = Math.ceil(header.getBoundingClientRect().height);
-      const safeHeight = Math.max(88, measured + 8);
-      document.documentElement.style.setProperty("--header-height", `${safeHeight}px`);
+      if (this.headerMeasureFrame) return;
+      this.headerMeasureFrame = requestAnimationFrame(() => {
+        this.headerMeasureFrame = null;
+        const header = this.observedHeader || document.querySelector(".shop-header");
+        if (!header) {
+          document.documentElement.style.setProperty("--header-height", "88px");
+          return;
+        }
+        const measured = Math.ceil(header.getBoundingClientRect().height);
+        const safeHeight = Math.max(88, measured + 8);
+        document.documentElement.style.setProperty("--header-height", `${safeHeight}px`);
+      });
     },
     onScroll() {
       const currentY = window.scrollY || 0;
-      if (currentY > 0) {
+      const shouldHide = currentY > 0;
+      if (shouldHide === this.headerHidden) return;
+      this.headerHidden = shouldHide;
+      if (shouldHide) {
         document.documentElement.classList.add("header-hidden");
       } else {
         document.documentElement.classList.remove("header-hidden");

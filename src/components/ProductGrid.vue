@@ -13,7 +13,6 @@
         :class="{ 'pg-image-wrap-cutout': isCutoutProduct(product) }"
         v-bind="linkProps(product)"
         :title="product.title || ''"
-        :aria-label="product.title || 'Product'"
       >
         <template
           v-if="

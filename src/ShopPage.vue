@@ -87,10 +87,10 @@
         </div>
       </div>
       <div class="camo-slider">
-        <div class="camo-slider-track" :style="{ transform: `translateX(-${camoSlide * 100}%)` }">
-          <figure v-for="(image, index) in camoEditorialImages" :key="image.src">
-            <img :src="image.src" :alt="image.alt" :loading="index === 0 ? 'eager' : 'lazy'" decoding="async" />
-            <figcaption>CAMPAIGN IMAGE / {{ String(index + 1).padStart(2, "0") }}</figcaption>
+        <div class="camo-slider-track">
+          <figure :key="camoEditorialImages[camoSlide].src">
+            <img :src="camoEditorialImages[camoSlide].src" :alt="camoEditorialImages[camoSlide].alt" loading="lazy" decoding="async" />
+            <figcaption>CAMPAIGN IMAGE / {{ String(camoSlide + 1).padStart(2, "0") }}</figcaption>
           </figure>
         </div>
         <div class="camo-slider-controls">
@@ -1146,7 +1146,7 @@ export default {
 }
 .camo-editorial-copy p {
   margin: 0;
-  color: var(--accent);
+  color: #ff4b43;
   font: 700 9px/1.2 monospace;
   letter-spacing: .17em;
   text-transform: uppercase;
@@ -1186,8 +1186,9 @@ export default {
 }
 .camo-editorial-footer > span { font: 700 10px/1 monospace; }
 .camo-slider { min-width: 0; position: relative; overflow: hidden; background: #e10600; }
-.camo-slider-track { height: 100%; display: flex; transition: transform .55s cubic-bezier(.76,0,.24,1); }
-.camo-slider figure { min-width: 100%; height: 100%; margin: 0; position: relative; }
+.camo-slider-track { height: 100%; }
+.camo-slider figure { width: 100%; height: 100%; margin: 0; position: relative; animation: camo-image-in .45s ease both; }
+@keyframes camo-image-in { from { opacity: .35; transform: scale(1.01); } to { opacity: 1; transform: scale(1); } }
 .camo-slider img { width: 100%; height: 100%; min-height: 620px; display: block; object-fit: cover; }
 .camo-slider figcaption { position: absolute; top: 16px; left: 16px; padding: 7px 9px; background: rgba(11,11,11,.86); color: #fff; font: 700 8px/1 monospace; letter-spacing: .12em; }
 .camo-slider-controls { position: absolute; right: 16px; bottom: 16px; left: 16px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 14px; }
@@ -1526,7 +1527,9 @@ export default {
   color: #fff;
 }
 
-.manifesto-entry > p { color: rgba(255,255,255,.72); }
+.manifesto-entry > p { color: #fff; }
+
+.early-access > div > p { color: #ff4b43; }
 
 .manifesto-entry h2 {
   max-width: 1000px;
