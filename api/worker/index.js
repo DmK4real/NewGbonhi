@@ -432,6 +432,10 @@ export class OrdersStore {
     return this.env.RESEND_API_KEY || "";
   }
 
+  get resendNewsletterApiKey() {
+    return this.env.RESEND_NEWSLETTER_API_KEY || "";
+  }
+
   get labToEmail() {
     return this.env.LAB_TO_EMAIL || "newgbonhifamily@gmail.com";
   }
@@ -444,12 +448,12 @@ export class OrdersStore {
     return this.env.NEWSLETTER_FROM_EMAIL || "NewGbonhi <news@newgbonhi.com>";
   }
 
-  async resendRequest(path, options = {}) {
-    if (!this.resendApiKey) throw new Error("Email service is not configured.");
+  async resendRequest(path, options = {}, apiKey = this.resendApiKey) {
+    if (!apiKey) throw new Error("Email service is not configured.");
     const response = await fetch(`https://api.resend.com${path}`, {
       ...options,
       headers: {
-        Authorization: `Bearer ${this.resendApiKey}`,
+        Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
         ...(options.headers || {}),
       },
@@ -467,13 +471,21 @@ export class OrdersStore {
     const cached = await this.state.storage.get(NEWSLETTER_SEGMENT_KEY);
     if (cached) return cached;
 
-    const segments = await this.resendRequest("/segments");
+    const segments = await this.resendRequest(
+      "/segments",
+      {},
+      this.resendNewsletterApiKey
+    );
     let segment = segments.data?.find((item) => item.name === NEWSLETTER_SEGMENT_NAME);
     if (!segment) {
-      segment = await this.resendRequest("/segments", {
-        method: "POST",
-        body: JSON.stringify({ name: NEWSLETTER_SEGMENT_NAME }),
-      });
+      segment = await this.resendRequest(
+        "/segments",
+        {
+          method: "POST",
+          body: JSON.stringify({ name: NEWSLETTER_SEGMENT_NAME }),
+        },
+        this.resendNewsletterApiKey
+      );
     }
     await this.state.storage.put(NEWSLETTER_SEGMENT_KEY, segment.id);
     return segment.id;
@@ -482,23 +494,32 @@ export class OrdersStore {
   async subscribeToNewsletter(email) {
     const segmentId = await this.getNewsletterSegmentId();
     try {
-      await this.resendRequest("/contacts", {
-        method: "POST",
-        body: JSON.stringify({
-          email,
-          unsubscribed: false,
-          segments: [{ id: segmentId }],
-        }),
-      });
+      await this.resendRequest(
+        "/contacts",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            email,
+            unsubscribed: false,
+            segments: [{ id: segmentId }],
+          }),
+        },
+        this.resendNewsletterApiKey
+      );
     } catch (error) {
       if (error.status !== 409) throw error;
-      await this.resendRequest(`/contacts/${encodeURIComponent(email)}`, {
-        method: "PATCH",
-        body: JSON.stringify({ unsubscribed: false }),
-      });
+      await this.resendRequest(
+        `/contacts/${encodeURIComponent(email)}`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({ unsubscribed: false }),
+        },
+        this.resendNewsletterApiKey
+      );
       await this.resendRequest(
         `/contacts/${encodeURIComponent(email)}/segments/${segmentId}`,
-        { method: "POST", body: "{}" }
+        { method: "POST", body: "{}" },
+        this.resendNewsletterApiKey
       ).catch((segmentError) => {
         if (segmentError.status !== 409) throw segmentError;
       });
@@ -533,18 +554,22 @@ export class OrdersStore {
         Object.entries(item).map(([key, value]) => [key, escapeHtml(value)])
       );
       const html = `<div style="background:#0b0b0b;color:#f5f2ea;padding:40px;font-family:Arial,sans-serif"><p style="color:#ef160d;letter-spacing:.18em">NEWGBONHI / UPDATE</p><h1 style="font-size:42px;line-height:1">${safe.title}</h1><p style="font-size:18px;line-height:1.6">${safe.excerpt}</p><p><a href="${safe.url}" style="display:inline-block;background:#f5f2ea;color:#0b0b0b;padding:16px 24px;text-decoration:none;font-weight:700">DECOUVRIR</a></p><p style="margin-top:40px;font-size:12px;color:#aaa">Tu recois cet email car tu as rejoint la newsletter NewGbonhi. <a href="{{{RESEND_UNSUBSCRIBE_URL}}}" style="color:#f5f2ea">Se desabonner</a></p></div>`;
-      await this.resendRequest("/broadcasts", {
-        method: "POST",
-        body: JSON.stringify({
-          segment_id: segmentId,
-          from: this.newsletterFromEmail,
-          subject: item.subject,
-          html,
-          text: `${item.title}\n\n${item.excerpt}\n\n${item.url}\n\nDesabonnement: {{{RESEND_UNSUBSCRIBE_URL}}}`,
-          send: true,
-          name: `NewGbonhi - ${item.id}`,
-        }),
-      });
+      await this.resendRequest(
+        "/broadcasts",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            segment_id: segmentId,
+            from: this.newsletterFromEmail,
+            subject: item.subject,
+            html,
+            text: `${item.title}\n\n${item.excerpt}\n\n${item.url}\n\nDesabonnement: {{{RESEND_UNSUBSCRIBE_URL}}}`,
+            send: true,
+            name: `NewGbonhi - ${item.id}`,
+          }),
+        },
+        this.resendNewsletterApiKey
+      );
       await this.state.storage.put(sentKey, new Date().toISOString());
       sent += 1;
     }
