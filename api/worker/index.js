@@ -752,6 +752,126 @@ export class OrdersStore {
     }
   }
 
+  async sendLabConfirmation(application) {
+    if (!this.resendApiKey) {
+      throw new Error("Lab email service is not configured.");
+    }
+
+    const safe = Object.fromEntries(
+      Object.entries(application).map(([key, value]) => [key, escapeHtml(value)])
+    );
+    const labUrl = "https://newgbonhi.pages.dev/lab";
+    const html = `<!doctype html>
+<html lang="fr">
+  <head>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <style>
+      @media only screen and (max-width:620px){
+        .shell{width:100%!important}.pad{padding-left:20px!important;padding-right:20px!important}
+        .display{font-size:43px!important}.index-cell{display:block!important;width:auto!important;border-right:0!important;border-bottom:1px solid #363636!important}
+        .cta{display:block!important;text-align:center!important}
+      }
+    </style>
+  </head>
+  <body style="margin:0;padding:0;background:#0b0b0b;color:#f4f1e9;font-family:Arial,Helvetica,sans-serif">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#0b0b0b;background-image:linear-gradient(#242424 1px,transparent 1px),linear-gradient(90deg,#242424 1px,transparent 1px);background-size:42px 42px">
+      <tr>
+        <td align="center" style="padding:28px 12px 48px">
+          <table class="shell" role="presentation" width="620" cellspacing="0" cellpadding="0" style="width:620px;max-width:620px;border:1px solid #4a4a4a;background:#101010">
+            <tr>
+              <td class="pad" style="padding:18px 28px;border-bottom:1px solid #4a4a4a">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                  <tr>
+                    <td style="font-size:15px;font-weight:900;letter-spacing:-.03em;color:#f4f1e9">NEWGBONHI / LAB</td>
+                    <td align="right" style="font-family:'Courier New',monospace;font-size:10px;font-weight:700;letter-spacing:.18em;color:#ff3b30">ABIDJAN / OPEN CALL</td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td class="pad" style="padding:54px 28px 28px;background:#f4f1e9;color:#0b0b0b">
+                <p style="margin:0 0 18px;font-family:'Courier New',monospace;font-size:11px;font-weight:700;letter-spacing:.22em;color:#e10600">CANDIDATURE / RE&Ccedil;UE</p>
+                <h1 class="display" style="margin:0;font-size:61px;line-height:.86;letter-spacing:-.06em;color:#0b0b0b">TON PROJET<br>EST DANS<br>LE LAB.</h1>
+              </td>
+            </tr>
+            <tr>
+              <td class="pad" style="padding:24px 28px 32px;background:#e10600;color:#ffffff">
+                <p style="margin:0;font-size:18px;line-height:1.5;font-weight:700">Merci ${safe.name}. Ta proposition a bien &eacute;t&eacute; transmise &agrave; l'&eacute;quipe NewGbonhi. Nous allons regarder ton univers, ton intention et la mani&egrave;re dont ton projet peut entrer en mouvement avec le Lab.</p>
+              </td>
+            </tr>
+            <tr>
+              <td style="border-top:1px solid #4a4a4a;border-bottom:1px solid #4a4a4a">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                  <tr>
+                    <td class="index-cell" width="33.33%" valign="top" style="padding:22px 18px;border-right:1px solid #363636">
+                      <p style="margin:0 0 26px;font-family:'Courier New',monospace;font-size:10px;color:#ff3b30">01 / PROJET</p>
+                      <p style="margin:0;font-size:12px;font-weight:900;line-height:1.45;letter-spacing:.1em;color:#f4f1e9">${safe.name}</p>
+                    </td>
+                    <td class="index-cell" width="33.33%" valign="top" style="padding:22px 18px;border-right:1px solid #363636">
+                      <p style="margin:0 0 26px;font-family:'Courier New',monospace;font-size:10px;color:#ff3b30">02 / DISCIPLINE</p>
+                      <p style="margin:0;font-size:12px;font-weight:900;line-height:1.45;letter-spacing:.1em;color:#f4f1e9">${safe.discipline}</p>
+                    </td>
+                    <td class="index-cell" width="33.33%" valign="top" style="padding:22px 18px">
+                      <p style="margin:0 0 26px;font-family:'Courier New',monospace;font-size:10px;color:#ff3b30">03 / VILLE</p>
+                      <p style="margin:0;font-size:12px;font-weight:900;line-height:1.45;letter-spacing:.1em;color:#f4f1e9">${safe.city}</p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td class="pad" style="padding:34px 28px 42px">
+                <p style="margin:0 0 22px;font-family:'Courier New',monospace;font-size:10px;font-weight:700;line-height:1.7;letter-spacing:.14em;color:#999">PROCHAINE &Eacute;TAPE / L'&Eacute;QUIPE REVIENT VERS TOI PAR EMAIL SI LE PROJET CORRESPOND &Agrave; UNE PROCHAINE ROOM, COLLABORATION OU ACTIVATION.</p>
+                <a class="cta" href="${labUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:17px 22px;background:#f4f1e9;color:#0b0b0b;text-decoration:none;font-size:12px;font-weight:900;letter-spacing:.15em">RETOURNER AU LAB</a>
+              </td>
+            </tr>
+            <tr>
+              <td class="pad" style="padding:20px 28px;border-top:1px solid #4a4a4a;font-family:'Courier New',monospace;font-size:9px;line-height:1.8;letter-spacing:.12em;color:#858585">
+                NEWGBONHI IS A LIVING ARCHIVE OF OBJECTS, PEOPLE AND IDEAS FROM ABIDJAN.<br>
+                Ce message confirme uniquement la bonne r&eacute;ception de ta candidature.
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`;
+    const text = [
+      "TON PROJET EST DANS LE LAB.",
+      "",
+      `Merci ${application.name}. Ta proposition a bien ete transmise a l'equipe NewGbonhi.`,
+      "",
+      `Projet : ${application.name}`,
+      `Discipline : ${application.discipline}`,
+      `Ville : ${application.city}`,
+      "",
+      "L'equipe reviendra vers toi par email si le projet correspond a une prochaine room, collaboration ou activation.",
+      "",
+      `Retourner au Lab : ${labUrl}`,
+    ].join("\n");
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${this.resendApiKey}`,
+        "Content-Type": "application/json",
+        "User-Agent": "NewGbonhi-Lab/1.0",
+      },
+      body: JSON.stringify({
+        from: this.labFromEmail,
+        to: [application.email],
+        reply_to: this.labToEmail,
+        subject: "TON PROJET EST DANS LE LAB.",
+        text,
+        html,
+      }),
+    });
+    if (!response.ok) {
+      console.error("Resend rejected Lab confirmation", response.status);
+      throw new Error("Unable to send the Lab confirmation.");
+    }
+  }
+
   async loadOrders() {
     const orders = await this.state.storage.get(ORDERS_KEY);
     return Array.isArray(orders) ? orders : [];
@@ -842,7 +962,14 @@ export class OrdersStore {
           return json(429, { error: "Please wait before sending another application." });
         }
         await this.sendLabApplication(application);
-        return json(202, { ok: true });
+        let confirmationSent = true;
+        try {
+          await this.sendLabConfirmation(application);
+        } catch (error) {
+          confirmationSent = false;
+          console.error("Unable to send Lab applicant confirmation", error);
+        }
+        return json(202, { ok: true, confirmationSent });
       }
 
       if (method === "POST" && pathname === "/api/newsletter/subscribe") {
