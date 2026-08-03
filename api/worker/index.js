@@ -12,6 +12,7 @@ const LAB_RATE_PREFIX = "lab.rate.";
 const LAB_RATE_LIMIT_MS = 60 * 1000;
 const NEWSLETTER_SEGMENT_KEY = "newsletter.segment.v1";
 const NEWSLETTER_SENT_PREFIX = "newsletter.sent.";
+const NEWSLETTER_WELCOME_PREFIX = "newsletter.welcome.";
 const NEWSLETTER_SEGMENT_NAME = "NewGbonhi Newsletter";
 
 const baseHeaders = {
@@ -526,6 +527,82 @@ export class OrdersStore {
     }
   }
 
+  async sendNewsletterWelcome(email) {
+    const welcomeKey = `${NEWSLETTER_WELCOME_PREFIX}${await sha256Hex(email)}`;
+    if (await this.state.storage.get(welcomeKey)) return false;
+
+    const shopUrl = "https://newgbonhi.com/";
+    const collectionsUrl = "https://newgbonhi.com/collections";
+    const html = `<!doctype html>
+<html lang="fr">
+  <body style="margin:0;background:#0b0b0b;color:#f5f2ea;font-family:Arial,Helvetica,sans-serif">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#0b0b0b">
+      <tr>
+        <td align="center" style="padding:24px 12px">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:620px;border:1px solid #343434;background:#111111">
+            <tr>
+              <td style="padding:22px 28px;border-bottom:1px solid #343434;font-size:12px;font-weight:700;letter-spacing:.22em;color:#ff4b43">
+                NEWGBONHI / FAMILY ACCESS
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:48px 28px 22px">
+                <p style="margin:0 0 14px;font-size:12px;font-weight:700;letter-spacing:.18em;color:#a9a9a9">ABIDJAN / 2026</p>
+                <h1 style="margin:0;font-size:48px;line-height:.94;letter-spacing:-.04em;color:#f5f2ea">BIENVENUE<br>DANS LE GBONHI.</h1>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:8px 28px 32px;font-size:17px;line-height:1.65;color:#d2d0ca">
+                Ton inscription est confirmee. Tu recevras ici les nouveaux drops, les collaborations, les actualites du Lab et les acces anticipes NewGbonhi.
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:0 28px 46px">
+                <a href="${shopUrl}" style="display:inline-block;padding:16px 24px;background:#f5f2ea;color:#0b0b0b;text-decoration:none;font-size:13px;font-weight:700;letter-spacing:.16em">VOIR LE DROP 04</a>
+                <a href="${collectionsUrl}" style="display:inline-block;margin-left:8px;padding:15px 23px;border:1px solid #777;color:#f5f2ea;text-decoration:none;font-size:13px;font-weight:700;letter-spacing:.16em">EXPLORER LES ARCHIVES</a>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:22px 28px;border-top:1px solid #343434;font-size:11px;line-height:1.6;color:#888">
+                NEWGBONHI — OBJETS, PERSONNES ET IDEES DEPUIS ABIDJAN.<br>
+                Tu peux te desabonner a tout moment depuis chaque prochaine newsletter.
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`;
+    const text = [
+      "BIENVENUE DANS LE GBONHI.",
+      "",
+      "Ton inscription est confirmee. Tu recevras les nouveaux drops, les collaborations, les actualites du Lab et les acces anticipes NewGbonhi.",
+      "",
+      `Voir le Drop 04 : ${shopUrl}`,
+      `Explorer les archives : ${collectionsUrl}`,
+      "",
+      "Tu peux te desabonner a tout moment depuis chaque prochaine newsletter.",
+    ].join("\n");
+
+    await this.resendRequest(
+      "/emails",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          from: this.newsletterFromEmail,
+          to: [email],
+          subject: "Bienvenue dans le Gbonhi.",
+          html,
+          text,
+        }),
+      },
+      this.resendNewsletterApiKey
+    );
+    await this.state.storage.put(welcomeKey, new Date().toISOString());
+    return true;
+  }
+
   async runNewsletterAutomation() {
     const feedUrl = this.env.NEWSLETTER_FEED_URL || "https://newgbonhi.com/newsletter-feed.json";
     const response = await fetch(feedUrl, { headers: { Accept: "application/json" } });
@@ -738,7 +815,8 @@ export class OrdersStore {
           return json(400, { error: "Email address is invalid." });
         }
         await this.subscribeToNewsletter(email);
-        return json(201, { ok: true });
+        const welcomeSent = await this.sendNewsletterWelcome(email);
+        return json(201, { ok: true, welcomeSent });
       }
 
       if (method === "POST" && pathname === "/api/internal/newsletter/run") {
