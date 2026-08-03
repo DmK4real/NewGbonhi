@@ -244,6 +244,10 @@
             <input v-model.trim="openCall.name" type="text" required />
           </label>
           <label>
+            <span>{{ labContent.formEmail }}</span>
+            <input v-model.trim="openCall.email" type="email" autocomplete="email" required />
+          </label>
+          <label>
             <span>{{ labContent.formDiscipline }}</span>
             <select v-model="openCall.discipline" required>
               <option value="" disabled>{{ labContent.formChoose }}</option>
@@ -264,8 +268,14 @@
             <span>{{ labContent.formPitch }}</span>
             <textarea v-model.trim="openCall.pitch" rows="4" maxlength="600" required></textarea>
           </label>
-          <button class="lab-button" type="submit">{{ labContent.joinCta }}</button>
-          <p v-if="openCallMessage" class="join-message" role="status">{{ openCallMessage }}</p>
+          <label class="join-honeypot" aria-hidden="true">
+            <span>Company</span>
+            <input v-model="openCall.company" type="text" tabindex="-1" autocomplete="off" />
+          </label>
+          <button class="lab-button" type="submit" :disabled="isSubmittingOpenCall">
+            {{ isSubmittingOpenCall ? labContent.formSending : labContent.joinCta }}
+          </button>
+          <p v-if="openCallMessage" class="join-message" :class="{ 'is-error': openCallError }" :role="openCallError ? 'alert' : 'status'">{{ openCallMessage }}</p>
         </form>
       </section>
       <section class="lab-agenda" aria-labelledby="lab-agenda-title">
@@ -474,12 +484,16 @@ export default {
       activeDiscipline: "all",
       openCall: {
         name: "",
+        email: "",
         discipline: "",
         city: "Abidjan",
         link: "",
         pitch: "",
+        company: "",
       },
       openCallMessage: "",
+      openCallError: false,
+      isSubmittingOpenCall: false,
     };
   },
   computed: {
@@ -504,14 +518,15 @@ export default {
         joinText: fr ? "Marque, graphiste, musicien, skater, realisateur ou designer : envoie une presentation courte, un lien et quelques visuels." : "Label, graphic artist, musician, skater, filmmaker or designer: send a short presentation, one link and a few visuals.",
         joinCta: fr ? "Candidater par email" : "Apply by email",
         formName: fr ? "Nom / projet" : "Name / project",
+        formEmail: "Email",
         formDiscipline: "Discipline",
         formChoose: fr ? "Choisir" : "Choose",
         formCity: fr ? "Ville" : "City",
         formLink: "Instagram / portfolio",
         formPitch: fr ? "Presentation courte" : "Short presentation",
-        formReady: fr
-          ? "Candidature preparee. Ton application email va s'ouvrir."
-          : "Application prepared. Your email app will open.",
+        formSending: fr ? "Envoi en cours..." : "Sending...",
+        formReady: fr ? "Candidature envoyee. Nous te repondrons par email." : "Application sent. We will reply by email.",
+        formError: fr ? "L'envoi a echoue. Reessaie dans un instant." : "Unable to send. Please try again shortly.",
         agendaKicker: fr ? "Agenda du collectif" : "Collective agenda",
         agendaTitle: fr ? "Prochainement a Abidjan" : "Coming up in Abidjan",
         agendaEvent: fr ? "Pop-up NewGbonhi Lab" : "NewGbonhi Lab pop-up",
@@ -610,35 +625,38 @@ export default {
         maximumFractionDigits: 0,
       }).format(Number(value) || 0);
     },
-    submitOpenCall() {
-      const application = {
-        ...this.openCall,
-        submittedAt: new Date().toISOString(),
-      };
+    async submitOpenCall() {
+      if (this.isSubmittingOpenCall) return;
+
+      this.isSubmittingOpenCall = true;
+      this.openCallMessage = "";
+      this.openCallError = false;
 
       try {
-        const stored = JSON.parse(localStorage.getItem("newgbonhi-lab-open-calls") || "[]");
-        const applications = Array.isArray(stored) ? stored : [];
-        applications.push(application);
-        localStorage.setItem("newgbonhi-lab-open-calls", JSON.stringify(applications));
+        const response = await fetch("/api/lab-applications", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(this.openCall),
+        });
+
+        if (!response.ok) throw new Error("Lab application rejected");
+
+        this.openCall = {
+          name: "",
+          email: "",
+          discipline: "",
+          city: "Abidjan",
+          link: "",
+          pitch: "",
+          company: "",
+        };
+        this.openCallMessage = this.labContent.formReady;
       } catch {
-        // Continue with the email handoff if browser storage is unavailable.
+        this.openCallError = true;
+        this.openCallMessage = this.labContent.formError;
+      } finally {
+        this.isSubmittingOpenCall = false;
       }
-
-      const subject = encodeURIComponent(`NewGbonhi Lab Open Call — ${application.name}`);
-      const body = encodeURIComponent(
-        [
-          `Nom / projet: ${application.name}`,
-          `Discipline: ${application.discipline}`,
-          `Ville: ${application.city}`,
-          `Lien: ${application.link}`,
-          "",
-          application.pitch,
-        ].join("\n")
-      );
-
-      this.openCallMessage = this.labContent.formReady;
-      window.location.href = `mailto:lab@newgbonhi.com?subject=${subject}&body=${body}`;
     },
   },
 };
@@ -1418,6 +1436,16 @@ main {
 .join-message { grid-column: 1 / -1; }
 .join-form .lab-button { width: 100%; }
 .join-message { margin: 0; font: 700 11px/1.5 monospace; }
+.join-message.is-error { color: #8a0000; }
+.join-form .lab-button:disabled { cursor: wait; opacity: .65; }
+.join-honeypot {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
 .lab-agenda { padding: clamp(24px, 5vw, 56px); }
 .agenda-heading {
   display: flex;

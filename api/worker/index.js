@@ -8,6 +8,8 @@ const STATUS_VALUES = new Set([
 const DEFAULT_TOKEN_TTL_MS = 1000 * 60 * 60 * 8;
 const ORDERS_KEY = "orders.v1";
 const AUDIT_KEY = "orders.audit.v1";
+const LAB_RATE_PREFIX = "lab.rate.";
+const LAB_RATE_LIMIT_MS = 60 * 1000;
 
 const baseHeaders = {
   "content-type": "application/json; charset=utf-8",
@@ -326,6 +328,58 @@ const constantTimeEqual = (left, right) => {
   return mismatch === 0;
 };
 
+const escapeHtml = (value) =>
+  String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+
+const normalizeLabApplication = (payload) => {
+  if (!payload || typeof payload !== "object") {
+    throw new Error("Application details are required.");
+  }
+
+  const application = {
+    name: safeString(payload.name, 120),
+    email: safeString(payload.email, 160).toLowerCase(),
+    discipline: safeString(payload.discipline, 80),
+    city: safeString(payload.city, 80),
+    link: safeString(payload.link, 300),
+    pitch: safeString(payload.pitch, 1200),
+    company: safeString(payload.company, 120),
+  };
+
+  if (application.company) return { ...application, isSpam: true };
+
+  if (
+    !application.name ||
+    !application.email ||
+    !application.discipline ||
+    !application.city ||
+    !application.link ||
+    !application.pitch
+  ) {
+    throw new Error("Application details are incomplete.");
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(application.email)) {
+    throw new Error("Email address is invalid.");
+  }
+
+  let linkUrl;
+  try {
+    linkUrl = new URL(application.link);
+  } catch {
+    throw new Error("Portfolio link is invalid.");
+  }
+  if (!new Set(["http:", "https:"]).has(linkUrl.protocol)) {
+    throw new Error("Portfolio link is invalid.");
+  }
+  application.link = linkUrl.toString();
+  return { ...application, isSpam: false };
+};
+
 // Emergency admin credential reset. Only the SHA-256 fingerprint is stored in
 // source; the plaintext password is never shipped to the client bundle.
 const ADMIN_PASSWORD_SHA256 =
@@ -369,6 +423,78 @@ export class OrdersStore {
 
   get jwtSecret() {
     return this.env.ADMIN_JWT_SECRET || this.adminPassword || "";
+  }
+
+  get resendApiKey() {
+    return this.env.RESEND_API_KEY || "";
+  }
+
+  get labToEmail() {
+    return this.env.LAB_TO_EMAIL || "newgbonhifamily@gmail.com";
+  }
+
+  get labFromEmail() {
+    return this.env.LAB_FROM_EMAIL || "NewGbonhi Lab <lab@newgbonhi.com>";
+  }
+
+  async enforceLabRateLimit(request) {
+    const forwardedFor = request.headers.get("CF-Connecting-IP") || "unknown";
+    const fingerprint = await sha256Hex(forwardedFor);
+    const key = `${LAB_RATE_PREFIX}${fingerprint}`;
+    const lastSubmission = Number(await this.state.storage.get(key)) || 0;
+    const now = Date.now();
+    if (now - lastSubmission < LAB_RATE_LIMIT_MS) return false;
+    await this.state.storage.put(key, now);
+    return true;
+  }
+
+  async sendLabApplication(application) {
+    if (!this.resendApiKey) {
+      throw new Error("Lab email service is not configured.");
+    }
+
+    const safe = Object.fromEntries(
+      Object.entries(application).map(([key, value]) => [key, escapeHtml(value)])
+    );
+    const text = [
+      `Nom / projet: ${application.name}`,
+      `Email: ${application.email}`,
+      `Discipline: ${application.discipline}`,
+      `Ville: ${application.city}`,
+      `Lien: ${application.link}`,
+      "",
+      application.pitch,
+    ].join("\n");
+    const html = `
+      <h1>Nouvelle candidature NewGbonhi Lab</h1>
+      <p><strong>Nom / projet :</strong> ${safe.name}</p>
+      <p><strong>Email :</strong> ${safe.email}</p>
+      <p><strong>Discipline :</strong> ${safe.discipline}</p>
+      <p><strong>Ville :</strong> ${safe.city}</p>
+      <p><strong>Portfolio :</strong> <a href="${safe.link}">${safe.link}</a></p>
+      <h2>Presentation</h2>
+      <p>${safe.pitch.replace(/\n/g, "<br>")}</p>
+    `;
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${this.resendApiKey}`,
+        "Content-Type": "application/json",
+        "User-Agent": "NewGbonhi-Lab/1.0",
+      },
+      body: JSON.stringify({
+        from: this.labFromEmail,
+        to: [this.labToEmail],
+        reply_to: application.email,
+        subject: `Candidature Lab - ${application.name}`,
+        text,
+        html,
+      }),
+    });
+    if (!response.ok) {
+      console.error("Resend rejected Lab application", response.status);
+      throw new Error("Unable to send the Lab application.");
+    }
   }
 
   async loadOrders() {
@@ -451,6 +577,17 @@ export class OrdersStore {
         orders.unshift(order);
         await this.saveOrders(orders);
         return json(201, { order });
+      }
+
+      if (method === "POST" && pathname === "/api/lab-applications") {
+        const payload = await parseJsonBody(request);
+        const application = normalizeLabApplication(payload);
+        if (application.isSpam) return json(202, { ok: true });
+        if (!(await this.enforceLabRateLimit(request))) {
+          return json(429, { error: "Please wait before sending another application." });
+        }
+        await this.sendLabApplication(application);
+        return json(202, { ok: true });
       }
 
       if (

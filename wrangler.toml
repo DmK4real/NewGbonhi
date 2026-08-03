@@ -5,6 +5,8 @@ workers_dev = true
 
 [vars]
 TOKEN_TTL_MS = "28800000"
+LAB_TO_EMAIL = "newgbonhifamily@gmail.com"
+LAB_FROM_EMAIL = "NewGbonhi Lab <lab@newgbonhi.com>"
 
 [[durable_objects.bindings]]
 name = "ORDERS_STORE"
