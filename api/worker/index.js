@@ -531,8 +531,10 @@ export class OrdersStore {
     const welcomeKey = `${NEWSLETTER_WELCOME_PREFIX}${await sha256Hex(email)}`;
     if (await this.state.storage.get(welcomeKey)) return false;
 
-    const shopUrl = "https://newgbonhi.com/";
-    const collectionsUrl = "https://newgbonhi.com/collections";
+    // Use the native Pages hostname in email CTAs so links still work when a
+    // recipient's Wi-Fi resolver has a stale entry for the custom domain.
+    const shopUrl = "https://newgbonhi.pages.dev/";
+    const collectionsUrl = "https://newgbonhi.pages.dev/collections";
     const html = `<!doctype html>
 <html lang="fr">
   <head>
