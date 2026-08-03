@@ -11,5 +11,19 @@ export const onRequest = async (context) => {
     return Response.redirect(url.toString(), 301);
   }
 
-  return context.next();
+  const response = await context.next();
+  const acceptsHtml = context.request.headers
+    .get("Accept")
+    ?.includes("text/html");
+  const isAppRoute =
+    context.request.method === "GET" &&
+    acceptsHtml &&
+    !url.pathname.split("/").pop()?.includes(".");
+
+  if (response.status === 404 && isAppRoute) {
+    const indexUrl = new URL("/index.html", url);
+    return context.env.ASSETS.fetch(new Request(indexUrl, context.request));
+  }
+
+  return response;
 };
