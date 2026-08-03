@@ -535,37 +535,73 @@ export class OrdersStore {
     const collectionsUrl = "https://newgbonhi.com/collections";
     const html = `<!doctype html>
 <html lang="fr">
-  <body style="margin:0;background:#0b0b0b;color:#f5f2ea;font-family:Arial,Helvetica,sans-serif">
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#0b0b0b">
+  <head>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <style>
+      @media only screen and (max-width:620px){
+        .shell{width:100%!important}.pad{padding-left:20px!important;padding-right:20px!important}
+        .display{font-size:46px!important}.index-cell{display:block!important;width:auto!important;border-right:0!important;border-bottom:1px solid #363636!important}
+        .cta{display:block!important;margin:0 0 10px!important;text-align:center!important}
+      }
+    </style>
+  </head>
+  <body style="margin:0;padding:0;background:#0b0b0b;color:#f4f1e9;font-family:Arial,Helvetica,sans-serif">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#0b0b0b;background-image:linear-gradient(#242424 1px,transparent 1px),linear-gradient(90deg,#242424 1px,transparent 1px);background-size:42px 42px">
       <tr>
-        <td align="center" style="padding:24px 12px">
-          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:620px;border:1px solid #343434;background:#111111">
+        <td align="center" style="padding:28px 12px 48px">
+          <table class="shell" role="presentation" width="620" cellspacing="0" cellpadding="0" style="width:620px;max-width:620px;border:1px solid #4a4a4a;background:#101010">
             <tr>
-              <td style="padding:22px 28px;border-bottom:1px solid #343434;font-size:12px;font-weight:700;letter-spacing:.22em;color:#ff4b43">
-                NEWGBONHI / FAMILY ACCESS
+              <td class="pad" style="padding:18px 28px;border-bottom:1px solid #4a4a4a">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                  <tr>
+                    <td style="font-size:15px;font-weight:900;letter-spacing:-.03em;color:#f4f1e9">NEWGBONHI</td>
+                    <td align="right" style="font-family:'Courier New',monospace;font-size:10px;font-weight:700;letter-spacing:.18em;color:#ff3b30">ABIDJAN / 2026</td>
+                  </tr>
+                </table>
               </td>
             </tr>
             <tr>
-              <td style="padding:48px 28px 22px">
-                <p style="margin:0 0 14px;font-size:12px;font-weight:700;letter-spacing:.18em;color:#a9a9a9">ABIDJAN / 2026</p>
-                <h1 style="margin:0;font-size:48px;line-height:.94;letter-spacing:-.04em;color:#f5f2ea">BIENVENUE<br>DANS LE GBONHI.</h1>
+              <td class="pad" style="padding:56px 28px 22px;background:#f4f1e9;color:#0b0b0b">
+                <p style="margin:0 0 18px;font-family:'Courier New',monospace;font-size:11px;font-weight:700;letter-spacing:.22em;color:#e10600">NEWSLETTER / ENTRY 001</p>
+                <h1 class="display" style="margin:0;font-size:64px;line-height:.84;letter-spacing:-.065em;color:#0b0b0b">TU ES<br>DANS LE<br>GBONHI.</h1>
               </td>
             </tr>
             <tr>
-              <td style="padding:8px 28px 32px;font-size:17px;line-height:1.65;color:#d2d0ca">
-                Ton inscription est confirmee. Tu recevras ici les nouveaux drops, les collaborations, les actualites du Lab et les acces anticipes NewGbonhi.
+              <td class="pad" style="padding:24px 28px 34px;background:#e10600;color:#ffffff">
+                <p style="max-width:500px;margin:0;font-size:18px;line-height:1.5;font-weight:700">Ton acc&egrave;s est confirm&eacute;. D&eacute;sormais, tu re&ccedil;ois les drops, les collaborations et les mouvements du Lab avant le bruit.</p>
               </td>
             </tr>
             <tr>
-              <td style="padding:0 28px 46px">
-                <a href="${shopUrl}" style="display:inline-block;padding:16px 24px;background:#f5f2ea;color:#0b0b0b;text-decoration:none;font-size:13px;font-weight:700;letter-spacing:.16em">VOIR LE DROP 04</a>
-                <a href="${collectionsUrl}" style="display:inline-block;margin-left:8px;padding:15px 23px;border:1px solid #777;color:#f5f2ea;text-decoration:none;font-size:13px;font-weight:700;letter-spacing:.16em">EXPLORER LES ARCHIVES</a>
+              <td style="border-top:1px solid #4a4a4a;border-bottom:1px solid #4a4a4a">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                  <tr>
+                    <td class="index-cell" width="33.33%" valign="top" style="padding:22px 18px;border-right:1px solid #363636">
+                      <p style="margin:0 0 28px;font-family:'Courier New',monospace;font-size:10px;color:#ff3b30">01</p>
+                      <p style="margin:0;font-size:12px;font-weight:900;letter-spacing:.12em;color:#f4f1e9">DROPS<br>EN PREMIER</p>
+                    </td>
+                    <td class="index-cell" width="33.33%" valign="top" style="padding:22px 18px;border-right:1px solid #363636">
+                      <p style="margin:0 0 28px;font-family:'Courier New',monospace;font-size:10px;color:#ff3b30">02</p>
+                      <p style="margin:0;font-size:12px;font-weight:900;letter-spacing:.12em;color:#f4f1e9">LAB<br>&amp; R&Eacute;SIDENTS</p>
+                    </td>
+                    <td class="index-cell" width="33.33%" valign="top" style="padding:22px 18px">
+                      <p style="margin:0 0 28px;font-family:'Courier New',monospace;font-size:10px;color:#ff3b30">03</p>
+                      <p style="margin:0;font-size:12px;font-weight:900;letter-spacing:.12em;color:#f4f1e9">ABIDJAN<br>EN DIRECT</p>
+                    </td>
+                  </tr>
+                </table>
               </td>
             </tr>
             <tr>
-              <td style="padding:22px 28px;border-top:1px solid #343434;font-size:11px;line-height:1.6;color:#888">
-                NEWGBONHI — OBJETS, PERSONNES ET IDEES DEPUIS ABIDJAN.<br>
-                Tu peux te desabonner a tout moment depuis chaque prochaine newsletter.
+              <td class="pad" style="padding:36px 28px 44px">
+                <p style="margin:0 0 24px;font-family:'Courier New',monospace;font-size:10px;font-weight:700;letter-spacing:.2em;color:#9d9d9d">DROP / 04 — &Agrave; LA UNE</p>
+                <a class="cta" href="${shopUrl}" style="display:inline-block;margin-right:8px;padding:17px 22px;background:#f4f1e9;color:#0b0b0b;text-decoration:none;font-size:12px;font-weight:900;letter-spacing:.15em">VOIR LE DROP 04</a>
+                <a class="cta" href="${collectionsUrl}" style="display:inline-block;padding:16px 21px;border:1px solid #777;color:#f4f1e9;text-decoration:none;font-size:12px;font-weight:900;letter-spacing:.15em">LES ARCHIVES</a>
+              </td>
+            </tr>
+            <tr>
+              <td class="pad" style="padding:20px 28px;border-top:1px solid #4a4a4a;font-family:'Courier New',monospace;font-size:9px;line-height:1.8;letter-spacing:.12em;color:#858585">
+                NEWGBONHI IS A LIVING ARCHIVE OF OBJECTS, PEOPLE AND IDEAS FROM ABIDJAN.<br>
+                Tu peux te d&eacute;sabonner &agrave; tout moment depuis chaque prochaine newsletter.
               </td>
             </tr>
           </table>
@@ -575,9 +611,9 @@ export class OrdersStore {
   </body>
 </html>`;
     const text = [
-      "BIENVENUE DANS LE GBONHI.",
+      "TU ES DANS LE GBONHI.",
       "",
-      "Ton inscription est confirmee. Tu recevras les nouveaux drops, les collaborations, les actualites du Lab et les acces anticipes NewGbonhi.",
+      "Ton acces est confirme. Desormais, tu recois les drops, les collaborations et les mouvements du Lab avant le bruit.",
       "",
       `Voir le Drop 04 : ${shopUrl}`,
       `Explorer les archives : ${collectionsUrl}`,
@@ -592,7 +628,7 @@ export class OrdersStore {
         body: JSON.stringify({
           from: this.newsletterFromEmail,
           to: [email],
-          subject: "Bienvenue dans le Gbonhi.",
+          subject: "TU ES DANS LE GBONHI.",
           html,
           text,
         }),
