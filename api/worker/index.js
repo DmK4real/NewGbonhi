@@ -594,8 +594,9 @@ export class OrdersStore {
             <tr>
               <td class="pad" style="padding:36px 28px 44px">
                 <p style="margin:0 0 24px;font-family:'Courier New',monospace;font-size:10px;font-weight:700;letter-spacing:.2em;color:#9d9d9d">DROP / 04 — &Agrave; LA UNE</p>
-                <a class="cta" href="${shopUrl}" style="display:inline-block;margin-right:8px;padding:17px 22px;background:#f4f1e9;color:#0b0b0b;text-decoration:none;font-size:12px;font-weight:900;letter-spacing:.15em">VOIR LE DROP 04</a>
-                <a class="cta" href="${collectionsUrl}" style="display:inline-block;padding:16px 21px;border:1px solid #777;color:#f4f1e9;text-decoration:none;font-size:12px;font-weight:900;letter-spacing:.15em">LES ARCHIVES</a>
+                <a class="cta" href="${shopUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-right:8px;padding:17px 22px;background:#f4f1e9;color:#0b0b0b;text-decoration:none;font-size:12px;font-weight:900;letter-spacing:.15em">VOIR LE DROP 04</a>
+                <a class="cta" href="${collectionsUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:16px 21px;border:1px solid #777;color:#f4f1e9;text-decoration:none;font-size:12px;font-weight:900;letter-spacing:.15em">LES ARCHIVES</a>
+                <p style="margin:22px 0 0;font-family:'Courier New',monospace;font-size:10px;line-height:1.6;color:#858585">SI LE BOUTON NE S'OUVRE PAS :<br><a href="${shopUrl}" target="_blank" rel="noopener noreferrer" style="color:#f4f1e9;text-decoration:underline">${shopUrl}</a></p>
               </td>
             </tr>
             <tr>
