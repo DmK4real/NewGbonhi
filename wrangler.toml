@@ -2,11 +2,14 @@ name = "newgbonhi-api"
 main = "api/worker/index.js"
 compatibility_date = "2026-03-20"
 workers_dev = true
+triggers = { crons = ["0 */6 * * *"] }
 
 [vars]
 TOKEN_TTL_MS = "28800000"
 LAB_TO_EMAIL = "newgbonhifamily@gmail.com"
 LAB_FROM_EMAIL = "NewGbonhi Lab <lab@newgbonhi.com>"
+NEWSLETTER_FROM_EMAIL = "NewGbonhi <news@newgbonhi.com>"
+NEWSLETTER_FEED_URL = "https://newgbonhi.com/newsletter-feed.json"
 
 [[durable_objects.bindings]]
 name = "ORDERS_STORE"

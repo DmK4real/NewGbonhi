@@ -10,6 +10,9 @@ const ORDERS_KEY = "orders.v1";
 const AUDIT_KEY = "orders.audit.v1";
 const LAB_RATE_PREFIX = "lab.rate.";
 const LAB_RATE_LIMIT_MS = 60 * 1000;
+const NEWSLETTER_SEGMENT_KEY = "newsletter.segment.v1";
+const NEWSLETTER_SENT_PREFIX = "newsletter.sent.";
+const NEWSLETTER_SEGMENT_NAME = "NewGbonhi Newsletter";
 
 const baseHeaders = {
   "content-type": "application/json; charset=utf-8",
@@ -437,6 +440,117 @@ export class OrdersStore {
     return this.env.LAB_FROM_EMAIL || "NewGbonhi Lab <lab@newgbonhi.com>";
   }
 
+  get newsletterFromEmail() {
+    return this.env.NEWSLETTER_FROM_EMAIL || "NewGbonhi <news@newgbonhi.com>";
+  }
+
+  async resendRequest(path, options = {}) {
+    if (!this.resendApiKey) throw new Error("Email service is not configured.");
+    const response = await fetch(`https://api.resend.com${path}`, {
+      ...options,
+      headers: {
+        Authorization: `Bearer ${this.resendApiKey}`,
+        "Content-Type": "application/json",
+        ...(options.headers || {}),
+      },
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      const error = new Error(payload?.message || "Resend request failed.");
+      error.status = response.status;
+      throw error;
+    }
+    return payload;
+  }
+
+  async getNewsletterSegmentId() {
+    const cached = await this.state.storage.get(NEWSLETTER_SEGMENT_KEY);
+    if (cached) return cached;
+
+    const segments = await this.resendRequest("/segments");
+    let segment = segments.data?.find((item) => item.name === NEWSLETTER_SEGMENT_NAME);
+    if (!segment) {
+      segment = await this.resendRequest("/segments", {
+        method: "POST",
+        body: JSON.stringify({ name: NEWSLETTER_SEGMENT_NAME }),
+      });
+    }
+    await this.state.storage.put(NEWSLETTER_SEGMENT_KEY, segment.id);
+    return segment.id;
+  }
+
+  async subscribeToNewsletter(email) {
+    const segmentId = await this.getNewsletterSegmentId();
+    try {
+      await this.resendRequest("/contacts", {
+        method: "POST",
+        body: JSON.stringify({
+          email,
+          unsubscribed: false,
+          segments: [{ id: segmentId }],
+        }),
+      });
+    } catch (error) {
+      if (error.status !== 409) throw error;
+      await this.resendRequest(`/contacts/${encodeURIComponent(email)}`, {
+        method: "PATCH",
+        body: JSON.stringify({ unsubscribed: false }),
+      });
+      await this.resendRequest(
+        `/contacts/${encodeURIComponent(email)}/segments/${segmentId}`,
+        { method: "POST", body: "{}" }
+      ).catch((segmentError) => {
+        if (segmentError.status !== 409) throw segmentError;
+      });
+    }
+  }
+
+  async runNewsletterAutomation() {
+    const feedUrl = this.env.NEWSLETTER_FEED_URL || "https://newgbonhi.com/newsletter-feed.json";
+    const response = await fetch(feedUrl, { headers: { Accept: "application/json" } });
+    if (!response.ok) throw new Error("Newsletter feed is unavailable.");
+    const feed = await response.json();
+    const items = Array.isArray(feed?.items) ? feed.items : [];
+    const segmentId = await this.getNewsletterSegmentId();
+    let sent = 0;
+
+    for (const rawItem of items) {
+      const item = {
+        id: safeString(rawItem.id, 100),
+        subject: safeString(rawItem.subject, 160),
+        title: safeString(rawItem.title, 180),
+        excerpt: safeString(rawItem.excerpt, 800),
+        url: safeString(rawItem.url, 300),
+        publishedAt: safeString(rawItem.publishedAt, 40),
+        active: rawItem.active === true,
+      };
+      if (!item.active || !item.id || !item.subject || !item.title || !item.url) continue;
+      if (item.publishedAt && Date.parse(item.publishedAt) > Date.now()) continue;
+      const sentKey = `${NEWSLETTER_SENT_PREFIX}${item.id}`;
+      if (await this.state.storage.get(sentKey)) continue;
+
+      const safe = Object.fromEntries(
+        Object.entries(item).map(([key, value]) => [key, escapeHtml(value)])
+      );
+      const html = `<div style="background:#0b0b0b;color:#f5f2ea;padding:40px;font-family:Arial,sans-serif"><p style="color:#ef160d;letter-spacing:.18em">NEWGBONHI / UPDATE</p><h1 style="font-size:42px;line-height:1">${safe.title}</h1><p style="font-size:18px;line-height:1.6">${safe.excerpt}</p><p><a href="${safe.url}" style="display:inline-block;background:#f5f2ea;color:#0b0b0b;padding:16px 24px;text-decoration:none;font-weight:700">DECOUVRIR</a></p><p style="margin-top:40px;font-size:12px;color:#aaa">Tu recois cet email car tu as rejoint la newsletter NewGbonhi. <a href="{{{RESEND_UNSUBSCRIBE_URL}}}" style="color:#f5f2ea">Se desabonner</a></p></div>`;
+      await this.resendRequest("/broadcasts", {
+        method: "POST",
+        body: JSON.stringify({
+          segment_id: segmentId,
+          from: this.newsletterFromEmail,
+          subject: item.subject,
+          html,
+          text: `${item.title}\n\n${item.excerpt}\n\n${item.url}\n\nDesabonnement: {{{RESEND_UNSUBSCRIBE_URL}}}`,
+          send: true,
+          name: `NewGbonhi - ${item.id}`,
+        }),
+      });
+      await this.state.storage.put(sentKey, new Date().toISOString());
+      sent += 1;
+    }
+    return sent;
+  }
+
   async enforceLabRateLimit(request) {
     const forwardedFor = request.headers.get("CF-Connecting-IP") || "unknown";
     const fingerprint = await sha256Hex(forwardedFor);
@@ -590,6 +704,27 @@ export class OrdersStore {
         return json(202, { ok: true });
       }
 
+      if (method === "POST" && pathname === "/api/newsletter/subscribe") {
+        const payload = await parseJsonBody(request);
+        const email = safeString(payload.email, 160).toLowerCase();
+        const website = safeString(payload.website, 120);
+        if (website) return json(202, { ok: true });
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          return json(400, { error: "Email address is invalid." });
+        }
+        await this.subscribeToNewsletter(email);
+        return json(201, { ok: true });
+      }
+
+      if (method === "POST" && pathname === "/api/internal/newsletter/run") {
+        const suppliedToken = request.headers.get("X-Internal-Token") || "";
+        if (!this.jwtSecret || !constantTimeEqual(suppliedToken, this.jwtSecret)) {
+          return json(401, { error: "Unauthorized." });
+        }
+        const sent = await this.runNewsletterAutomation();
+        return json(200, { ok: true, sent });
+      }
+
       if (
         method === "POST" &&
         pathname.match(/^\/api\/orders\/[^/]+\/report-payment$/)
@@ -707,5 +842,17 @@ export default {
     const id = env.ORDERS_STORE.idFromName("global");
     const stub = env.ORDERS_STORE.get(id);
     return stub.fetch(request);
+  },
+  async scheduled(controller, env, ctx) {
+    const id = env.ORDERS_STORE.idFromName("global");
+    const stub = env.ORDERS_STORE.get(id);
+    ctx.waitUntil(
+      stub.fetch(
+        new Request("https://internal/api/internal/newsletter/run", {
+          method: "POST",
+          headers: { "X-Internal-Token": env.ADMIN_JWT_SECRET || env.ADMIN_PASSWORD || "" },
+        })
+      )
+    );
   },
 };

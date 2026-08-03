@@ -203,8 +203,11 @@
           placeholder="nom@email.com"
           required
         />
-        <button type="submit">{{ $t("earlyAccessCta") }}</button>
-        <p v-if="earlyAccessMessage" role="status">{{ earlyAccessMessage }}</p>
+        <input v-model="earlyAccessWebsite" class="early-access-honeypot" type="text" tabindex="-1" autocomplete="off" aria-hidden="true" />
+        <button type="submit" :disabled="earlyAccessLoading">
+          {{ earlyAccessLoading ? $t("earlyAccessSending") : $t("earlyAccessCta") }}
+        </button>
+        <p v-if="earlyAccessMessage" :class="{ 'is-error': earlyAccessError }" :role="earlyAccessError ? 'alert' : 'status'">{{ earlyAccessMessage }}</p>
       </form>
     </section>
 
@@ -428,7 +431,10 @@ export default {
       cartOpen: false,
       menuOpen: false,
       earlyAccessEmail: "",
+      earlyAccessWebsite: "",
       earlyAccessMessage: "",
+      earlyAccessLoading: false,
+      earlyAccessError: false,
       camoEditorialImages,
       camoSlide: 0,
       filtersOpen: false,
@@ -630,26 +636,32 @@ export default {
       const fallback = this.shopProducts.filter((product) => !selected.includes(product));
       return [...selected, ...fallback].slice(0, 6);
     },
-    joinEarlyAccess() {
+    async joinEarlyAccess() {
       const email = this.earlyAccessEmail.trim().toLowerCase();
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         this.earlyAccessMessage = this.$t("emailRequired");
+        this.earlyAccessError = true;
         return;
       }
-
+      if (this.earlyAccessLoading) return;
+      this.earlyAccessLoading = true;
+      this.earlyAccessError = false;
       try {
-        const stored = JSON.parse(localStorage.getItem("newgbonhi-early-access") || "[]");
-        const emails = Array.isArray(stored) ? stored : [];
-        if (!emails.includes(email)) {
-          emails.push(email);
-          localStorage.setItem("newgbonhi-early-access", JSON.stringify(emails));
-        }
+        const response = await fetch("/api/newsletter/subscribe", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, website: this.earlyAccessWebsite }),
+        });
+        if (!response.ok) throw new Error("Newsletter subscription failed");
+        this.earlyAccessMessage = this.$t("earlyAccessSuccess");
+        this.earlyAccessEmail = "";
+        this.earlyAccessWebsite = "";
       } catch {
-        // The confirmation remains useful when storage is unavailable.
+        this.earlyAccessError = true;
+        this.earlyAccessMessage = this.$t("earlyAccessError");
+      } finally {
+        this.earlyAccessLoading = false;
       }
-
-      this.earlyAccessMessage = this.$t("earlyAccessSuccess");
-      this.earlyAccessEmail = "";
     },
     addToCart(product) {
       cartStore.addToCart({
@@ -2445,6 +2457,16 @@ export default {
   .early-access input,
   .early-access button { width: 100%; border: 1px solid rgba(255,255,255,.54); }
   .early-access form p { border: 0; padding: 4px 0 0; }
+}
+.early-access form p.is-error { color: #ff8b85; }
+.early-access button:disabled { cursor: wait; opacity: .62; }
+.early-access-honeypot {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  opacity: 0;
+  pointer-events: none;
 }
 
 @media (prefers-color-scheme: dark) {
