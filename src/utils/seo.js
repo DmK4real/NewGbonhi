@@ -2,6 +2,7 @@ const DEFAULT_TITLE = "New Gbonhi Shop | Streetwear en Cote d'Ivoire";
 const DEFAULT_DESCRIPTION =
   "New Gbonhi Shop: pieces streetwear New Gbonhi, drops limites, lookbook et commande en ligne.";
 const DEFAULT_ROBOTS = "index, follow";
+const CANONICAL_ORIGIN = "https://newgbonhi.com";
 
 const ensureMetaTag = (attribute, key) => {
   const selector = `meta[${attribute}="${key}"]`;
@@ -59,7 +60,7 @@ export const applySeo = (options = {}) => {
   setMeta("name", "twitter:description", description);
 
   const canonicalPath = resolveCanonicalPath(options.path);
-  const canonicalUrl = new URL(canonicalPath, window.location.origin).toString();
+  const canonicalUrl = new URL(canonicalPath, CANONICAL_ORIGIN).toString();
   const canonicalLink = ensureCanonicalLink();
   canonicalLink.setAttribute("href", canonicalUrl);
   setMeta("property", "og:url", canonicalUrl);

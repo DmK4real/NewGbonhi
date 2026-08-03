@@ -85,7 +85,7 @@ const buildRobotsTxt = (siteUrl) =>
 
 const main = async () => {
   const siteUrl = normalizeSiteUrl(
-    process.env.SITE_URL || process.env.VITE_SITE_URL || "https://dmk4real.github.io/NewGbonhi"
+    process.env.SITE_URL || process.env.VITE_SITE_URL || "https://newgbonhi.com"
   );
 
   const products = await loadProducts();
