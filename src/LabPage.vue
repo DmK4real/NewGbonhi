@@ -638,7 +638,7 @@ export default {
       );
 
       this.openCallMessage = this.labContent.formReady;
-      window.location.href = `mailto:newgbonhifamily@gmail.com?subject=${subject}&body=${body}`;
+      window.location.href = `mailto:lab@newgbonhi.com?subject=${subject}&body=${body}`;
     },
   },
 };
