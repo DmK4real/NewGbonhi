@@ -10,6 +10,7 @@ LAB_TO_EMAIL = "newgbonhifamily@gmail.com"
 LAB_FROM_EMAIL = "NewGbonhi Lab <lab@newgbonhi.com>"
 NEWSLETTER_FROM_EMAIL = "NewGbonhi <news@newgbonhi.com>"
 NEWSLETTER_FEED_URL = "https://newgbonhi.com/newsletter-feed.json"
+ORDER_FROM_EMAIL = "NewGbonhi Orders <orders@newgbonhi.com>"
 
 [[durable_objects.bindings]]
 name = "ORDERS_STORE"

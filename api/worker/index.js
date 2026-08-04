@@ -14,6 +14,7 @@ const NEWSLETTER_SEGMENT_KEY = "newsletter.segment.v1";
 const NEWSLETTER_SENT_PREFIX = "newsletter.sent.";
 const NEWSLETTER_WELCOME_PREFIX = "newsletter.welcome.";
 const NEWSLETTER_SEGMENT_NAME = "NewGbonhi Newsletter";
+const ORDER_EMAIL_PREFIX = "order.email.";
 
 const baseHeaders = {
   "content-type": "application/json; charset=utf-8",
@@ -449,6 +450,10 @@ export class OrdersStore {
     return this.env.NEWSLETTER_FROM_EMAIL || "NewGbonhi <news@newgbonhi.com>";
   }
 
+  get orderFromEmail() {
+    return this.env.ORDER_FROM_EMAIL || "NewGbonhi Orders <orders@newgbonhi.com>";
+  }
+
   async resendRequest(path, options = {}, apiKey = this.resendApiKey) {
     if (!apiKey) throw new Error("Email service is not configured.");
     const response = await fetch(`https://api.resend.com${path}`, {
@@ -872,6 +877,123 @@ export class OrdersStore {
     }
   }
 
+  async sendOrderStatusEmail(order, status = order.status) {
+    if (!this.resendApiKey || !order?.customer?.email) return false;
+
+    const emailKey = `${ORDER_EMAIL_PREFIX}${order.id}.${status}`;
+    if (await this.state.storage.get(emailKey)) return false;
+
+    const states = {
+      sent: {
+        kicker: "COMMANDE / RECUE",
+        title: "TA PIECE EST RESERVEE.",
+        subject: `${order.id} — Commande recue`,
+        copy: "Ta precommande est bien enregistree. Verifie le recapitulatif ci-dessous, puis suis les instructions de paiement pour lancer la suite.",
+      },
+      paid_reported: {
+        kicker: "PAIEMENT / SIGNALE",
+        title: "TON PAIEMENT EST EN REVUE.",
+        subject: `${order.id} — Paiement signale`,
+        copy: "Nous avons recu ton signalement de paiement. L'equipe verifie maintenant la transaction avant de valider la production.",
+      },
+      paid: {
+        kicker: "PAIEMENT / CONFIRME",
+        title: "PAIEMENT VALIDE.",
+        subject: `${order.id} — Paiement confirme`,
+        copy: "Ton paiement est confirme. La commande est maintenant prete a entrer dans le cycle de production NewGbonhi.",
+      },
+      production: {
+        kicker: "COMMANDE / PRODUCTION",
+        title: "TA PIECE PREND FORME.",
+        subject: `${order.id} — Production lancee`,
+        copy: "La production de ta commande est lancee. Nous preparons chaque piece avant le controle final et la livraison.",
+      },
+      delivered: {
+        kicker: "COMMANDE / LIVREE",
+        title: "LE GBONHI EST CHEZ TOI.",
+        subject: `${order.id} — Commande livree`,
+        copy: "Ta commande est marquee comme livree. Merci de faire vivre NewGbonhi avec nous, dans la rue et au-dela.",
+      },
+    };
+    const state = states[status];
+    if (!state) return false;
+
+    const money = (value) => `${Number(value || 0).toLocaleString("fr-FR")} FCFA`;
+    const safeOrderId = escapeHtml(order.id);
+    const safeFirstName = escapeHtml(order.customer.firstName);
+    const safeShipping = escapeHtml(order.shipping?.label || "Livraison");
+    const itemRows = order.items
+      .map((item) => {
+        const details = [item.selectedSize, item.selectedColor].filter(Boolean).join(" / ");
+        return `<tr>
+          <td style="padding:14px 0;border-bottom:1px solid #363636;font-size:13px;font-weight:800;line-height:1.35;color:#f4f1e9">${escapeHtml(item.title)}${details ? `<br><span style="font-family:'Courier New',monospace;font-size:9px;letter-spacing:.1em;color:#8f8f8f">${escapeHtml(details)}</span>` : ""}</td>
+          <td align="center" style="padding:14px 8px;border-bottom:1px solid #363636;font-family:'Courier New',monospace;font-size:11px;color:#aaa">X${item.qty}</td>
+          <td align="right" style="padding:14px 0;border-bottom:1px solid #363636;font-size:12px;font-weight:800;color:#f4f1e9">${money(item.price * item.qty)}</td>
+        </tr>`;
+      })
+      .join("");
+    const shopUrl = "https://newgbonhi.pages.dev/";
+    const html = `<!doctype html>
+<html lang="fr">
+  <head>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <style>@media only screen and (max-width:620px){.shell{width:100%!important}.pad{padding-left:20px!important;padding-right:20px!important}.display{font-size:43px!important}.meta-cell{display:block!important;width:auto!important;border-right:0!important;border-bottom:1px solid #363636!important}.cta{display:block!important;text-align:center!important}}</style>
+  </head>
+  <body style="margin:0;padding:0;background:#0b0b0b;color:#f4f1e9;font-family:Arial,Helvetica,sans-serif">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#0b0b0b;background-image:linear-gradient(#242424 1px,transparent 1px),linear-gradient(90deg,#242424 1px,transparent 1px);background-size:42px 42px">
+      <tr><td align="center" style="padding:28px 12px 48px">
+        <table class="shell" role="presentation" width="620" cellspacing="0" cellpadding="0" style="width:620px;max-width:620px;border:1px solid #4a4a4a;background:#101010">
+          <tr><td class="pad" style="padding:18px 28px;border-bottom:1px solid #4a4a4a"><table role="presentation" width="100%"><tr><td style="font-size:15px;font-weight:900;color:#f4f1e9">NEWGBONHI / ORDERS</td><td align="right" style="font-family:'Courier New',monospace;font-size:10px;font-weight:700;letter-spacing:.16em;color:#ff3b30">${safeOrderId}</td></tr></table></td></tr>
+          <tr><td class="pad" style="padding:52px 28px 28px;background:#f4f1e9;color:#0b0b0b"><p style="margin:0 0 18px;font-family:'Courier New',monospace;font-size:11px;font-weight:700;letter-spacing:.2em;color:#e10600">${state.kicker}</p><h1 class="display" style="margin:0;font-size:59px;line-height:.86;letter-spacing:-.06em;color:#0b0b0b">${state.title}</h1></td></tr>
+          <tr><td class="pad" style="padding:24px 28px 30px;background:#e10600;color:#fff"><p style="margin:0;font-size:18px;line-height:1.5;font-weight:700">${safeFirstName}, ${state.copy}</p></td></tr>
+          <tr><td style="border-top:1px solid #4a4a4a;border-bottom:1px solid #4a4a4a"><table role="presentation" width="100%"><tr>
+            <td class="meta-cell" width="33.33%" valign="top" style="padding:20px 18px;border-right:1px solid #363636"><p style="margin:0 0 20px;font-family:'Courier New',monospace;font-size:9px;color:#ff3b30">01 / REFERENCE</p><p style="margin:0;font-size:12px;font-weight:900;color:#f4f1e9">${safeOrderId}</p></td>
+            <td class="meta-cell" width="33.33%" valign="top" style="padding:20px 18px;border-right:1px solid #363636"><p style="margin:0 0 20px;font-family:'Courier New',monospace;font-size:9px;color:#ff3b30">02 / LIVRAISON</p><p style="margin:0;font-size:12px;font-weight:900;color:#f4f1e9">${safeShipping}</p></td>
+            <td class="meta-cell" width="33.33%" valign="top" style="padding:20px 18px"><p style="margin:0 0 20px;font-family:'Courier New',monospace;font-size:9px;color:#ff3b30">03 / TOTAL</p><p style="margin:0;font-size:12px;font-weight:900;color:#f4f1e9">${money(order.total)}</p></td>
+          </tr></table></td></tr>
+          <tr><td class="pad" style="padding:28px"><p style="margin:0 0 12px;font-family:'Courier New',monospace;font-size:10px;font-weight:700;letter-spacing:.16em;color:#999">DETAILS / COMMANDE</p><table role="presentation" width="100%" cellspacing="0" cellpadding="0">${itemRows}</table>
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-top:20px"><tr><td style="padding:5px 0;font-family:'Courier New',monospace;font-size:10px;color:#999">SOUS-TOTAL</td><td align="right" style="font-size:12px;font-weight:800;color:#f4f1e9">${money(order.subtotal)}</td></tr><tr><td style="padding:5px 0;font-family:'Courier New',monospace;font-size:10px;color:#999">LIVRAISON</td><td align="right" style="font-size:12px;font-weight:800;color:#f4f1e9">${money(order.shipping?.fee)}</td></tr><tr><td style="padding:13px 0 0;font-family:'Courier New',monospace;font-size:11px;font-weight:700;color:#ff3b30">TOTAL</td><td align="right" style="padding-top:13px;font-size:17px;font-weight:900;color:#f4f1e9">${money(order.total)}</td></tr></table>
+          </td></tr>
+          <tr><td class="pad" style="padding:6px 28px 40px"><a class="cta" href="${shopUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:17px 22px;background:#f4f1e9;color:#0b0b0b;text-decoration:none;font-size:12px;font-weight:900;letter-spacing:.15em">RETOURNER A NEWGBONHI</a></td></tr>
+          <tr><td class="pad" style="padding:20px 28px;border-top:1px solid #4a4a4a;font-family:'Courier New',monospace;font-size:9px;line-height:1.8;letter-spacing:.12em;color:#858585">NEWGBONHI IS A LIVING ARCHIVE OF OBJECTS, PEOPLE AND IDEAS FROM ABIDJAN.<br>Pour toute question, reponds directement a cet email.</td></tr>
+        </table>
+      </td></tr>
+    </table>
+  </body>
+</html>`;
+    const text = [
+      state.title,
+      "",
+      `${order.customer.firstName}, ${state.copy}`,
+      "",
+      `Reference : ${order.id}`,
+      ...order.items.map((item) => `${item.qty} x ${item.title} — ${money(item.price * item.qty)}`),
+      `Livraison : ${order.shipping?.label || "Livraison"} — ${money(order.shipping?.fee)}`,
+      `Total : ${money(order.total)}`,
+      "",
+      shopUrl,
+    ].join("\n");
+
+    await this.resendRequest(
+      "/emails",
+      {
+        method: "POST",
+        headers: { "Idempotency-Key": emailKey },
+        body: JSON.stringify({
+          from: this.orderFromEmail,
+          to: [order.customer.email],
+          reply_to: this.labToEmail,
+          subject: state.subject,
+          html,
+          text,
+        }),
+      },
+      this.resendApiKey
+    );
+    await this.state.storage.put(emailKey, new Date().toISOString());
+    return true;
+  }
+
   async loadOrders() {
     const orders = await this.state.storage.get(ORDERS_KEY);
     return Array.isArray(orders) ? orders : [];
@@ -951,7 +1073,14 @@ export class OrdersStore {
         const orders = await this.loadOrders();
         orders.unshift(order);
         await this.saveOrders(orders);
-        return json(201, { order });
+        let emailSent = true;
+        try {
+          await this.sendOrderStatusEmail(order, "sent");
+        } catch (error) {
+          emailSent = false;
+          console.error("Unable to send order confirmation", error);
+        }
+        return json(201, { order, emailSent });
       }
 
       if (method === "POST" && pathname === "/api/lab-applications") {
@@ -1020,6 +1149,11 @@ export class OrdersStore {
             actor: "customer",
             source: "report-payment",
           });
+          try {
+            await this.sendOrderStatusEmail(order, order.status);
+          } catch (error) {
+            console.error("Unable to send payment report email", error);
+          }
         }
 
         return json(200, { order });
@@ -1066,6 +1200,11 @@ export class OrdersStore {
             actor: "admin",
             source: "admin-status-update",
           });
+          try {
+            await this.sendOrderStatusEmail(orders[index], status);
+          } catch (error) {
+            console.error("Unable to send order status email", error);
+          }
         }
         return json(200, { orders });
       }
