@@ -21,7 +21,7 @@ const routes = [
     meta: {
       title: "New Gbonhi Shop | Streetwear en Cote d'Ivoire",
       description:
-        "New Gbonhi Shop: decouvre les pieces du drop, les nouveautes streetwear et les informations de commande.",
+        "New Gbonhi Shop : découvre les pièces du drop, les nouveautés streetwear et les informations de commande.",
     },
   },
   {

@@ -603,7 +603,7 @@ export class OrdersStore {
                 <p style="margin:0 0 24px;font-family:'Courier New',monospace;font-size:10px;font-weight:700;letter-spacing:.2em;color:#9d9d9d">DROP / 04 — &Agrave; LA UNE</p>
                 <a class="cta" href="${shopUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-right:8px;padding:17px 22px;background:#f4f1e9;color:#0b0b0b;text-decoration:none;font-size:12px;font-weight:900;letter-spacing:.15em">VOIR LE DROP 04</a>
                 <a class="cta" href="${collectionsUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:16px 21px;border:1px solid #777;color:#f4f1e9;text-decoration:none;font-size:12px;font-weight:900;letter-spacing:.15em">LES ARCHIVES</a>
-                <p style="margin:22px 0 0;font-family:'Courier New',monospace;font-size:10px;line-height:1.6;color:#858585">SI LE BOUTON NE S'OUVRE PAS :<br><a href="${shopUrl}" target="_blank" rel="noopener noreferrer" style="color:#f4f1e9;text-decoration:underline">${shopUrl}</a></p>
+                <p style="margin:22px 0 0;font-family:'Courier New',monospace;font-size:10px;line-height:1.6;color:#858585">SI LE BOUTON NE S&rsquo;OUVRE PAS :<br><a href="${shopUrl}" target="_blank" rel="noopener noreferrer" style="color:#f4f1e9;text-decoration:underline">${shopUrl}</a></p>
               </td>
             </tr>
             <tr>
@@ -621,12 +621,12 @@ export class OrdersStore {
     const text = [
       "TU ES DANS LE GBONHI.",
       "",
-      "Ton acces est confirme. Desormais, tu recois les drops, les collaborations et les mouvements du Lab avant le bruit.",
+      "Ton accès est confirmé. Désormais, tu reçois les drops, les collaborations et les mouvements du Lab avant le bruit.",
       "",
       `Voir le Drop 04 : ${shopUrl}`,
       `Explorer les archives : ${collectionsUrl}`,
       "",
-      "Tu peux te desabonner a tout moment depuis chaque prochaine newsletter.",
+      "Tu peux te désabonner à tout moment depuis chaque prochaine newsletter.",
     ].join("\n");
 
     await this.resendRequest(
@@ -674,7 +674,7 @@ export class OrdersStore {
       const safe = Object.fromEntries(
         Object.entries(item).map(([key, value]) => [key, escapeHtml(value)])
       );
-      const html = `<div style="background:#0b0b0b;color:#f5f2ea;padding:40px;font-family:Arial,sans-serif"><p style="color:#ef160d;letter-spacing:.18em">NEWGBONHI / UPDATE</p><h1 style="font-size:42px;line-height:1">${safe.title}</h1><p style="font-size:18px;line-height:1.6">${safe.excerpt}</p><p><a href="${safe.url}" style="display:inline-block;background:#f5f2ea;color:#0b0b0b;padding:16px 24px;text-decoration:none;font-weight:700">DECOUVRIR</a></p><p style="margin-top:40px;font-size:12px;color:#aaa">Tu recois cet email car tu as rejoint la newsletter NewGbonhi. <a href="{{{RESEND_UNSUBSCRIBE_URL}}}" style="color:#f5f2ea">Se desabonner</a></p></div>`;
+      const html = `<div style="background:#0b0b0b;color:#f5f2ea;padding:40px;font-family:Arial,sans-serif"><p style="color:#ef160d;letter-spacing:.18em">NEWGBONHI / UPDATE</p><h1 style="font-size:42px;line-height:1">${safe.title}</h1><p style="font-size:18px;line-height:1.6">${safe.excerpt}</p><p><a href="${safe.url}" style="display:inline-block;background:#f5f2ea;color:#0b0b0b;padding:16px 24px;text-decoration:none;font-weight:700">DÉCOUVRIR</a></p><p style="margin-top:40px;font-size:12px;color:#aaa">Tu reçois cet email car tu as rejoint la newsletter NewGbonhi. <a href="{{{RESEND_UNSUBSCRIBE_URL}}}" style="color:#f5f2ea">Se désabonner</a></p></div>`;
       await this.resendRequest(
         "/broadcasts",
         {
@@ -684,7 +684,7 @@ export class OrdersStore {
             from: this.newsletterFromEmail,
             subject: item.subject,
             html,
-            text: `${item.title}\n\n${item.excerpt}\n\n${item.url}\n\nDesabonnement: {{{RESEND_UNSUBSCRIBE_URL}}}`,
+          text: `${item.title}\n\n${item.excerpt}\n\n${item.url}\n\nDésabonnement : {{{RESEND_UNSUBSCRIBE_URL}}}`,
             send: true,
             name: `NewGbonhi - ${item.id}`,
           }),
@@ -845,13 +845,13 @@ export class OrdersStore {
     const text = [
       "TON PROJET EST DANS LE LAB.",
       "",
-      `Merci ${application.name}. Ta proposition a bien ete transmise a l'equipe NewGbonhi.`,
+      `Merci ${application.name}. Ta proposition a bien été transmise à l’équipe NewGbonhi.`,
       "",
       `Projet : ${application.name}`,
       `Discipline : ${application.discipline}`,
       `Ville : ${application.city}`,
       "",
-      "L'equipe reviendra vers toi par email si le projet correspond a une prochaine room, collaboration ou activation.",
+      "L’équipe reviendra vers toi par email si le projet correspond à une prochaine room, collaboration ou activation.",
       "",
       `Retourner au Lab : ${labUrl}`,
     ].join("\n");
@@ -887,32 +887,32 @@ export class OrdersStore {
       sent: {
         kicker: "COMMANDE / RECUE",
         title: "TA PIECE EST RESERVEE.",
-        subject: `${order.id} — Commande recue`,
-        copy: "Ta precommande est bien enregistree. Verifie le recapitulatif ci-dessous, puis suis les instructions de paiement pour lancer la suite.",
+        subject: `${order.id} — Commande reçue`,
+        copy: "Ta précommande est bien enregistrée. Vérifie le récapitulatif ci-dessous, puis suis les instructions de paiement pour lancer la suite.",
       },
       paid_reported: {
         kicker: "PAIEMENT / SIGNALE",
         title: "TON PAIEMENT EST EN REVUE.",
-        subject: `${order.id} — Paiement signale`,
-        copy: "Nous avons recu ton signalement de paiement. L'equipe verifie maintenant la transaction avant de valider la production.",
+        subject: `${order.id} — Paiement signalé`,
+        copy: "Nous avons reçu ton signalement de paiement. L’équipe vérifie maintenant la transaction avant de valider la production.",
       },
       paid: {
         kicker: "PAIEMENT / CONFIRME",
         title: "PAIEMENT VALIDE.",
-        subject: `${order.id} — Paiement confirme`,
-        copy: "Ton paiement est confirme. La commande est maintenant prete a entrer dans le cycle de production NewGbonhi.",
+        subject: `${order.id} — Paiement confirmé`,
+        copy: "Ton paiement est confirmé. La commande est maintenant prête à entrer dans le cycle de production NewGbonhi.",
       },
       production: {
         kicker: "COMMANDE / PRODUCTION",
         title: "TA PIECE PREND FORME.",
-        subject: `${order.id} — Production lancee`,
-        copy: "La production de ta commande est lancee. Nous preparons chaque piece avant le controle final et la livraison.",
+        subject: `${order.id} — Production lancée`,
+        copy: "La production de ta commande est lancée. Nous préparons chaque pièce avant le contrôle final et la livraison.",
       },
       delivered: {
         kicker: "COMMANDE / LIVREE",
         title: "LE GBONHI EST CHEZ TOI.",
-        subject: `${order.id} — Commande livree`,
-        copy: "Ta commande est marquee comme livree. Merci de faire vivre NewGbonhi avec nous, dans la rue et au-dela.",
+        subject: `${order.id} — Commande livrée`,
+        copy: "Ta commande est marquée comme livrée. Merci de faire vivre NewGbonhi avec nous, dans la rue et au-delà.",
       },
     };
     const state = states[status];
@@ -955,7 +955,7 @@ export class OrdersStore {
             <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-top:20px"><tr><td style="padding:5px 0;font-family:'Courier New',monospace;font-size:10px;color:#999">SOUS-TOTAL</td><td align="right" style="font-size:12px;font-weight:800;color:#f4f1e9">${money(order.subtotal)}</td></tr><tr><td style="padding:5px 0;font-family:'Courier New',monospace;font-size:10px;color:#999">LIVRAISON</td><td align="right" style="font-size:12px;font-weight:800;color:#f4f1e9">${money(order.shipping?.fee)}</td></tr><tr><td style="padding:13px 0 0;font-family:'Courier New',monospace;font-size:11px;font-weight:700;color:#ff3b30">TOTAL</td><td align="right" style="padding-top:13px;font-size:17px;font-weight:900;color:#f4f1e9">${money(order.total)}</td></tr></table>
           </td></tr>
           <tr><td class="pad" style="padding:6px 28px 40px"><a class="cta" href="${shopUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:17px 22px;background:#f4f1e9;color:#0b0b0b;text-decoration:none;font-size:12px;font-weight:900;letter-spacing:.15em">RETOURNER A NEWGBONHI</a></td></tr>
-          <tr><td class="pad" style="padding:20px 28px;border-top:1px solid #4a4a4a;font-family:'Courier New',monospace;font-size:9px;line-height:1.8;letter-spacing:.12em;color:#858585">NEWGBONHI IS A LIVING ARCHIVE OF OBJECTS, PEOPLE AND IDEAS FROM ABIDJAN.<br>Pour toute question, reponds directement a cet email.</td></tr>
+          <tr><td class="pad" style="padding:20px 28px;border-top:1px solid #4a4a4a;font-family:'Courier New',monospace;font-size:9px;line-height:1.8;letter-spacing:.12em;color:#858585">NEWGBONHI IS A LIVING ARCHIVE OF OBJECTS, PEOPLE AND IDEAS FROM ABIDJAN.<br>Pour toute question, réponds directement à cet email.</td></tr>
         </table>
       </td></tr>
     </table>

@@ -43,8 +43,8 @@ export type CartItem = {
   qty: number;
 };
 
-const DEFAULT_PRODUCTION_WINDOW = "Production lancee apres paiement confirme";
-const DEFAULT_DELIVERY_WINDOW = "48/72h apres paiement confirme";
+const DEFAULT_PRODUCTION_WINDOW = "Production lancée après paiement confirmé";
+const DEFAULT_DELIVERY_WINDOW = "48/72 h après paiement confirmé";
 
 type CartState = {
   items: CartItem[];

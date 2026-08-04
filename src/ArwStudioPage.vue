@@ -165,7 +165,7 @@ export default {
         { label: "Editorial", href: "/lookbook", icon: "LB" },
       ],
       services: [
-        { title: "Precommande", text: "Production lancee apres paiement", icon: "01" },
+        { title: "Précommande", text: "Production lancée après paiement", icon: "01" },
         { title: "Paiement securise", text: "Validation avant production", icon: "02" },
         { title: "Livraison 48/72h", text: "Apres confirmation du paiement", icon: "03" },
         { title: "Produit officiel", text: "Capsule NewGbonhi x ARW", icon: "04" },

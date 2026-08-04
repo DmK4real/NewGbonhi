@@ -397,7 +397,7 @@ const pageCopies = {
     heroKicker: "Plateforme collective",
     heroTitle: "NewGbonhi Lab",
     heroSub:
-      "Une vitrine digitale pour le collectif NewGbonhi : un espace pour referencer, presenter et promouvoir vetements, graphisme, musique, skate, design et projets creatifs independants.",
+      "Une vitrine digitale pour le collectif NewGbonhi : un espace pour référencer, présenter et promouvoir vêtements, graphisme, musique, skate, design et projets créatifs indépendants.",
     primaryCta: "Voir les clients",
     secondaryCta: "Ouvrir ARW Studio",
     systemKicker: "Logique plateforme",
@@ -405,8 +405,8 @@ const pageCopies = {
     systemItems: [
       {
         number: "01",
-        title: "Referencer",
-        text: "Chaque client a une room claire avec identite, discipline, projet en cours et acces direct a son univers.",
+        title: "Référencer",
+        text: "Chaque client a une room claire avec identité, discipline, projet en cours et accès direct à son univers.",
       },
       {
         number: "02",
@@ -416,13 +416,13 @@ const pageCopies = {
       {
         number: "03",
         title: "Connecter",
-        text: "Les visiteurs peuvent decouvrir le talent puis aller vers une commande, un contact ou une collaboration.",
+        text: "Les visiteurs peuvent découvrir le talent puis aller vers une commande, un contact ou une collaboration.",
       },
     ],
     residentKicker: "Resident 001",
     residentTitle: "ARW Studio",
     residentText:
-      "ARW Studio ouvre le Lab avec la collaboration Drop 03. La room rassemble la capsule, l'identite graphique et l'energie film pour presenter le projet comme un vrai univers.",
+      "ARW Studio ouvre le Lab avec la collaboration Drop 03. La room rassemble la capsule, l’identité graphique et l’énergie film pour présenter le projet comme un vrai univers.",
     residentFacts: [
       { label: "Discipline", value: "Direction graphique / identite film" },
       { label: "Projet actuel", value: "Drop 03 ARW Film collab" },
@@ -501,7 +501,7 @@ export default {
       const fr = i18nState.language === "fr";
       return {
         directoryKicker: fr ? "Repertoire creatif / Abidjan" : "Creative directory / Abidjan",
-        directoryTitle: fr ? "Les residents du Lab" : "Lab residents",
+        directoryTitle: fr ? "Les résidents du Lab" : "Lab residents",
         openResident: fr ? "Ouvrir la room 001" : "Open room 001",
         filters: [
           { id: "all", label: fr ? "Tous" : "All" }, { id: "fashion", label: fr ? "Mode" : "Fashion" },
@@ -525,8 +525,8 @@ export default {
         formLink: "Instagram / portfolio",
         formPitch: fr ? "Presentation courte" : "Short presentation",
         formSending: fr ? "Envoi en cours..." : "Sending...",
-        formReady: fr ? "Candidature envoyee. Nous te repondrons par email." : "Application sent. We will reply by email.",
-        formError: fr ? "L'envoi a echoue. Reessaie dans un instant." : "Unable to send. Please try again shortly.",
+        formReady: fr ? "Candidature envoyée. Nous te répondrons par email." : "Application sent. We will reply by email.",
+        formError: fr ? "L’envoi a échoué. Réessaie dans un instant." : "Unable to send. Please try again shortly.",
         agendaKicker: fr ? "Agenda du collectif" : "Collective agenda",
         agendaTitle: fr ? "Prochainement a Abidjan" : "Coming up in Abidjan",
         agendaEvent: fr ? "Pop-up NewGbonhi Lab" : "NewGbonhi Lab pop-up",

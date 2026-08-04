@@ -20,7 +20,7 @@ export const checkoutConfig = {
   momoAdditional: readEnv("VITE_MOMO_ADDITIONAL"),
   paymentNote: readEnv(
     "VITE_PAYMENT_NOTE",
-    "La production commence apres validation du paiement. Livraison prevue sous 48/72h."
+    "La production commence après validation du paiement. Livraison prévue sous 48/72 h."
   ),
 };
 

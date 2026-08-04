@@ -1,6 +1,6 @@
 const DEFAULT_TITLE = "New Gbonhi Shop | Streetwear en Cote d'Ivoire";
 const DEFAULT_DESCRIPTION =
-  "New Gbonhi Shop: pieces streetwear New Gbonhi, drops limites, lookbook et commande en ligne.";
+  "New Gbonhi Shop : pièces streetwear New Gbonhi, drops limités, lookbook et commande en ligne.";
 const DEFAULT_ROBOTS = "index, follow";
 const CANONICAL_ORIGIN = "https://newgbonhi.com";
 
