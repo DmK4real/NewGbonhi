@@ -575,6 +575,7 @@ export class OrdersStore {
             </tr>
             <tr>
               <td class="pad" style="padding:24px 28px 34px;background:#e10600;color:#ffffff">
+                <p style="max-width:500px;margin:0 0 12px;font-size:22px;line-height:1.35;font-weight:900">Bienvenue dans la NewGbonhiFamily.</p>
                 <p style="max-width:500px;margin:0;font-size:18px;line-height:1.5;font-weight:700">Ton acc&egrave;s est confirm&eacute;. D&eacute;sormais, tu re&ccedil;ois les drops, les collaborations et les mouvements du Lab avant le bruit.</p>
               </td>
             </tr>
@@ -620,6 +621,8 @@ export class OrdersStore {
 </html>`;
     const text = [
       "TU ES DANS LE GBONHI.",
+      "",
+      "Bienvenue dans la NewGbonhiFamily.",
       "",
       "Ton accès est confirmé. Désormais, tu reçois les drops, les collaborations et les mouvements du Lab avant le bruit.",
       "",
