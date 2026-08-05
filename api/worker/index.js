@@ -354,6 +354,10 @@ const normalizeLabApplication = (payload) => {
     link: safeString(payload.link, 300),
     pitch: safeString(payload.pitch, 1200),
     company: safeString(payload.company, 120),
+    pactAccepted: payload.pactAccepted === true,
+    pactVersion: safeString(payload.pactVersion, 20),
+    pactSignedName: safeString(payload.pactSignedName, 120),
+    pactAcceptedAt: safeString(payload.pactAcceptedAt, 40),
   };
 
   if (application.company) return { ...application, isSpam: true };
@@ -364,7 +368,11 @@ const normalizeLabApplication = (payload) => {
     !application.discipline ||
     !application.city ||
     !application.link ||
-    !application.pitch
+    !application.pitch ||
+    !application.pactAccepted ||
+    application.pactVersion !== "2026.08" ||
+    !application.pactSignedName ||
+    !application.pactAcceptedAt
   ) {
     throw new Error("Application details are incomplete.");
   }
@@ -725,6 +733,10 @@ export class OrdersStore {
       `Discipline: ${application.discipline}`,
       `Ville: ${application.city}`,
       `Lien: ${application.link}`,
+      `Dossier: ${application.id}`,
+      `Pacte accepté: ${application.pactVersion}`,
+      `Signature numérique: ${application.pactSignedName}`,
+      `Accepté le: ${application.pactAcceptedAt}`,
       "",
       application.pitch,
     ].join("\n");
@@ -735,6 +747,11 @@ export class OrdersStore {
       <p><strong>Discipline :</strong> ${safe.discipline}</p>
       <p><strong>Ville :</strong> ${safe.city}</p>
       <p><strong>Portfolio :</strong> <a href="${safe.link}">${safe.link}</a></p>
+      <p><strong>Dossier :</strong> ${safe.id}</p>
+      <h2>Pacte d'entrée</h2>
+      <p><strong>Version acceptée :</strong> ${safe.pactVersion}</p>
+      <p><strong>Signature numérique :</strong> ${safe.pactSignedName}</p>
+      <p><strong>Date d'acceptation :</strong> ${safe.pactAcceptedAt}</p>
       <h2>Presentation</h2>
       <p>${safe.pitch.replace(/\n/g, "<br>")}</p>
     `;
@@ -768,7 +785,7 @@ export class OrdersStore {
     const safe = Object.fromEntries(
       Object.entries(application).map(([key, value]) => [key, escapeHtml(value)])
     );
-    const labUrl = "https://newgbonhi.pages.dev/lab";
+    const labUrl = "https://newgbonhi.com/lab";
     const html = `<!doctype html>
 <html lang="fr">
   <head>
@@ -798,13 +815,14 @@ export class OrdersStore {
             </tr>
             <tr>
               <td class="pad" style="padding:54px 28px 28px;background:#f4f1e9;color:#0b0b0b">
-                <p style="margin:0 0 18px;font-family:'Courier New',monospace;font-size:11px;font-weight:700;letter-spacing:.22em;color:#e10600">CANDIDATURE / RE&Ccedil;UE</p>
-                <h1 class="display" style="margin:0;font-size:61px;line-height:.86;letter-spacing:-.06em;color:#0b0b0b">TON PROJET<br>EST DANS<br>LE LAB.</h1>
+                <p style="margin:0 0 18px;font-family:'Courier New',monospace;font-size:11px;font-weight:700;letter-spacing:.22em;color:#e10600">DOSSIER / ${safe.id}</p>
+                <h1 class="display" style="margin:0;font-size:61px;line-height:.86;letter-spacing:-.06em;color:#0b0b0b">TON DOSSIER<br>EST EN<br>REVUE.</h1>
               </td>
             </tr>
             <tr>
               <td class="pad" style="padding:24px 28px 32px;background:#e10600;color:#ffffff">
-                <p style="margin:0;font-size:18px;line-height:1.5;font-weight:700">Merci ${safe.name}. Ta proposition a bien &eacute;t&eacute; transmise &agrave; l'&eacute;quipe NewGbonhi. Nous allons regarder ton univers, ton intention et la mani&egrave;re dont ton projet peut entrer en mouvement avec le Lab.</p>
+                <p style="margin:0 0 8px;font-size:21px;line-height:1.35;font-weight:900">Merci ${safe.name}.</p>
+                <p style="margin:0;font-size:17px;line-height:1.55;font-weight:700">Ta proposition et ton Pacte d'entr&eacute;e sign&eacute; ont bien &eacute;t&eacute; transmis &agrave; l'&eacute;quipe NewGbonhi. Ton dossier est maintenant enregistr&eacute; pour une revue &eacute;ditoriale.</p>
               </td>
             </tr>
             <tr>
@@ -812,31 +830,51 @@ export class OrdersStore {
                 <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                   <tr>
                     <td class="index-cell" width="33.33%" valign="top" style="padding:22px 18px;border-right:1px solid #363636">
-                      <p style="margin:0 0 26px;font-family:'Courier New',monospace;font-size:10px;color:#ff3b30">01 / PROJET</p>
-                      <p style="margin:0;font-size:12px;font-weight:900;line-height:1.45;letter-spacing:.1em;color:#f4f1e9">${safe.name}</p>
+                      <p style="margin:0 0 26px;font-family:'Courier New',monospace;font-size:10px;color:#ff3b30">01 / DOSSIER</p>
+                      <p style="margin:0;font-size:12px;font-weight:900;line-height:1.45;letter-spacing:.1em;color:#f4f1e9">${safe.id}</p>
                     </td>
                     <td class="index-cell" width="33.33%" valign="top" style="padding:22px 18px;border-right:1px solid #363636">
                       <p style="margin:0 0 26px;font-family:'Courier New',monospace;font-size:10px;color:#ff3b30">02 / DISCIPLINE</p>
                       <p style="margin:0;font-size:12px;font-weight:900;line-height:1.45;letter-spacing:.1em;color:#f4f1e9">${safe.discipline}</p>
                     </td>
                     <td class="index-cell" width="33.33%" valign="top" style="padding:22px 18px">
-                      <p style="margin:0 0 26px;font-family:'Courier New',monospace;font-size:10px;color:#ff3b30">03 / VILLE</p>
-                      <p style="margin:0;font-size:12px;font-weight:900;line-height:1.45;letter-spacing:.1em;color:#f4f1e9">${safe.city}</p>
+                      <p style="margin:0 0 26px;font-family:'Courier New',monospace;font-size:10px;color:#ff3b30">03 / PACTE</p>
+                      <p style="margin:0;font-size:12px;font-weight:900;line-height:1.45;letter-spacing:.1em;color:#f4f1e9">SIGN&Eacute; / V.${safe.pactVersion}</p>
                     </td>
                   </tr>
                 </table>
               </td>
             </tr>
             <tr>
+              <td class="pad" style="padding:34px 28px;border-bottom:1px solid #4a4a4a;background:#101010">
+                <p style="margin:0 0 22px;font-family:'Courier New',monospace;font-size:10px;font-weight:700;letter-spacing:.18em;color:#ff3b30">PARCOURS / CANDIDATURE</p>
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                  <tr>
+                    <td width="34" valign="top" style="padding:0 0 22px;font-family:'Courier New',monospace;font-size:10px;font-weight:700;color:#ff3b30">01</td>
+                    <td valign="top" style="padding:0 0 22px;border-bottom:1px solid #363636"><strong style="display:block;font-size:12px;letter-spacing:.12em;color:#f4f1e9">DOSSIER RE&Ccedil;U</strong><span style="display:block;margin-top:7px;font-size:12px;line-height:1.5;color:#888">Projet et pacte enregistr&eacute;s.</span></td>
+                  </tr>
+                  <tr>
+                    <td width="34" valign="top" style="padding:22px 0;font-family:'Courier New',monospace;font-size:10px;font-weight:700;color:#ff3b30">02</td>
+                    <td valign="top" style="padding:22px 0;border-bottom:1px solid #363636"><strong style="display:block;font-size:12px;letter-spacing:.12em;color:#f4f1e9">REVUE &Eacute;DITORIALE</strong><span style="display:block;margin-top:7px;font-size:12px;line-height:1.5;color:#888">Nous regardons l'univers, l'intention et la faisabilit&eacute; du projet.</span></td>
+                  </tr>
+                  <tr>
+                    <td width="34" valign="top" style="padding:22px 0 0;font-family:'Courier New',monospace;font-size:10px;font-weight:700;color:#777">03</td>
+                    <td valign="top" style="padding:22px 0 0"><strong style="display:block;font-size:12px;letter-spacing:.12em;color:#777">RETOUR PAR EMAIL</strong><span style="display:block;margin-top:7px;font-size:12px;line-height:1.5;color:#777">Chaque dossier re&ccedil;oit une r&eacute;ponse apr&egrave;s sa revue.</span></td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
               <td class="pad" style="padding:34px 28px 42px">
-                <p style="margin:0 0 22px;font-family:'Courier New',monospace;font-size:10px;font-weight:700;line-height:1.7;letter-spacing:.14em;color:#999">PROCHAINE &Eacute;TAPE / L'&Eacute;QUIPE REVIENT VERS TOI PAR EMAIL SI LE PROJET CORRESPOND &Agrave; UNE PROCHAINE ROOM, COLLABORATION OU ACTIVATION.</p>
-                <a class="cta" href="${labUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:17px 22px;background:#f4f1e9;color:#0b0b0b;text-decoration:none;font-size:12px;font-weight:900;letter-spacing:.15em">RETOURNER AU LAB</a>
+                <p style="margin:0 0 22px;font-family:'Courier New',monospace;font-size:10px;font-weight:700;line-height:1.7;letter-spacing:.14em;color:#999">CONSERVE TON NUM&Eacute;RO DE DOSSIER : ${safe.id}. TU PEUX R&Eacute;PONDRE DIRECTEMENT &Agrave; CET EMAIL SI UNE INFORMATION IMPORTANTE DOIT &Ecirc;TRE AJOUT&Eacute;E.</p>
+                <a class="cta" href="${labUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:17px 22px;background:#f4f1e9;color:#0b0b0b;text-decoration:none;font-size:12px;font-weight:900;letter-spacing:.15em">SUIVRE LE LAB</a>
               </td>
             </tr>
             <tr>
               <td class="pad" style="padding:20px 28px;border-top:1px solid #4a4a4a;font-family:'Courier New',monospace;font-size:9px;line-height:1.8;letter-spacing:.12em;color:#858585">
                 NEWGBONHI IS A LIVING ARCHIVE OF OBJECTS, PEOPLE AND IDEAS FROM ABIDJAN.<br>
-                Ce message confirme uniquement la bonne r&eacute;ception de ta candidature.
+                RE&Ccedil;U DE CANDIDATURE / ${safe.id} / PACTE V.${safe.pactVersion}<br>
+                Ce message confirme la bonne r&eacute;ception de ta candidature et de son acceptation du pacte.
               </td>
             </tr>
           </table>
@@ -846,17 +884,21 @@ export class OrdersStore {
   </body>
 </html>`;
     const text = [
-      "TON PROJET EST DANS LE LAB.",
+      "TON DOSSIER EST EN REVUE.",
       "",
-      `Merci ${application.name}. Ta proposition a bien été transmise à l’équipe NewGbonhi.`,
+      `Merci ${application.name}. Ta proposition et ton pacte signé ont bien été transmis à l’équipe NewGbonhi.`,
       "",
+      `Dossier : ${application.id}`,
       `Projet : ${application.name}`,
       `Discipline : ${application.discipline}`,
       `Ville : ${application.city}`,
+      `Pacte : signé / version ${application.pactVersion}`,
       "",
-      "L’équipe reviendra vers toi par email si le projet correspond à une prochaine room, collaboration ou activation.",
+      "01 — Dossier reçu",
+      "02 — Revue éditoriale",
+      "03 — Retour par email",
       "",
-      `Retourner au Lab : ${labUrl}`,
+      `Suivre le Lab : ${labUrl}`,
     ].join("\n");
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -869,7 +911,7 @@ export class OrdersStore {
         from: this.labFromEmail,
         to: [application.email],
         reply_to: this.labToEmail,
-        subject: "TON PROJET EST DANS LE LAB.",
+        subject: `[LAB / ${application.id}] Ton dossier est en revue`,
         text,
         html,
       }),
@@ -1090,6 +1132,7 @@ export class OrdersStore {
         const payload = await parseJsonBody(request);
         const application = normalizeLabApplication(payload);
         if (application.isSpam) return json(202, { ok: true });
+        application.id = `LAB-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${crypto.randomUUID().slice(0, 6).toUpperCase()}`;
         if (!(await this.enforceLabRateLimit(request))) {
           return json(429, { error: "Please wait before sending another application." });
         }
@@ -1101,7 +1144,7 @@ export class OrdersStore {
           confirmationSent = false;
           console.error("Unable to send Lab applicant confirmation", error);
         }
-        return json(202, { ok: true, confirmationSent });
+        return json(202, { ok: true, confirmationSent, applicationId: application.id });
       }
 
       if (method === "POST" && pathname === "/api/newsletter/subscribe") {

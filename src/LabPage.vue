@@ -237,8 +237,32 @@
           <p class="eyebrow">OPEN CALL / 2026</p>
           <h2 id="lab-join-title">{{ labContent.joinTitle }}</h2>
           <p>{{ labContent.joinText }}</p>
+          <article class="pact-preview">
+            <div class="pact-preview-index">
+              <span>PACTE / LAB 001</span>
+              <span>V.2026.08</span>
+            </div>
+            <h3>{{ labContent.pactTitle }}</h3>
+            <p>{{ labContent.pactIntro }}</p>
+            <ul>
+              <li v-for="point in labContent.pactPoints" :key="point">{{ point }}</li>
+            </ul>
+            <button class="pact-open-button" type="button" @click="openPact">
+              <span>{{ labContent.pactRead }}</span>
+              <strong>↗</strong>
+            </button>
+          </article>
         </div>
-        <form class="join-form" @submit.prevent="submitOpenCall">
+        <div class="join-form-panel">
+          <header class="join-form-header">
+            <div>
+              <span>APPLICATION / 001</span>
+              <span>{{ openCall.pactAccepted ? "READY" : "DRAFT" }}</span>
+            </div>
+            <h3>{{ labContent.applicationTitle }}</h3>
+            <p>{{ labContent.applicationIntro }}</p>
+          </header>
+          <form class="join-form" @submit.prevent="submitOpenCall">
           <label>
             <span>{{ labContent.formName }}</span>
             <input v-model.trim="openCall.name" type="text" required />
@@ -272,12 +296,88 @@
             <span>Company</span>
             <input v-model="openCall.company" type="text" tabindex="-1" autocomplete="off" />
           </label>
-          <button class="lab-button" type="submit" :disabled="isSubmittingOpenCall">
+          <div class="pact-status" :class="{ 'is-signed': openCall.pactAccepted }">
+            <div>
+              <span>{{ openCall.pactAccepted ? "PACTE ACCEPTÉ" : "PACTE À SIGNER" }}</span>
+              <strong>{{ openCall.pactAccepted ? openCall.pactSignedName : labContent.pactRequired }}</strong>
+            </div>
+            <button type="button" @click="openPact">
+              {{ openCall.pactAccepted ? labContent.pactReview : labContent.pactSign }}
+            </button>
+          </div>
+          <button class="lab-button" type="submit" :disabled="isSubmittingOpenCall || !openCall.pactAccepted">
             {{ isSubmittingOpenCall ? labContent.formSending : labContent.joinCta }}
           </button>
-          <p v-if="openCallMessage" class="join-message" :class="{ 'is-error': openCallError }" :role="openCallError ? 'alert' : 'status'">{{ openCallMessage }}</p>
-        </form>
+            <p v-if="openCallMessage" class="join-message" :class="{ 'is-error': openCallError }" :role="openCallError ? 'alert' : 'status'">{{ openCallMessage }}</p>
+          </form>
+          <footer class="join-form-footer">
+            <span>NEWGBONHI LAB / OPEN CALL</span>
+            <span>ABIDJAN / 2026</span>
+          </footer>
+        </div>
       </section>
+      <Teleport to="body">
+        <div
+          v-if="pactOpen"
+          class="pact-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="pact-modal-title"
+          tabindex="-1"
+          @click.self="closePact"
+          @keydown.esc="closePact"
+        >
+          <div class="pact-dialog">
+            <header class="pact-dialog-header">
+              <div>
+                <span>NEWGBONHI LAB / PACTE 001</span>
+                <strong>ABIDJAN / 2026</strong>
+              </div>
+              <button type="button" :aria-label="labContent.pactClose" @click="closePact">×</button>
+            </header>
+            <div ref="pactScroll" class="pact-dialog-scroll" @scroll="trackPactScroll">
+              <div class="pact-hero">
+                <p>PACTE D’ENTRÉE / V.2026.08</p>
+                <h2 id="pact-modal-title">{{ labContent.pactTitle }}</h2>
+                <strong>{{ labContent.pactManifesto }}</strong>
+              </div>
+              <div class="pact-clauses">
+                <article v-for="(clause, index) in labContent.pactClauses" :key="clause.title">
+                  <span>{{ String(index + 1).padStart(2, "0") }}</span>
+                  <div>
+                    <h3>{{ clause.title }}</h3>
+                    <p>{{ clause.text }}</p>
+                  </div>
+                </article>
+              </div>
+              <a class="pact-download" href="/documents/Pacte_NewGbonhi_Lab.docx" download>
+                <span>{{ labContent.pactDownload }}</span>
+                <strong>DOCX ↓</strong>
+              </a>
+              <div class="pact-signature">
+                <p>{{ labContent.pactLegalNote }}</p>
+                <label>
+                  <span>{{ labContent.pactSignatureLabel }}</span>
+                  <input v-model.trim="pactDraftName" type="text" autocomplete="name" :placeholder="labContent.pactSignaturePlaceholder" />
+                </label>
+                <label class="pact-consent" :class="{ 'is-disabled': !pactScrolled }">
+                  <input v-model="pactDraftAccepted" type="checkbox" :disabled="!pactScrolled" />
+                  <span>{{ pactScrolled ? labContent.pactConsent : labContent.pactScrollPrompt }}</span>
+                </label>
+                <button
+                  class="pact-confirm"
+                  type="button"
+                  :disabled="!pactScrolled || !pactDraftAccepted || pactDraftName.length < 3"
+                  @click="acceptPact"
+                >
+                  {{ labContent.pactConfirm }}
+                </button>
+              </div>
+            </div>
+            <div class="pact-progress" aria-hidden="true"><span :style="{ width: `${pactProgress}%` }"></span></div>
+          </div>
+        </div>
+      </Teleport>
       <section class="lab-agenda" aria-labelledby="lab-agenda-title">
         <div class="agenda-heading">
           <div>
@@ -490,10 +590,19 @@ export default {
         link: "",
         pitch: "",
         company: "",
+        pactAccepted: false,
+        pactVersion: "2026.08",
+        pactSignedName: "",
+        pactAcceptedAt: "",
       },
       openCallMessage: "",
       openCallError: false,
       isSubmittingOpenCall: false,
+      pactOpen: false,
+      pactScrolled: false,
+      pactProgress: 0,
+      pactDraftName: "",
+      pactDraftAccepted: false,
     };
   },
   computed: {
@@ -526,7 +635,45 @@ export default {
         formPitch: fr ? "Presentation courte" : "Short presentation",
         formSending: fr ? "Envoi en cours..." : "Sending...",
         formReady: fr ? "Candidature envoyée. Nous te répondrons par email." : "Application sent. We will reply by email.",
+        formDossier: fr ? "Dossier" : "Application",
         formError: fr ? "L’envoi a échoué. Réessaie dans un instant." : "Unable to send. Please try again shortly.",
+        applicationTitle: fr ? "Dossier de candidature" : "Application file",
+        applicationIntro: fr ? "Présente ton univers en quelques informations essentielles. Le pacte signé accompagne automatiquement ton dossier." : "Introduce your world through a few essential details. Your signed pact is automatically attached to the application.",
+        pactTitle: fr ? "Pacte d’entrée dans le Lab" : "Lab entry pact",
+        pactIntro: fr ? "Avant de candidater, découvre le cadre commun qui protège ton travail, la collaboration et la relation commerciale." : "Before applying, review the shared framework protecting your work, the collaboration, and the commercial relationship.",
+        pactPoints: fr
+          ? ["Création & droits", "Commission & paiements", "Production & responsabilités"]
+          : ["Creation & rights", "Commission & payments", "Production & responsibilities"],
+        pactRead: fr ? "Lire le pacte" : "Read the pact",
+        pactRequired: fr ? "Lecture et signature requises" : "Reading and signature required",
+        pactSign: fr ? "Lire et signer" : "Read and sign",
+        pactReview: fr ? "Revoir" : "Review",
+        pactClose: fr ? "Fermer le pacte" : "Close the pact",
+        pactManifesto: fr ? "Créer ensemble. Vendre avec clarté. Grandir en collectif." : "Create together. Sell with clarity. Grow as a collective.",
+        pactClauses: fr
+          ? [
+              { title: "Une collaboration réelle", text: "L’entrée dans le Lab repose sur une création NewGbonhi × Créateur définie et rémunérée selon un accord clair. Aucun contenu créatif n’est considéré comme gratuit ou automatiquement acquis à NewGbonhi." },
+              { title: "Deux modèles distincts", text: "La collaboration co-créée et le catalogue personnel du résident suivent des règles économiques séparées. Le taux, la base de calcul et les services inclus sont validés avant la mise en vente." },
+              { title: "Des responsabilités écrites", text: "Production, qualité, stock, expédition, service après-vente et communication sont attribués avant le lancement afin que chaque partie sache exactement ce qu’elle prend en charge." },
+              { title: "Tes droits restent les tiens", text: "Chaque partie conserve ses créations, logos et fichiers antérieurs. Les usages communs, crédits, durées et possibilités de réédition sont autorisés explicitement dans la fiche d’accord." },
+              { title: "Une résidence mesurable", text: "Le pilote recommandé dure trois mois. Les ventes, délais, retours, visibilité et qualité de collaboration sont examinés avant tout renouvellement." },
+              { title: "Une sortie propre", text: "Les commandes engagées, paiements, stocks, accès et contenus sont régularisés à la fin de la résidence. Les situations graves peuvent entraîner une interruption immédiate." },
+            ]
+          : [
+              { title: "A real collaboration", text: "Entry into the Lab is based on a defined NewGbonhi × Creator project with clear compensation. Creative work is never treated as free or automatically owned by NewGbonhi." },
+              { title: "Two distinct models", text: "The co-created collaboration and the resident’s personal catalogue follow separate commercial rules agreed before launch." },
+              { title: "Written responsibilities", text: "Production, quality, stock, shipping, customer service, and communication are assigned before launch." },
+              { title: "Your rights remain yours", text: "Each party keeps ownership of its existing work. Shared uses, credits, duration, and reissues require explicit approval." },
+              { title: "A measurable residency", text: "The recommended pilot lasts three months and is reviewed through sales, timing, returns, reach, and collaboration quality." },
+              { title: "A clean exit", text: "Orders, payments, stock, access, and remaining content are settled when the residency ends." },
+            ],
+        pactDownload: fr ? "Télécharger le pacte complet" : "Download the full pact",
+        pactLegalNote: fr ? "Cette acceptation accompagne ta candidature. Les paramètres commerciaux définitifs seront complétés dans une fiche d’accord avant toute mise en vente." : "This acceptance accompanies your application. Final commercial terms will be completed in an agreement sheet before any sale.",
+        pactSignatureLabel: fr ? "Signature numérique — nom complet" : "Digital signature — full name",
+        pactSignaturePlaceholder: fr ? "Écris ton nom complet" : "Enter your full name",
+        pactConsent: fr ? "J’ai lu et j’accepte le Pacte d’entrée NewGbonhi Lab, version 2026.08." : "I have read and accept the NewGbonhi Lab Entry Pact, version 2026.08.",
+        pactScrollPrompt: fr ? "Lis le pacte jusqu’à la fin pour pouvoir l’accepter." : "Read the pact to the end before accepting it.",
+        pactConfirm: fr ? "Signer et revenir à la candidature" : "Sign and return to the application",
         agendaKicker: fr ? "Agenda du collectif" : "Collective agenda",
         agendaTitle: fr ? "Prochainement a Abidjan" : "Coming up in Abidjan",
         agendaEvent: fr ? "Pop-up NewGbonhi Lab" : "NewGbonhi Lab pop-up",
@@ -614,6 +761,9 @@ export default {
       ];
     },
   },
+  beforeUnmount() {
+    document.body.style.overflow = "";
+  },
   methods: {
     toggleCart() {
       this.cartOpen = !this.cartOpen;
@@ -625,8 +775,46 @@ export default {
         maximumFractionDigits: 0,
       }).format(Number(value) || 0);
     },
+    openPact() {
+      this.pactDraftName = this.openCall.pactSignedName || this.openCall.name || "";
+      this.pactDraftAccepted = this.openCall.pactAccepted;
+      this.pactOpen = true;
+      document.body.style.overflow = "hidden";
+      this.$nextTick(() => {
+        const panel = this.$refs.pactScroll;
+        if (panel) panel.scrollTop = 0;
+        this.pactProgress = 0;
+        this.pactScrolled = false;
+      });
+    },
+    closePact() {
+      this.pactOpen = false;
+      document.body.style.overflow = "";
+    },
+    trackPactScroll(event) {
+      const panel = event.currentTarget;
+      const distance = Math.max(panel.scrollHeight - panel.clientHeight, 1);
+      this.pactProgress = Math.min(100, Math.round((panel.scrollTop / distance) * 100));
+      if (panel.scrollTop + panel.clientHeight >= panel.scrollHeight - 24) {
+        this.pactScrolled = true;
+        this.pactProgress = 100;
+      }
+    },
+    acceptPact() {
+      if (!this.pactScrolled || !this.pactDraftAccepted || this.pactDraftName.length < 3) return;
+      this.openCall.pactAccepted = true;
+      this.openCall.pactVersion = "2026.08";
+      this.openCall.pactSignedName = this.pactDraftName;
+      this.openCall.pactAcceptedAt = new Date().toISOString();
+      this.closePact();
+    },
     async submitOpenCall() {
       if (this.isSubmittingOpenCall) return;
+
+      if (!this.openCall.pactAccepted) {
+        this.openPact();
+        return;
+      }
 
       this.isSubmittingOpenCall = true;
       this.openCallMessage = "";
@@ -640,6 +828,7 @@ export default {
         });
 
         if (!response.ok) throw new Error("Lab application rejected");
+        const result = await response.json();
 
         this.openCall = {
           name: "",
@@ -649,8 +838,14 @@ export default {
           link: "",
           pitch: "",
           company: "",
+          pactAccepted: false,
+          pactVersion: "2026.08",
+          pactSignedName: "",
+          pactAcceptedAt: "",
         };
-        this.openCallMessage = this.labContent.formReady;
+        this.openCallMessage = result.applicationId
+          ? `${this.labContent.formReady} ${this.labContent.formDossier} : ${result.applicationId}`
+          : this.labContent.formReady;
       } catch {
         this.openCallError = true;
         this.openCallMessage = this.labContent.formError;
@@ -1422,22 +1617,316 @@ main {
 }
 .lab-product:hover img { transform: scale(1.04); }
 
-.lab-join { padding: clamp(24px, 5vw, 48px); display: grid; grid-template-columns: .8fr 1.2fr; gap: clamp(30px, 6vw, 80px); align-items: start; background: #c7ff00; }
-.join-intro > p:last-child { margin: 20px 0 0; line-height: 1.6; }
-.join-form { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.lab-join {
+  position: relative;
+  padding: clamp(24px, 5vw, 56px);
+  display: grid;
+  grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr);
+  gap: clamp(20px, 3vw, 38px);
+  align-items: stretch;
+  background-color: #c7ff00;
+  background-image: linear-gradient(rgba(11,11,11,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(11,11,11,.1) 1px, transparent 1px);
+  background-size: 42px 42px;
+}
+.join-intro,
+.join-form-panel {
+  min-width: 0;
+  border: 1px solid #0b0b0b;
+  box-shadow: 10px 10px 0 #0b0b0b;
+}
+.join-intro {
+  padding: clamp(24px, 4vw, 42px);
+  display: flex;
+  flex-direction: column;
+  background: #0b0b0b;
+  color: #fff;
+}
+.join-intro > .eyebrow { color: #e10600; }
+.join-intro > h2 {
+  max-width: 540px;
+  margin: 18px 0 0;
+  font-size: clamp(40px, 5vw, 72px);
+  line-height: .88;
+  letter-spacing: -.055em;
+}
+.join-intro > p:last-of-type { max-width: 520px; margin: 22px 0 0; color: #aaa; line-height: 1.6; }
+.join-form-panel {
+  display: flex;
+  flex-direction: column;
+  background: #f4f1e9;
+  color: #0b0b0b;
+}
+.join-form-header {
+  min-height: 214px;
+  padding: clamp(24px, 4vw, 38px);
+  border-bottom: 1px solid #0b0b0b;
+  background: #e10600;
+  color: #fff;
+}
+.join-form-header > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  font: 800 9px/1 monospace;
+  letter-spacing: .16em;
+}
+.join-form-header h3 {
+  margin: 34px 0 10px;
+  font-size: clamp(28px, 3.3vw, 48px);
+  line-height: .92;
+  letter-spacing: -.045em;
+  text-transform: uppercase;
+}
+.join-form-header p { max-width: 590px; margin: 0; color: rgba(255,255,255,.78); line-height: 1.5; }
+.join-form { padding: clamp(22px, 3.5vw, 36px); display: grid; grid-template-columns: 1fr 1fr; gap: 18px 16px; }
 .join-form label { display: grid; gap: 7px; }
 .join-form label > span { text-transform: uppercase; letter-spacing: .14em; font: 800 9px/1 monospace; }
 .join-form input,
 .join-form select,
-.join-form textarea { width: 100%; border: 1px solid #0b0b0b; border-radius: 0; background: rgba(255,255,255,.48); padding: 12px; color: #0b0b0b; font: inherit; }
+.join-form textarea {
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid #0b0b0b;
+  border-radius: 0;
+  outline: 0;
+  background: transparent;
+  padding: 13px 2px;
+  color: #0b0b0b;
+  font: inherit;
+  transition: border-color .2s ease, background-color .2s ease;
+}
+.join-form input:focus,
+.join-form select:focus,
+.join-form textarea:focus { border-color: #e10600; background: rgba(225,6,0,.035); }
 .join-form textarea { resize: vertical; }
 .join-form-wide,
 .join-form .lab-button,
 .join-message { grid-column: 1 / -1; }
 .join-form .lab-button { width: 100%; }
+.join-form .lab-button:not(:disabled) { background: #0b0b0b; color: #fff; }
 .join-message { margin: 0; font: 700 11px/1.5 monospace; }
 .join-message.is-error { color: #8a0000; }
-.join-form .lab-button:disabled { cursor: wait; opacity: .65; }
+.join-form .lab-button:disabled { cursor: not-allowed; opacity: .55; }
+.join-form-footer {
+  margin-top: auto;
+  padding: 14px clamp(22px, 3.5vw, 36px);
+  border-top: 1px solid #0b0b0b;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  font: 800 8px/1.2 monospace;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.pact-preview {
+  margin-top: auto;
+  border: 0;
+  border-top: 1px solid #444;
+  background: #f4f1e9;
+  color: #0b0b0b;
+  padding: clamp(20px, 3vw, 30px);
+  box-shadow: none;
+}
+.pact-preview-index,
+.pact-dialog-header > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font: 800 9px/1.2 monospace;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+}
+.pact-preview-index span:first-child { color: #e10600; }
+.pact-preview h3 {
+  margin: 30px 0 12px;
+  max-width: 430px;
+  font-size: clamp(24px, 3vw, 38px);
+  line-height: .95;
+  letter-spacing: -.035em;
+  text-transform: uppercase;
+}
+.pact-preview > p { margin: 0; line-height: 1.55; }
+.pact-preview ul {
+  display: grid;
+  margin: 24px 0;
+  padding: 0;
+  border-top: 1px solid #0b0b0b;
+  list-style: none;
+}
+.pact-preview li {
+  padding: 10px 0;
+  border-bottom: 1px solid #0b0b0b;
+  font: 800 10px/1.3 monospace;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.pact-open-button {
+  width: 100%;
+  border: 0;
+  background: #0b0b0b;
+  color: #fff;
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font: 800 11px/1 monospace;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color .2s ease, color .2s ease;
+}
+.pact-open-button:hover { background: #e10600; }
+.pact-open-button strong { color: #e10600; font-size: 18px; }
+.pact-status {
+  grid-column: 1 / -1;
+  border: 1px solid #0b0b0b;
+  background: rgba(255,255,255,.35);
+  padding: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+.pact-status > div { display: grid; gap: 5px; }
+.pact-status span { color: #e10600; font: 800 9px/1 monospace; letter-spacing: .16em; }
+.pact-status strong { font: 800 11px/1.35 monospace; text-transform: uppercase; }
+.pact-status button {
+  border: 1px solid #e10600;
+  background: #e10600;
+  color: #fff;
+  padding: 10px 13px;
+  font: 800 9px/1 monospace;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color .2s ease, border-color .2s ease, color .2s ease;
+}
+.pact-status:not(.is-signed) button:hover { border-color: #0b0b0b; background: #0b0b0b; }
+.pact-status.is-signed { background: #0b0b0b; color: #fff; }
+.pact-status.is-signed button { border-color: #fff; background: transparent; color: #fff; }
+.pact-status.is-signed button:hover { background: #fff; color: #0b0b0b; }
+.pact-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  padding: clamp(8px, 2.5vw, 28px);
+  background: rgba(0,0,0,.86);
+  backdrop-filter: blur(12px);
+}
+.pact-dialog {
+  width: min(900px, 100%);
+  height: min(860px, calc(100dvh - 32px));
+  border: 1px solid #474747;
+  background: #101010;
+  color: #f4f1e9;
+  display: grid;
+  grid-template-rows: auto 1fr 4px;
+  box-shadow: 0 28px 90px rgba(0,0,0,.5);
+}
+.pact-dialog-header {
+  padding: 15px 18px;
+  border-bottom: 1px solid #3f3f3f;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+.pact-dialog-header > div { width: min(410px, 75%); }
+.pact-dialog-header span { color: #e10600; }
+.pact-dialog-header button {
+  width: 38px;
+  height: 38px;
+  border: 1px solid #777;
+  background: transparent;
+  color: #f4f1e9;
+  font: 300 28px/1 Arial, sans-serif;
+  cursor: pointer;
+}
+.pact-dialog-scroll { min-height: 0; overflow: auto; overscroll-behavior: contain; }
+.pact-hero {
+  padding: clamp(38px, 7vw, 72px) clamp(20px, 6vw, 64px);
+  background: #f4f1e9;
+  color: #0b0b0b;
+}
+.pact-hero p { margin: 0 0 20px; color: #e10600; font: 800 10px/1 monospace; letter-spacing: .2em; }
+.pact-hero h2 {
+  margin: 0 0 22px;
+  max-width: 680px;
+  font-size: clamp(38px, 8vw, 76px);
+  line-height: .86;
+  letter-spacing: -.065em;
+  text-transform: uppercase;
+}
+.pact-hero > strong { display: block; max-width: 560px; font-size: clamp(16px, 2.5vw, 23px); line-height: 1.25; }
+.pact-clauses { padding: 0 clamp(20px, 6vw, 64px); }
+.pact-clauses article {
+  display: grid;
+  grid-template-columns: 46px 1fr;
+  gap: 20px;
+  padding: 28px 0;
+  border-bottom: 1px solid #3b3b3b;
+}
+.pact-clauses article > span { color: #e10600; font: 800 11px/1 monospace; }
+.pact-clauses h3 { margin: 0 0 9px; font-size: 17px; text-transform: uppercase; }
+.pact-clauses p { margin: 0; max-width: 650px; color: #aaa; line-height: 1.6; }
+.pact-download {
+  margin: 28px clamp(20px, 6vw, 64px) 0;
+  border: 1px solid #777;
+  padding: 17px 18px;
+  color: #f4f1e9;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  font: 800 10px/1.2 monospace;
+  letter-spacing: .12em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+.pact-download strong { color: #e10600; }
+.pact-signature {
+  margin-top: 34px;
+  padding: clamp(24px, 6vw, 54px) clamp(20px, 6vw, 64px);
+  background: #e10600;
+  color: #fff;
+}
+.pact-signature > p { max-width: 660px; margin: 0 0 28px; line-height: 1.55; }
+.pact-signature label { display: grid; gap: 8px; }
+.pact-signature label > span { font: 800 9px/1.35 monospace; letter-spacing: .12em; text-transform: uppercase; }
+.pact-signature input[type="text"] {
+  width: 100%;
+  border: 1px solid #fff;
+  border-radius: 0;
+  background: transparent;
+  color: #fff;
+  padding: 15px;
+  font: 700 17px/1.2 Arial, sans-serif;
+}
+.pact-signature input::placeholder { color: rgba(255,255,255,.65); }
+.pact-consent {
+  margin-top: 18px;
+  grid-template-columns: 22px 1fr !important;
+  align-items: start;
+}
+.pact-consent input { width: 18px; height: 18px; margin: 0; accent-color: #0b0b0b; }
+.pact-consent.is-disabled { opacity: .58; }
+.pact-confirm {
+  width: 100%;
+  margin-top: 22px;
+  border: 1px solid #0b0b0b;
+  background: #0b0b0b;
+  color: #fff;
+  padding: 17px;
+  font: 800 10px/1.2 monospace;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.pact-confirm:disabled { cursor: not-allowed; opacity: .45; }
+.pact-progress { background: #343434; overflow: hidden; }
+.pact-progress span { display: block; height: 100%; background: #e10600; transition: width .15s linear; }
 .join-honeypot {
   position: absolute !important;
   width: 1px;
@@ -1505,6 +1994,13 @@ main {
   .join-form-wide,
   .join-form .lab-button,
   .join-message { grid-column: 1; }
+  .pact-status { align-items: stretch; flex-direction: column; }
+  .pact-status button { width: 100%; }
+  .pact-modal { padding: 0; }
+  .pact-dialog { width: 100%; height: 100dvh; border: 0; }
+  .pact-dialog-header { padding: 13px 14px; }
+  .pact-dialog-header > div { display: grid; gap: 4px; }
+  .pact-clauses article { grid-template-columns: 32px 1fr; gap: 12px; }
 }
 @media (max-width: 980px) {
   .lab-product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
