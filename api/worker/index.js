@@ -755,6 +755,64 @@ export class OrdersStore {
       <h2>Presentation</h2>
       <p>${safe.pitch.replace(/\n/g, "<br>")}</p>
     `;
+    const premiumHtml = `<!doctype html>
+<html lang="fr">
+  <head>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <style>
+      @media only screen and (max-width:620px){
+        .shell{width:100%!important}.pad{padding-left:20px!important;padding-right:20px!important}
+        .display{font-size:42px!important}.meta{display:block!important;width:auto!important;border-right:0!important;border-bottom:1px solid #363636!important}
+        .action{display:block!important;width:auto!important;text-align:left!important}.cta{display:block!important;text-align:center!important;margin-top:18px!important}
+      }
+    </style>
+  </head>
+  <body style="margin:0;padding:0;background:#0b0b0b;color:#f4f1e9;font-family:Arial,Helvetica,sans-serif">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#0b0b0b;background-image:linear-gradient(#242424 1px,transparent 1px),linear-gradient(90deg,#242424 1px,transparent 1px);background-size:42px 42px">
+      <tr><td align="center" style="padding:28px 12px 48px">
+        <table class="shell" role="presentation" width="620" cellspacing="0" cellpadding="0" style="width:620px;max-width:620px;border:1px solid #4a4a4a;background:#101010">
+          <tr><td class="pad" style="padding:18px 28px;border-bottom:1px solid #4a4a4a">
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr>
+              <td style="font-size:15px;font-weight:900;color:#f4f1e9">NEWGBONHI / LAB</td>
+              <td align="right" style="font-family:'Courier New',monospace;font-size:10px;font-weight:700;letter-spacing:.15em;color:#ff3b30">INBOX / NEW APPLICATION</td>
+            </tr></table>
+          </td></tr>
+          <tr><td class="pad" style="padding:52px 28px 28px;background:#f4f1e9;color:#0b0b0b">
+            <p style="margin:0 0 18px;font-family:'Courier New',monospace;font-size:11px;font-weight:700;letter-spacing:.2em;color:#e10600">NOUVEAU DOSSIER / ${safe.id}</p>
+            <h1 class="display" style="margin:0;font-size:57px;line-height:.88;letter-spacing:-.06em;color:#0b0b0b">UN PROJET<br>ENTRE DANS<br>LE LAB.</h1>
+          </td></tr>
+          <tr><td class="pad" style="padding:23px 28px;background:#e10600;color:#fff">
+            <p style="margin:0 0 7px;font-family:'Courier New',monospace;font-size:10px;font-weight:700;letter-spacing:.18em">CANDIDATURE &Agrave; &Eacute;TUDIER</p>
+            <p style="margin:0;font-size:22px;line-height:1.3;font-weight:900">${safe.name}</p>
+          </td></tr>
+          <tr><td style="border-bottom:1px solid #4a4a4a">
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr>
+              <td class="meta" width="33.33%" valign="top" style="padding:21px 18px;border-right:1px solid #363636"><p style="margin:0 0 22px;font-family:'Courier New',monospace;font-size:10px;color:#ff3b30">01 / PROJET</p><p style="margin:0;font-size:12px;font-weight:900;line-height:1.45;letter-spacing:.08em">${safe.name}</p></td>
+              <td class="meta" width="33.33%" valign="top" style="padding:21px 18px;border-right:1px solid #363636"><p style="margin:0 0 22px;font-family:'Courier New',monospace;font-size:10px;color:#ff3b30">02 / DISCIPLINE</p><p style="margin:0;font-size:12px;font-weight:900;line-height:1.45;letter-spacing:.08em">${safe.discipline}</p></td>
+              <td class="meta" width="33.33%" valign="top" style="padding:21px 18px"><p style="margin:0 0 22px;font-family:'Courier New',monospace;font-size:10px;color:#ff3b30">03 / VILLE</p><p style="margin:0;font-size:12px;font-weight:900;line-height:1.45;letter-spacing:.08em">${safe.city}</p></td>
+            </tr></table>
+          </td></tr>
+          <tr><td class="pad" style="padding:34px 28px;border-bottom:1px solid #4a4a4a">
+            <p style="margin:0 0 12px;font-family:'Courier New',monospace;font-size:10px;font-weight:700;letter-spacing:.2em;color:#ff3b30">PITCH / INTENTION</p>
+            <p style="margin:0;font-size:17px;line-height:1.65;color:#f4f1e9">${safe.pitch.replace(/\n/g, "<br>")}</p>
+          </td></tr>
+          <tr><td class="pad" style="padding:28px;background:#f4f1e9;color:#0b0b0b;border-bottom:1px solid #4a4a4a">
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr>
+              <td class="action" valign="top"><p style="margin:0 0 8px;font-family:'Courier New',monospace;font-size:10px;font-weight:700;letter-spacing:.18em;color:#e10600">CONTACT / PORTFOLIO</p><p style="margin:0 0 6px;font-size:14px;font-weight:900"><a href="mailto:${safe.email}" style="color:#0b0b0b;text-decoration:none">${safe.email}</a></p><p style="margin:0;font-size:12px"><a href="${safe.link}" style="color:#0b0b0b">Voir le portfolio</a></p></td>
+              <td class="action" align="right" valign="middle"><a class="cta" href="mailto:${safe.email}?subject=NewGbonhi%20Lab%20%2F%20${safe.id}" style="display:inline-block;padding:16px 20px;background:#0b0b0b;color:#fff;text-decoration:none;font-family:'Courier New',monospace;font-size:11px;font-weight:700;letter-spacing:.1em">R&Eacute;PONDRE AU CR&Eacute;ATEUR</a></td>
+            </tr></table>
+          </td></tr>
+          <tr><td class="pad" style="padding:28px;border-bottom:1px solid #4a4a4a">
+            <p style="margin:0 0 8px;font-family:'Courier New',monospace;font-size:10px;font-weight:700;letter-spacing:.18em;color:#ff3b30">PACTE D'ENTR&Eacute;E</p>
+            <p style="margin:0 0 5px;font-size:14px;font-weight:900">SIGN&Eacute; / ${safe.pactVersion}</p>
+            <p style="margin:0;font-size:12px;line-height:1.6;color:#aaa">Signature : ${safe.pactSignedName}<br>Accept&eacute; le : ${safe.pactAcceptedAt}</p>
+          </td></tr>
+          <tr><td class="pad" style="padding:24px 28px"><p style="margin:0;font-family:'Courier New',monospace;font-size:10px;line-height:1.7;letter-spacing:.14em;color:#777">DOSSIER ${safe.id} / NEWGBONHI LAB / ABIDJAN</p></td></tr>
+        </table>
+      </td></tr>
+    </table>
+  </body>
+</html>`;
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
@@ -766,9 +824,9 @@ export class OrdersStore {
         from: this.labFromEmail,
         to: [this.labToEmail],
         reply_to: application.email,
-        subject: `Candidature Lab - ${application.name}`,
+        subject: `[LAB / ${application.id}] Nouvelle candidature — ${application.name}`,
         text,
-        html,
+        html: premiumHtml,
       }),
     });
     if (!response.ok) {
