@@ -150,6 +150,10 @@ Then configure the Worker admin password in Cloudflare dashboard:
 2. Settings -> Variables and Secrets
 3. Add secret: `ADMIN_PASSWORD`
 
+Order email notifications use:
+- `ORDER_TO_EMAIL`: internal NewGbonhi order inbox, defaults to `newgbonhifamily@gmail.com`
+- `ORDER_FROM_EMAIL`: sender used for customer and internal order emails
+
 After the Worker is deployed, set GitHub repository variable:
 - `VITE_API_BASE=https://<your-workers-url>/api`
 
