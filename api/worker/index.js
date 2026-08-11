@@ -455,6 +455,10 @@ export class OrdersStore {
     return this.env.ORDER_TO_EMAIL || this.labToEmail;
   }
 
+  get orderDashboardUrl() {
+    return this.env.ORDER_DASHBOARD_URL || "https://newgbonhi.com/orders";
+  }
+
   get labFromEmail() {
     return this.env.LAB_FROM_EMAIL || "NewGbonhi Lab <lab@newgbonhi.com>";
   }
@@ -1109,36 +1113,11 @@ export class OrdersStore {
     if (await this.state.storage.get(emailKey)) return false;
 
     const isPaymentReport = event === "payment_reported";
-    const money = (value) => `${Number(value || 0).toLocaleString("fr-FR")} FCFA`;
-    const customerName = [order.customer?.firstName, order.customer?.lastName]
-      .filter(Boolean)
-      .join(" ");
     const safeOrderId = escapeHtml(order.id);
-    const safeCustomerName = escapeHtml(customerName || "Client");
-    const safeCustomerEmail = escapeHtml(order.customer?.email || "");
-    const safeCustomerPhone = escapeHtml(order.customer?.phone || "");
-    const safeAddress = escapeHtml(
-      [order.customer?.address, order.customer?.city, order.customer?.zip]
-        .filter(Boolean)
-        .join(", ")
+    const safeDashboardUrl = escapeHtml(this.orderDashboardUrl);
+    const safeEventLabel = escapeHtml(
+      isPaymentReport ? "Paiement signale" : "Nouvelle commande"
     );
-    const safeShipping = escapeHtml(order.shipping?.label || "Livraison");
-    const itemRows = (order.items || [])
-      .map((item) => {
-        const details = [
-          item.selectedSize,
-          item.selectedColor,
-          item.selectedDesignName,
-        ]
-          .filter(Boolean)
-          .join(" / ");
-        return `<tr>
-          <td style="padding:12px 0;border-bottom:1px solid #ddd;font-size:13px;font-weight:800;color:#0b0b0b">${escapeHtml(item.title)}${details ? `<br><span style="font-family:'Courier New',monospace;font-size:10px;color:#666">${escapeHtml(details)}</span>` : ""}</td>
-          <td align="center" style="padding:12px 8px;border-bottom:1px solid #ddd;font-family:'Courier New',monospace;font-size:11px;color:#555">x${item.qty}</td>
-          <td align="right" style="padding:12px 0;border-bottom:1px solid #ddd;font-size:12px;font-weight:800;color:#0b0b0b">${money(item.price * item.qty)}</td>
-        </tr>`;
-      })
-      .join("");
     const title = isPaymentReport
       ? "PAIEMENT SIGNALE."
       : "NOUVELLE COMMANDE.";
@@ -1150,7 +1129,7 @@ export class OrdersStore {
 <html lang="fr">
   <head>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <style>@media only screen and (max-width:620px){.shell{width:100%!important}.pad{padding-left:20px!important;padding-right:20px!important}.display{font-size:42px!important}.meta{display:block!important;width:auto!important;border-right:0!important;border-bottom:1px solid #ddd!important}}</style>
+    <style>@media only screen and (max-width:620px){.shell{width:100%!important}.pad{padding-left:20px!important;padding-right:20px!important}.display{font-size:42px!important}.cta{display:block!important;text-align:center!important}}</style>
   </head>
   <body style="margin:0;padding:0;background:#f4f1e9;color:#0b0b0b;font-family:Arial,Helvetica,sans-serif">
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f4f1e9">
@@ -1158,15 +1137,8 @@ export class OrdersStore {
         <table class="shell" role="presentation" width="620" cellspacing="0" cellpadding="0" style="width:620px;max-width:620px;border:1px solid #0b0b0b;background:#fff">
           <tr><td class="pad" style="padding:18px 28px;border-bottom:1px solid #0b0b0b"><table role="presentation" width="100%"><tr><td style="font-size:15px;font-weight:900;color:#0b0b0b">NEWGBONHI / ORDERS</td><td align="right" style="font-family:'Courier New',monospace;font-size:10px;font-weight:700;letter-spacing:.16em;color:#e10600">${safeOrderId}</td></tr></table></td></tr>
           <tr><td class="pad" style="padding:48px 28px 28px;background:#0b0b0b;color:#fff"><p style="margin:0 0 18px;font-family:'Courier New',monospace;font-size:11px;font-weight:700;letter-spacing:.2em;color:#ff3b30">${kicker}</p><h1 class="display" style="margin:0;font-size:58px;line-height:.86;letter-spacing:-.05em;color:#fff">${title}</h1></td></tr>
-          <tr><td style="border-bottom:1px solid #0b0b0b"><table role="presentation" width="100%"><tr>
-            <td class="meta" width="33.33%" valign="top" style="padding:20px 18px;border-right:1px solid #ddd"><p style="margin:0 0 18px;font-family:'Courier New',monospace;font-size:9px;color:#e10600">01 / CLIENT</p><p style="margin:0;font-size:12px;font-weight:900;line-height:1.5;color:#0b0b0b">${safeCustomerName}<br>${safeCustomerPhone}</p></td>
-            <td class="meta" width="33.33%" valign="top" style="padding:20px 18px;border-right:1px solid #ddd"><p style="margin:0 0 18px;font-family:'Courier New',monospace;font-size:9px;color:#e10600">02 / A PAYER</p><p style="margin:0;font-size:12px;font-weight:900;color:#0b0b0b">${money(order.subtotal)}</p></td>
-            <td class="meta" width="33.33%" valign="top" style="padding:20px 18px"><p style="margin:0 0 18px;font-family:'Courier New',monospace;font-size:9px;color:#e10600">03 / LIVRAISON</p><p style="margin:0;font-size:12px;font-weight:900;color:#0b0b0b">${money(order.shipping?.fee)}</p></td>
-          </tr></table></td></tr>
-          <tr><td class="pad" style="padding:24px 28px;border-bottom:1px solid #0b0b0b;background:#f4f1e9"><p style="margin:0 0 7px;font-family:'Courier New',monospace;font-size:10px;font-weight:700;letter-spacing:.16em;color:#e10600">CONTACT / LIVRAISON</p><p style="margin:0;font-size:13px;line-height:1.65;font-weight:800;color:#0b0b0b">${safeCustomerEmail}<br>${safeAddress}<br>${safeShipping}</p></td></tr>
-          <tr><td class="pad" style="padding:28px"><p style="margin:0 0 12px;font-family:'Courier New',monospace;font-size:10px;font-weight:700;letter-spacing:.16em;color:#777">DETAILS / COMMANDE</p><table role="presentation" width="100%" cellspacing="0" cellpadding="0">${itemRows}</table>
-            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-top:20px"><tr><td style="padding:5px 0;font-family:'Courier New',monospace;font-size:10px;color:#777">SOUS-TOTAL A PAYER MAINTENANT</td><td align="right" style="font-size:12px;font-weight:800;color:#0b0b0b">${money(order.subtotal)}</td></tr><tr><td style="padding:5px 0;font-family:'Courier New',monospace;font-size:10px;color:#777">LIVRAISON A L'ARRIVEE</td><td align="right" style="font-size:12px;font-weight:800;color:#0b0b0b">${money(order.shipping?.fee)}</td></tr><tr><td style="padding:13px 0 0;font-family:'Courier New',monospace;font-size:11px;font-weight:700;color:#e10600">TOTAL CLIENT</td><td align="right" style="padding-top:13px;font-size:17px;font-weight:900;color:#0b0b0b">${money(order.total)}</td></tr></table>
-          </td></tr>
+          <tr><td class="pad" style="padding:28px;border-bottom:1px solid #0b0b0b;background:#f4f1e9"><p style="margin:0 0 8px;font-family:'Courier New',monospace;font-size:10px;font-weight:700;letter-spacing:.16em;color:#e10600">REFERENCE / ACTION</p><p style="margin:0;font-size:15px;line-height:1.7;font-weight:800;color:#0b0b0b">Commande ${safeOrderId}<br>Evenement : ${safeEventLabel}</p></td></tr>
+          <tr><td class="pad" style="padding:30px 28px 38px"><p style="margin:0 0 22px;font-size:14px;line-height:1.7;color:#333">Connecte-toi au dashboard admin pour voir les details client, les articles, les montants et valider la suite.</p><a class="cta" href="${safeDashboardUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:16px 22px;background:#0b0b0b;color:#fff;text-decoration:none;font-size:12px;font-weight:900;letter-spacing:.15em">OUVRIR LE DASHBOARD</a></td></tr>
         </table>
       </td></tr>
     </table>
@@ -1176,18 +1148,10 @@ export class OrdersStore {
       title,
       "",
       `Reference: ${order.id}`,
-      `Client: ${customerName || "Client"}`,
-      `Telephone: ${order.customer?.phone || ""}`,
-      `Email: ${order.customer?.email || ""}`,
-      `Adresse: ${[order.customer?.address, order.customer?.city, order.customer?.zip].filter(Boolean).join(", ")}`,
+      `Evenement: ${isPaymentReport ? "Paiement signale" : "Nouvelle commande"}`,
       "",
-      ...(order.items || []).map(
-        (item) => `${item.qty} x ${item.title} - ${money(item.price * item.qty)}`
-      ),
-      "",
-      `A payer maintenant: ${money(order.subtotal)}`,
-      `Livraison a l'arrivee: ${money(order.shipping?.fee)}`,
-      `Total client: ${money(order.total)}`,
+      "Les details client sont disponibles dans le dashboard admin.",
+      this.orderDashboardUrl,
     ].join("\n");
 
     await this.resendRequest(

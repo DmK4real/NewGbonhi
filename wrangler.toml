@@ -12,6 +12,7 @@ NEWSLETTER_FROM_EMAIL = "NewGbonhi <news@newgbonhi.com>"
 NEWSLETTER_FEED_URL = "https://newgbonhi.com/newsletter-feed.json"
 ORDER_FROM_EMAIL = "NewGbonhi Orders <orders@newgbonhi.com>"
 ORDER_TO_EMAIL = "newgbonhifamily@gmail.com"
+ORDER_DASHBOARD_URL = "https://newgbonhi.com/orders"
 
 [[durable_objects.bindings]]
 name = "ORDERS_STORE"
