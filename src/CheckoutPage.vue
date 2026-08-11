@@ -7,9 +7,9 @@
     <main class="checkout-main">
       <nav class="checkout-progress" aria-label="Checkout progress">
         <span class="done"><b>01</b>{{ $t("cart") }}</span>
-        <span class="active"><b>02</b>{{ $t("delivery") }}</span>
-        <span><b>03</b>{{ $t("payment") }}</span>
-        <span><b>04</b>{{ $t("orderSent") }}</span>
+        <span :class="{ done: orderSent, active: !orderSent }"><b>02</b>{{ $t("delivery") }}</span>
+        <span :class="{ done: paymentReported, active: orderSent && !paymentReported }"><b>03</b>{{ $t("payment") }}</span>
+        <span :class="{ active: paymentReported }"><b>04</b>{{ $t("orderSent") }}</span>
       </nav>
       <section class="checkout-form">
         <div class="section-head">
@@ -23,10 +23,71 @@
           <span>{{ $t("preorderCheckoutCopy") }}</span>
         </div>
 
-        <div v-if="orderSent" class="confirmation">
-          <p class="confirmation-kicker">{{ $t("orderSent") }}</p>
-          <h2>{{ $t("thanksPending") }}</h2>
-          <p class="confirmation-id">{{ $t("orderId") }}: {{ lastOrderId }}</p>
+        <div v-if="orderSent" class="confirmation payment-handoff">
+          <p class="confirmation-kicker">
+            {{ paymentReported ? $t("paymentReportedKicker") : $t("manualPaymentKicker") }}
+          </p>
+          <h2>
+            {{ paymentReported ? $t("paymentReportedTitle") : $t("paymentPendingTitle") }}
+          </h2>
+          <p class="confirmation-copy">
+            {{ paymentReported ? $t("paymentReportedCopy") : $t("manualPaymentCopy") }}
+          </p>
+
+          <div class="payment-status-grid">
+            <article>
+              <span>{{ $t("orderId") }}</span>
+              <strong>{{ lastOrderId }}</strong>
+              <button type="button" @click="copyText(lastOrderId, $t('orderIdCopied'))">
+                {{ $t("copy") }}
+              </button>
+            </article>
+            <article>
+              <span>{{ $t("paymentNow") }}</span>
+              <strong>{{ formatPrice(amountToPayNow) }}</strong>
+              <button type="button" @click="copyText(String(amountToPayNow), $t('amountCopied'))">
+                {{ $t("copy") }}
+              </button>
+            </article>
+            <article>
+              <span>{{ $t("deliveryOnArrival") }}</span>
+              <strong>{{ formatPrice(orderDeliveryFee) }}</strong>
+              <small>{{ orderDeliveryLabel }}</small>
+            </article>
+          </div>
+
+          <div class="payment-reference">
+            <span>{{ $t("paymentReference") }}</span>
+            <strong>{{ lastOrderId }}</strong>
+            <p>{{ $t("paymentReferenceHint") }}</p>
+          </div>
+
+          <div class="manual-payment-list">
+            <article
+              v-for="method in manualPaymentMethods"
+              :key="method.label"
+              class="manual-payment-method"
+            >
+              <div>
+                <span>{{ $t("transferTo") }}</span>
+                <strong>{{ method.label }}</strong>
+                <p>{{ method.value }}</p>
+              </div>
+              <button type="button" @click="copyPaymentMethod(method)">
+                {{ $t("copyNumber") }}
+              </button>
+            </article>
+            <article v-if="manualPaymentMethods.length === 0" class="manual-payment-empty">
+              {{ $t("paymentMethodFallback") }}
+            </article>
+          </div>
+
+          <ol class="payment-checklist" aria-label="Payment checklist">
+            <li>{{ $t("paymentStepTransfer") }}</li>
+            <li>{{ $t("paymentStepReference") }}</li>
+            <li>{{ $t("paymentStepReport") }}</li>
+          </ol>
+
           <div class="confirmation-actions">
             <button class="ghost-button" type="button" @click="openWhatsApp">
               {{ $t("openWhatsApp") }}
@@ -35,11 +96,19 @@
               class="pay-button"
               type="button"
               @click="markAsPaid"
-              :disabled="isReportingPayment"
+              :disabled="isReportingPayment || paymentReported"
             >
-              {{ isReportingPayment ? $t("verification") : $t("customerPaid") }}
+              {{
+                paymentReported
+                  ? $t("paymentReportSent")
+                  : isReportingPayment
+                    ? $t("verification")
+                    : $t("customerPaid")
+              }}
             </button>
           </div>
+          <p v-if="error" class="error" role="alert">{{ error }}</p>
+          <p v-if="success" class="success" role="status" aria-live="polite">{{ success }}</p>
         </div>
 
         <form v-if="!orderSent" id="checkout-order-form" @submit.prevent="sendOrder">
@@ -268,8 +337,13 @@ export default {
       orderSent: false,
       isSubmitting: false,
       isReportingPayment: false,
+      paymentReported: false,
       lastOrderId: "",
       lastOrderMessage: "",
+      lastOrderSubtotal: 0,
+      lastOrderShippingFee: 0,
+      lastOrderShippingLabel: "",
+      lastOrderTotal: 0,
       shippingOptions: SHIPPING_OPTIONS,
       shippingOptionId: SHIPPING_OPTIONS[0]?.id || "",
       customer: {
@@ -305,6 +379,35 @@ export default {
     },
     totalWithShipping() {
       return this.cartTotal + this.shippingFee;
+    },
+    amountToPayNow() {
+      return this.orderSent ? this.lastOrderSubtotal : this.cartTotal;
+    },
+    orderDeliveryFee() {
+      return this.orderSent ? this.lastOrderShippingFee : this.shippingFee;
+    },
+    orderDeliveryLabel() {
+      if (this.orderSent) {
+        return this.lastOrderShippingLabel || "-";
+      }
+      return this.selectedShipping?.label || "-";
+    },
+    orderTotal() {
+      return this.orderSent ? this.lastOrderTotal : this.totalWithShipping;
+    },
+    manualPaymentMethods() {
+      return [
+        { label: "Wave", value: VITE_MOMO_WAVE },
+        { label: "Orange Money", value: VITE_MOMO_ORANGE },
+        { label: "MTN Money", value: VITE_MOMO_MTN },
+        { label: "Moov Money", value: VITE_MOMO_MOOV },
+        { label: "Mobile Money", value: VITE_MOMO_ADDITIONAL },
+      ]
+        .filter((method) => method.value)
+        .map((method) => ({
+          ...method,
+          copyValue: this.normalizePaymentValue(method.value),
+        }));
     },
     preorderFulfillment() {
       return {
@@ -377,6 +480,30 @@ export default {
       }
       window.open(this.whatsappUrl, "_blank", "noopener");
     },
+    normalizePaymentValue(value) {
+      return String(value || "")
+        .replace(
+          /^(wave|orange money|orange|mtn money|mtn|moov money|moov|mobile money)\s*:?\s*/i,
+          ""
+        )
+        .trim();
+    },
+    async copyText(value, message) {
+      const text = String(value || "").trim();
+      if (!text) {
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(text);
+        this.error = "";
+        this.success = message || this.$t("copied");
+      } catch (error) {
+        this.error = this.$t("copyFailed");
+      }
+    },
+    copyPaymentMethod(method) {
+      return this.copyText(method.copyValue || method.value, this.$t("numberCopied"));
+    },
     async sendOrder() {
       this.error = "";
       this.success = "";
@@ -433,6 +560,11 @@ export default {
         }
 
         this.lastOrderId = createdOrder.id || buildOrderId(); // Use imported buildOrderId
+        this.lastOrderSubtotal = createdOrder.subtotal ?? this.cartTotal;
+        this.lastOrderShippingFee = createdOrder.shipping?.fee ?? this.shippingFee;
+        this.lastOrderShippingLabel =
+          createdOrder.shipping?.label || this.selectedShipping.label;
+        this.lastOrderTotal = createdOrder.total ?? this.totalWithShipping;
         this.lastOrderMessage = this.buildOrderMessage();
 
         this.openWhatsApp();
@@ -454,6 +586,7 @@ export default {
       this.isReportingPayment = true;
       try {
         await reportOrderPaid(this.lastOrderId);
+        this.paymentReported = true;
         cartStore.clearCart();
         this.success = this.$t("paymentReported");
       } catch (error) {
@@ -466,14 +599,10 @@ export default {
       }
     },
     async copyOrder() {
-      try {
-        await navigator.clipboard.writeText(
-          this.lastOrderMessage || this.buildOrderMessage()
-        );
-        this.success = "Order summary copied.";
-      } catch (error) {
-        this.error = "Unable to copy the summary.";
-      }
+      await this.copyText(
+        this.lastOrderMessage || this.buildOrderMessage(),
+        this.$t("summaryCopied")
+      );
     },
   },
 };
@@ -743,10 +872,173 @@ export default {
   color: var(--muted);
 }
 
+.confirmation-copy {
+  margin: 0;
+  max-width: 680px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
 .confirmation-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+}
+
+.payment-handoff {
+  margin-top: 20px;
+  padding: clamp(18px, 3vw, 28px);
+  background: #fff;
+  border-color: var(--line);
+  gap: 18px;
+}
+
+.payment-status-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+}
+
+.payment-status-grid article {
+  min-height: 118px;
+  padding: 14px;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.payment-status-grid span,
+.payment-reference span,
+.manual-payment-method span {
+  font: 700 9px/1.2 monospace;
+  color: var(--accent);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+.payment-status-grid strong {
+  font: 900 15px/1.2 "Space Grotesk", Arial, sans-serif;
+  letter-spacing: .04em;
+  overflow-wrap: anywhere;
+}
+
+.payment-status-grid small {
+  color: var(--muted);
+  font: 700 10px/1.3 monospace;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.payment-status-grid button,
+.manual-payment-method button {
+  justify-self: start;
+  width: fit-content;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: inherit;
+  min-height: 32px;
+  padding: 8px 10px;
+  font: 800 9px/1 monospace;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.payment-reference {
+  padding: 18px;
+  display: grid;
+  gap: 8px;
+  background: #0b0b0b;
+  color: #fff;
+}
+
+.payment-reference strong {
+  font: 900 24px/1 "Archivo Black", "Space Grotesk", sans-serif;
+  letter-spacing: .04em;
+}
+
+.payment-reference p {
+  margin: 0;
+  max-width: 560px;
+  color: rgba(255, 255, 255, .72);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.manual-payment-list {
+  display: grid;
+  border-top: 1px solid rgba(0, 0, 0, .2);
+}
+
+.manual-payment-method {
+  padding: 15px 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  border-bottom: 1px solid rgba(0, 0, 0, .2);
+}
+
+.manual-payment-method div {
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+}
+
+.manual-payment-method strong {
+  font-size: 12px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.manual-payment-method p {
+  margin: 0;
+  color: var(--muted);
+  font: 700 13px/1.35 monospace;
+  overflow-wrap: anywhere;
+}
+
+.manual-payment-empty {
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, .2);
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.payment-checklist {
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0;
+  counter-reset: payment-step;
+  list-style: none;
+}
+
+.payment-checklist li {
+  min-height: 46px;
+  padding: 12px 0 12px 42px;
+  border-bottom: 1px solid rgba(0, 0, 0, .16);
+  position: relative;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.payment-checklist li::before {
+  counter-increment: payment-step;
+  content: counter(payment-step, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 12px;
+  color: var(--text);
+  font: 900 11px/1 monospace;
+  letter-spacing: .08em;
 }
 
 .delivery-box {
@@ -1110,6 +1402,16 @@ export default {
     gap: 8px;
     flex-wrap: wrap;
   }
+  .payment-status-grid {
+    grid-template-columns: 1fr;
+  }
+  .manual-payment-method {
+    grid-template-columns: 1fr;
+  }
+  .manual-payment-method button,
+  .payment-status-grid button {
+    width: 100%;
+  }
   .checkout-mobile-bar { position: fixed; right: 0; bottom: 0; left: 0; z-index: 120; padding: 10px 14px; display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 12px; align-items: center; border-top: 1px solid #0b0b0b; background: rgba(255,255,255,.96); backdrop-filter: blur(14px); }
   .checkout-mobile-bar div { display: grid; gap: 3px; }
   .checkout-mobile-bar span { font: 700 8px/1 monospace; letter-spacing: .12em; text-transform: uppercase; }
@@ -1149,6 +1451,29 @@ export default {
   .checkout-progress .active {
     background: #0b0b0b !important;
     color: #fff !important;
+  }
+
+  .payment-handoff,
+  .delivery-box,
+  .payment-box,
+  .preorder-banner,
+  .manual-payment-empty {
+    background: #181818 !important;
+    color: #f3f0e8 !important;
+    border-color: rgba(243, 240, 232, .22) !important;
+  }
+
+  .payment-status-grid,
+  .payment-status-grid article,
+  .manual-payment-list,
+  .manual-payment-method,
+  .payment-checklist li {
+    border-color: rgba(243, 240, 232, .22) !important;
+  }
+
+  .payment-status-grid button,
+  .manual-payment-method button {
+    border-color: rgba(243, 240, 232, .28) !important;
   }
 }
 </style>

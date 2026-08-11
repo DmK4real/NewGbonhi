@@ -53,7 +53,7 @@ describe("checkout utilities", () => {
     expect(isValidCustomer({ ...customer, zip: "" })).toBe(false);
   });
 
-  it("builds a preorder WhatsApp confirmation message when no payment env is set", async () => {
+  it("builds a preorder WhatsApp confirmation message with default payment numbers", async () => {
     const { buildOrderMessage } = await import("./checkout.ts");
     const message = buildOrderMessage({
       orderId: "NG-123456",
@@ -80,7 +80,10 @@ describe("checkout utilities", () => {
       /Delivery: Cocody \(2[\s\u202f]000 FCFA\) - Window: 48\/72h after payment confirmation/
     );
     expect(message).toContain("Production starts after payment confirmation.");
-    expect(message).toContain("Payment details will be confirmed on WhatsApp.");
+    expect(message).toContain("Please pay the item amount via Mobile Money");
+    expect(message).toContain("- Wave: 07 89 53 83 88");
+    expect(message).toContain("- Orange: 07 89 53 83 88");
+    expect(message).toContain("- MTN: 05 04 31 53 31");
     expect(message).toMatch(/BLACK CAMELEON \(M\) x2 = 30[\s\u202f]000 FCFA/);
     expect(message).toContain("Thank you for your preorder!");
   });

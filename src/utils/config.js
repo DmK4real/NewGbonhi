@@ -1,4 +1,12 @@
-const readEnv = (key, fallback = "") => String(import.meta.env[key] ?? fallback).trim();
+const readEnv = (key, fallback = "") => {
+  const value = String(import.meta.env[key] ?? "").trim();
+  return value || fallback;
+};
+
+const DEFAULT_MOMO_WAVE = "Wave 07 89 53 83 88";
+const DEFAULT_MOMO_ORANGE = "Orange 07 89 53 83 88";
+const DEFAULT_MOMO_MTN = "MTN 05 04 31 53 31";
+const DEFAULT_CONTACT_EMAIL = "newgbonhifamily@gmail.com";
 
 const warnedMessages = new Set();
 
@@ -12,10 +20,10 @@ const warnOnce = (message) => {
 
 export const checkoutConfig = {
   whatsappNumber: readEnv("VITE_WHATSAPP_NUMBER"),
-  contactEmail: readEnv("VITE_CONTACT_EMAIL"),
-  momoWave: readEnv("VITE_MOMO_WAVE"),
-  momoOrange: readEnv("VITE_MOMO_ORANGE"),
-  momoMtn: readEnv("VITE_MOMO_MTN"),
+  contactEmail: readEnv("VITE_CONTACT_EMAIL", DEFAULT_CONTACT_EMAIL),
+  momoWave: readEnv("VITE_MOMO_WAVE", DEFAULT_MOMO_WAVE),
+  momoOrange: readEnv("VITE_MOMO_ORANGE", DEFAULT_MOMO_ORANGE),
+  momoMtn: readEnv("VITE_MOMO_MTN", DEFAULT_MOMO_MTN),
   momoMoov: readEnv("VITE_MOMO_MOOV"),
   momoAdditional: readEnv("VITE_MOMO_ADDITIONAL"),
   paymentNote: readEnv(
