@@ -459,6 +459,15 @@ export class OrdersStore {
     return this.env.ORDER_DASHBOARD_URL || "https://newgbonhi.com/orders";
   }
 
+  get brandLogoUrl() {
+    return this.env.BRAND_LOGO_URL || "https://newgbonhi.com/email-logo.png";
+  }
+
+  emailBrandMark(label = "NEWGBONHI", color = "#f4f1e9") {
+    const safeLogoUrl = escapeHtml(this.brandLogoUrl);
+    return `<table role="presentation" cellspacing="0" cellpadding="0"><tr><td width="34" style="width:34px;padding:0 10px 0 0"><img src="${safeLogoUrl}" width="34" height="34" alt="NewGbonhi" style="display:block;width:34px;height:34px;border:0;border-radius:50%;object-fit:cover;background:#f4f1e9"></td><td style="font-size:15px;font-weight:900;letter-spacing:-.03em;color:${color}">${escapeHtml(label)}</td></tr></table>`;
+  }
+
   get labFromEmail() {
     return this.env.LAB_FROM_EMAIL || "NewGbonhi Lab <lab@newgbonhi.com>";
   }
@@ -578,7 +587,7 @@ export class OrdersStore {
               <td class="pad" style="padding:18px 28px;border-bottom:1px solid #4a4a4a">
                 <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                   <tr>
-                    <td style="font-size:15px;font-weight:900;letter-spacing:-.03em;color:#f4f1e9">NEWGBONHI</td>
+                    <td>${this.emailBrandMark("NEWGBONHI")}</td>
                     <td align="right" style="font-family:'Courier New',monospace;font-size:10px;font-weight:700;letter-spacing:.18em;color:#ff3b30">ABIDJAN / 2026</td>
                   </tr>
                 </table>
@@ -694,7 +703,7 @@ export class OrdersStore {
       const safe = Object.fromEntries(
         Object.entries(item).map(([key, value]) => [key, escapeHtml(value)])
       );
-      const html = `<div style="background:#0b0b0b;color:#f5f2ea;padding:40px;font-family:Arial,sans-serif"><p style="color:#ef160d;letter-spacing:.18em">NEWGBONHI / UPDATE</p><h1 style="font-size:42px;line-height:1">${safe.title}</h1><p style="font-size:18px;line-height:1.6">${safe.excerpt}</p><p><a href="${safe.url}" style="display:inline-block;background:#f5f2ea;color:#0b0b0b;padding:16px 24px;text-decoration:none;font-weight:700">DÉCOUVRIR</a></p><p style="margin-top:40px;font-size:12px;color:#aaa">Tu reçois cet email car tu as rejoint la newsletter NewGbonhi. <a href="{{{RESEND_UNSUBSCRIBE_URL}}}" style="color:#f5f2ea">Se désabonner</a></p></div>`;
+      const html = `<div style="background:#0b0b0b;color:#f5f2ea;padding:40px;font-family:Arial,sans-serif">${this.emailBrandMark("NEWGBONHI / UPDATE")}<p style="margin-top:28px;color:#ef160d;letter-spacing:.18em">NEWSLETTER</p><h1 style="font-size:42px;line-height:1">${safe.title}</h1><p style="font-size:18px;line-height:1.6">${safe.excerpt}</p><p><a href="${safe.url}" style="display:inline-block;background:#f5f2ea;color:#0b0b0b;padding:16px 24px;text-decoration:none;font-weight:700">DÉCOUVRIR</a></p><p style="margin-top:40px;font-size:12px;color:#aaa">Tu reçois cet email car tu as rejoint la newsletter NewGbonhi. <a href="{{{RESEND_UNSUBSCRIBE_URL}}}" style="color:#f5f2ea">Se désabonner</a></p></div>`;
       await this.resendRequest(
         "/broadcasts",
         {
@@ -782,7 +791,7 @@ export class OrdersStore {
         <table class="shell" role="presentation" width="620" cellspacing="0" cellpadding="0" style="width:620px;max-width:620px;border:1px solid #4a4a4a;background:#101010">
           <tr><td class="pad" style="padding:18px 28px;border-bottom:1px solid #4a4a4a">
             <table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr>
-              <td style="font-size:15px;font-weight:900;color:#f4f1e9">NEWGBONHI / LAB</td>
+              <td>${this.emailBrandMark("NEWGBONHI / LAB")}</td>
               <td align="right" style="font-family:'Courier New',monospace;font-size:10px;font-weight:700;letter-spacing:.15em;color:#ff3b30">INBOX / NEW APPLICATION</td>
             </tr></table>
           </td></tr>
@@ -874,7 +883,7 @@ export class OrdersStore {
               <td class="pad" style="padding:18px 28px;border-bottom:1px solid #4a4a4a">
                 <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                   <tr>
-                    <td style="font-size:15px;font-weight:900;letter-spacing:-.03em;color:#f4f1e9">NEWGBONHI / LAB</td>
+                    <td>${this.emailBrandMark("NEWGBONHI / LAB")}</td>
                     <td align="right" style="font-family:'Courier New',monospace;font-size:10px;font-weight:700;letter-spacing:.18em;color:#ff3b30">ABIDJAN / OPEN CALL</td>
                   </tr>
                 </table>
@@ -1055,7 +1064,7 @@ export class OrdersStore {
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#0b0b0b;background-image:linear-gradient(#242424 1px,transparent 1px),linear-gradient(90deg,#242424 1px,transparent 1px);background-size:42px 42px">
       <tr><td align="center" style="padding:28px 12px 48px">
         <table class="shell" role="presentation" width="620" cellspacing="0" cellpadding="0" style="width:620px;max-width:620px;border:1px solid #4a4a4a;background:#101010">
-          <tr><td class="pad" style="padding:18px 28px;border-bottom:1px solid #4a4a4a"><table role="presentation" width="100%"><tr><td style="font-size:15px;font-weight:900;color:#f4f1e9">NEWGBONHI / ORDERS</td><td align="right" style="font-family:'Courier New',monospace;font-size:10px;font-weight:700;letter-spacing:.16em;color:#ff3b30">${safeOrderId}</td></tr></table></td></tr>
+          <tr><td class="pad" style="padding:18px 28px;border-bottom:1px solid #4a4a4a"><table role="presentation" width="100%"><tr><td>${this.emailBrandMark("NEWGBONHI / ORDERS")}</td><td align="right" style="font-family:'Courier New',monospace;font-size:10px;font-weight:700;letter-spacing:.16em;color:#ff3b30">${safeOrderId}</td></tr></table></td></tr>
           <tr><td class="pad" style="padding:52px 28px 28px;background:#f4f1e9;color:#0b0b0b"><p style="margin:0 0 18px;font-family:'Courier New',monospace;font-size:11px;font-weight:700;letter-spacing:.2em;color:#e10600">${state.kicker}</p><h1 class="display" style="margin:0;font-size:59px;line-height:.86;letter-spacing:-.06em;color:#0b0b0b">${state.title}</h1></td></tr>
           <tr><td class="pad" style="padding:24px 28px 30px;background:#e10600;color:#fff"><p style="margin:0;font-size:18px;line-height:1.5;font-weight:700">${safeFirstName}, ${state.copy}</p></td></tr>
           <tr><td style="border-top:1px solid #4a4a4a;border-bottom:1px solid #4a4a4a"><table role="presentation" width="100%"><tr>
@@ -1135,7 +1144,7 @@ export class OrdersStore {
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f4f1e9">
       <tr><td align="center" style="padding:28px 12px 48px">
         <table class="shell" role="presentation" width="620" cellspacing="0" cellpadding="0" style="width:620px;max-width:620px;border:1px solid #0b0b0b;background:#fff">
-          <tr><td class="pad" style="padding:18px 28px;border-bottom:1px solid #0b0b0b"><table role="presentation" width="100%"><tr><td style="font-size:15px;font-weight:900;color:#0b0b0b">NEWGBONHI / ORDERS</td><td align="right" style="font-family:'Courier New',monospace;font-size:10px;font-weight:700;letter-spacing:.16em;color:#e10600">${safeOrderId}</td></tr></table></td></tr>
+          <tr><td class="pad" style="padding:18px 28px;border-bottom:1px solid #0b0b0b"><table role="presentation" width="100%"><tr><td>${this.emailBrandMark("NEWGBONHI / ORDERS", "#0b0b0b")}</td><td align="right" style="font-family:'Courier New',monospace;font-size:10px;font-weight:700;letter-spacing:.16em;color:#e10600">${safeOrderId}</td></tr></table></td></tr>
           <tr><td class="pad" style="padding:48px 28px 28px;background:#0b0b0b;color:#fff"><p style="margin:0 0 18px;font-family:'Courier New',monospace;font-size:11px;font-weight:700;letter-spacing:.2em;color:#ff3b30">${kicker}</p><h1 class="display" style="margin:0;font-size:58px;line-height:.86;letter-spacing:-.05em;color:#fff">${title}</h1></td></tr>
           <tr><td class="pad" style="padding:28px;border-bottom:1px solid #0b0b0b;background:#f4f1e9"><p style="margin:0 0 8px;font-family:'Courier New',monospace;font-size:10px;font-weight:700;letter-spacing:.16em;color:#e10600">REFERENCE / ACTION</p><p style="margin:0;font-size:15px;line-height:1.7;font-weight:800;color:#0b0b0b">Commande ${safeOrderId}<br>Evenement : ${safeEventLabel}</p></td></tr>
           <tr><td class="pad" style="padding:30px 28px 38px"><p style="margin:0 0 22px;font-size:14px;line-height:1.7;color:#333">Connecte-toi au dashboard admin pour voir les details client, les articles, les montants et valider la suite.</p><a class="cta" href="${safeDashboardUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:16px 22px;background:#0b0b0b;color:#fff;text-decoration:none;font-size:12px;font-weight:900;letter-spacing:.15em">OUVRIR LE DASHBOARD</a></td></tr>

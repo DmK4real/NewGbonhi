@@ -154,9 +154,14 @@ Order email notifications use:
 - `ORDER_TO_EMAIL`: internal NewGbonhi order inbox, defaults to `newgbonhifamily@gmail.com`
 - `ORDER_FROM_EMAIL`: sender used for customer and internal order emails
 - `ORDER_DASHBOARD_URL`: admin order dashboard linked from internal notifications
+- `BRAND_LOGO_URL`: public logo used inside NewGbonhi email templates
 
 Internal order notifications only include the order ID and event type. Customer
 details remain behind the authenticated `/orders` dashboard.
+
+Email sender avatars are controlled by inbox providers, not by the email HTML.
+Use the public `BRAND_LOGO_URL` asset for Google/Outlook profile photos,
+Gravatar, Apple Branded Mail, or BIMI DNS setup.
 
 After the Worker is deployed, set GitHub repository variable:
 - `VITE_API_BASE=https://<your-workers-url>/api`
