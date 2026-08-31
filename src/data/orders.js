@@ -115,12 +115,29 @@ export const createOrder = async (orderDraft) => {
   return payload.order || null;
 };
 
-export const reportOrderPaid = async (orderId) => {
+export const reportOrderPaid = async (orderId, paymentToken = "") => {
   const payload = await request(
     `/orders/${encodeURIComponent(orderId)}/report-payment`,
-    { method: "POST" }
+    {
+      method: "POST",
+      body: JSON.stringify({ paymentToken }),
+    }
   );
   return payload.order || null;
+};
+
+export const createGeniusPayPayment = async (orderId, paymentToken = "") => {
+  const payload = await request(
+    `/orders/${encodeURIComponent(orderId)}/geniuspay-payment`,
+    {
+      method: "POST",
+      body: JSON.stringify({ paymentToken }),
+    }
+  );
+  return {
+    order: payload.order || null,
+    payment: payload.payment || null,
+  };
 };
 
 export const adminLogin = async (password) => {

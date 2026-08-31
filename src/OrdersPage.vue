@@ -90,6 +90,21 @@
             </p>
           </div>
 
+          <div v-if="order.payment" class="order-payment">
+            <span>{{ $t("paymentProvider") }}</span>
+            <strong>{{ formatPaymentProvider(order.payment.provider) }}</strong>
+            <p>
+              {{ $t("paymentStatus") }}:
+              {{ formatPaymentStatus(order.payment.status) }}
+            </p>
+            <p v-if="order.payment.reference">
+              {{ $t("paymentReferenceShort") }}: {{ order.payment.reference }}
+            </p>
+            <p v-if="order.payment.paymentMethod">
+              {{ $t("paymentMethod") }}: {{ order.payment.paymentMethod }}
+            </p>
+          </div>
+
           <div class="order-items">
             <div v-for="item in order.items" :key="item.key" class="order-item">
               <span>
@@ -272,6 +287,24 @@ export default {
       };
       return map[status] || status || this.$t("sent");
     },
+    formatPaymentProvider(provider) {
+      return provider === "geniuspay"
+        ? "GeniusPay"
+        : provider || this.$t("paymentUnknown");
+    },
+    formatPaymentStatus(status) {
+      const map = {
+        pending: this.$t("paymentPending"),
+        initiated: this.$t("paymentPending"),
+        processing: this.$t("paymentProcessing"),
+        completed: this.$t("paymentCompleted"),
+        failed: this.$t("paymentFailed"),
+        cancelled: this.$t("paymentCancelled"),
+        expired: this.$t("paymentExpired"),
+        refunded: this.$t("paymentRefunded"),
+      };
+      return map[status] || status || this.$t("paymentUnknown");
+    },
     primaryActionLabel(order) {
       return order?.status === "paid"
         ? this.$t("launchProduction")
@@ -302,6 +335,17 @@ export default {
             order.fulfillment.deliveryWindow || this.$t("deliveryWindow48h72h")
           }`
         );
+      }
+
+      if (order.payment) {
+        lines.push(`Payment provider: ${this.formatPaymentProvider(order.payment.provider)}`);
+        lines.push(`Payment status: ${this.formatPaymentStatus(order.payment.status)}`);
+        if (order.payment.reference) {
+          lines.push(`Payment reference: ${order.payment.reference}`);
+        }
+        if (order.payment.paymentMethod) {
+          lines.push(`Payment method: ${order.payment.paymentMethod}`);
+        }
       }
 
       lines.push("Items:");
@@ -729,7 +773,8 @@ export default {
   margin: 0;
 }
 
-.order-fulfillment {
+.order-fulfillment,
+.order-payment {
   border: 1px solid rgba(0, 0, 0, 0.14);
   border-radius: 12px;
   padding: 10px;
@@ -741,17 +786,25 @@ export default {
   letter-spacing: 0.1em;
 }
 
-.order-fulfillment span {
+.order-payment {
+  background: #f4f1e9;
+}
+
+.order-fulfillment span,
+.order-payment span {
   color: var(--accent);
   font-weight: 700;
 }
 
 .order-fulfillment strong,
-.order-fulfillment p {
+.order-fulfillment p,
+.order-payment strong,
+.order-payment p {
   margin: 0;
 }
 
-.order-fulfillment p {
+.order-fulfillment p,
+.order-payment p {
   color: var(--muted);
 }
 
@@ -871,7 +924,8 @@ export default {
 .orders-login,
 .orders-empty,
 .order-card,
-.order-fulfillment { border-radius: var(--ng-radius); }
+.order-fulfillment,
+.order-payment { border-radius: var(--ng-radius); }
 .orders-login { width: min(520px,100%); margin: 40px auto 0; padding: clamp(24px,5vw,48px); }
 .orders-login input { min-height: 48px; }
 .order-card { padding: clamp(18px,3vw,30px); border-color: var(--line); }
@@ -919,6 +973,7 @@ export default {
 
   .order-contact,
   .order-address,
+  .order-payment p,
   .order-item span,
   .order-item strong {
     overflow-wrap: anywhere;

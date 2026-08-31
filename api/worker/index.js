@@ -16,12 +16,15 @@ const NEWSLETTER_WELCOME_PREFIX = "newsletter.welcome.";
 const NEWSLETTER_SEGMENT_NAME = "NewGbonhi Newsletter";
 const ORDER_EMAIL_PREFIX = "order.email.";
 const ORDER_TEAM_EMAIL_PREFIX = "order.team.email.";
+const GENIUSPAY_DEFAULT_BASE_URL = "https://geniuspay.ci/api/v1/merchant";
+const GENIUSPAY_WEBHOOK_MAX_AGE_SECONDS = 60 * 5;
 
 const baseHeaders = {
   "content-type": "application/json; charset=utf-8",
   "cache-control": "no-store",
   "access-control-allow-origin": "*",
-  "access-control-allow-headers": "Content-Type, Authorization",
+  "access-control-allow-headers":
+    "Content-Type, Authorization, X-Webhook-Signature, X-Webhook-Timestamp, X-Webhook-Event, X-Webhook-Delivery, X-Webhook-Environment",
   "access-control-allow-methods": "GET, POST, PATCH, DELETE, OPTIONS",
 };
 
@@ -46,6 +49,14 @@ const safeInteger = (value, fallback = 0) => {
     return fallback;
   }
   return Math.max(0, Math.round(parsed));
+};
+
+const trimTrailingSlash = (value) => String(value || "").replace(/\/+$/, "");
+
+const createHttpError = (status, message) => {
+  const error = new Error(message);
+  error.status = status;
+  return error;
 };
 
 const DEFAULT_FULFILLMENT = {
@@ -303,6 +314,7 @@ const buildOrderFromDraft = (draft) => {
     id: buildOrderId(),
     type: safeString(draft.type, 32) || "preorder",
     status: "sent",
+    paymentToken: crypto.randomUUID(),
     createdAt: new Date().toISOString(),
     customer,
     items,
@@ -409,12 +421,117 @@ const sha256Hex = async (value) => {
   ).join("");
 };
 
+const bytesToHex = (bytes) =>
+  Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+
+const hmacSha256Hex = async (value, secret) => {
+  const key = await importHmacKey(secret);
+  const signature = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    textEncoder.encode(value)
+  );
+  return bytesToHex(new Uint8Array(signature));
+};
+
+const readTextBody = async (request, maxBytes = 1024 * 1024) => {
+  if (!request.body) {
+    return "";
+  }
+
+  const reader = request.body.getReader();
+  const chunks = [];
+  let size = 0;
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) {
+      break;
+    }
+    size += value.byteLength;
+    if (size > maxBytes) {
+      await reader.cancel();
+      throw new Error("Request body too large.");
+    }
+    chunks.push(value);
+  }
+
+  const body = new Uint8Array(size);
+  let offset = 0;
+  for (const chunk of chunks) {
+    body.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return textDecoder.decode(body);
+};
+
 const parseJsonBody = async (request) => {
+  const body = await readTextBody(request);
   try {
-    return await request.json();
+    return JSON.parse(body);
   } catch (error) {
     throw new Error("Invalid JSON body.");
   }
+};
+
+const parseOptionalJsonBody = async (request) => {
+  const body = await readTextBody(request);
+  if (!body.trim()) {
+    return {};
+  }
+  try {
+    return JSON.parse(body);
+  } catch (error) {
+    throw new Error("Invalid JSON body.");
+  }
+};
+
+const normalizePaymentPhone = (value) => {
+  const digits = String(value || "").replace(/\D/g, "");
+  if (!digits) {
+    return "";
+  }
+  if (digits.startsWith("00")) {
+    return `+${digits.slice(2)}`;
+  }
+  if (digits.startsWith("225")) {
+    return `+${digits}`;
+  }
+  if (digits.length === 10) {
+    return `+225${digits}`;
+  }
+  return `+${digits}`;
+};
+
+const normalizeGeniusPaySignature = (value) =>
+  safeString(value, 200).replace(/^sha256=/i, "").toLowerCase();
+
+const isReusableGeniusPayPayment = (payment) => {
+  if (!payment || payment.provider !== "geniuspay" || !payment.checkoutUrl) {
+    return false;
+  }
+  const status = safeString(payment.status, 40).toLowerCase();
+  return !status || ["pending", "processing", "initiated"].includes(status);
+};
+
+const publicGeniusPayPayment = (payment) => {
+  if (!payment || typeof payment !== "object") {
+    return null;
+  }
+
+  return {
+    provider: "geniuspay",
+    reference: safeString(payment.reference, 120),
+    status: safeString(payment.status, 40) || "pending",
+    amount: safeInteger(payment.amount, 0),
+    currency: safeString(payment.currency, 12) || "XOF",
+    checkoutUrl: safeString(payment.checkoutUrl || payment.paymentUrl, 500),
+    paymentUrl: safeString(payment.paymentUrl || payment.checkoutUrl, 500),
+    paymentMethod: safeString(payment.paymentMethod, 60) || null,
+    expiresAt: safeString(payment.expiresAt, 60) || null,
+    completedAt: safeString(payment.completedAt, 60) || null,
+    updatedAt: safeString(payment.updatedAt, 60) || null,
+  };
 };
 
 export class OrdersStore {
@@ -480,6 +597,42 @@ export class OrdersStore {
     return this.env.ORDER_FROM_EMAIL || "NewGbonhi Orders <orders@newgbonhi.com>";
   }
 
+  get siteUrl() {
+    return trimTrailingSlash(this.env.SITE_URL || "https://newgbonhi.com");
+  }
+
+  get geniusPayBaseUrl() {
+    return trimTrailingSlash(
+      this.env.GENIUSPAY_BASE_URL || GENIUSPAY_DEFAULT_BASE_URL
+    );
+  }
+
+  get geniusPayApiKey() {
+    return this.env.GENIUSPAY_API_KEY || "";
+  }
+
+  get geniusPayApiSecret() {
+    return this.env.GENIUSPAY_API_SECRET || "";
+  }
+
+  get geniusPayWebhookSecret() {
+    return this.env.GENIUSPAY_WEBHOOK_SECRET || "";
+  }
+
+  get geniusPaySuccessUrl() {
+    return (
+      this.env.GENIUSPAY_SUCCESS_URL ||
+      `${this.siteUrl}/checkout?payment=success`
+    );
+  }
+
+  get geniusPayErrorUrl() {
+    return (
+      this.env.GENIUSPAY_ERROR_URL ||
+      `${this.siteUrl}/checkout?payment=failed`
+    );
+  }
+
   async resendRequest(path, options = {}, apiKey = this.resendApiKey) {
     if (!apiKey) throw new Error("Email service is not configured.");
     const response = await fetch(`https://api.resend.com${path}`, {
@@ -497,6 +650,237 @@ export class OrdersStore {
       throw error;
     }
     return payload;
+  }
+
+  buildGeniusPayReturnUrl(baseUrl, orderId) {
+    let target;
+    try {
+      target = new URL(baseUrl, `${this.siteUrl}/`);
+    } catch (error) {
+      target = new URL("/checkout", `${this.siteUrl}/`);
+    }
+    target.searchParams.set("provider", "geniuspay");
+    target.searchParams.set("order", orderId);
+    return target.toString();
+  }
+
+  assertGeniusPayConfigured() {
+    if (!this.geniusPayApiKey || !this.geniusPayApiSecret) {
+      throw createHttpError(503, "GeniusPay is not configured yet.");
+    }
+  }
+
+  assertPaymentToken(order, paymentToken) {
+    if (!order?.paymentToken) {
+      return;
+    }
+    if (!constantTimeEqual(order.paymentToken, safeString(paymentToken, 120))) {
+      throw createHttpError(403, "Unauthorized payment session.");
+    }
+  }
+
+  buildGeniusPayPaymentRequest(order) {
+    const amount = safeInteger(order.subtotal, 0);
+    if (amount < 200) {
+      throw createHttpError(
+        400,
+        "GeniusPay requires a minimum amount of 200 FCFA."
+      );
+    }
+
+    const customerName = safeString(
+      `${order.customer?.firstName || ""} ${order.customer?.lastName || ""}`,
+      140
+    );
+
+    return {
+      amount,
+      currency: "XOF",
+      description: safeString(`Commande ${order.id} NewGbonhi`, 180),
+      customer: {
+        name: customerName || "Client NewGbonhi",
+        email: safeString(order.customer?.email, 140),
+        phone: normalizePaymentPhone(order.customer?.phone),
+        country: "CI",
+      },
+      success_url: this.buildGeniusPayReturnUrl(
+        this.geniusPaySuccessUrl,
+        order.id
+      ),
+      error_url: this.buildGeniusPayReturnUrl(this.geniusPayErrorUrl, order.id),
+      metadata: {
+        order_id: order.id,
+        source: "newgbonhi_checkout",
+      },
+    };
+  }
+
+  async createGeniusPayPayment(order) {
+    this.assertGeniusPayConfigured();
+    const body = this.buildGeniusPayPaymentRequest(order);
+    const response = await fetch(`${this.geniusPayBaseUrl}/payments`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        "X-API-Key": this.geniusPayApiKey,
+        "X-API-Secret": this.geniusPayApiSecret,
+      },
+      body: JSON.stringify(body),
+    });
+    const payload = await response.json().catch(() => ({}));
+    const data =
+      payload?.data && typeof payload.data === "object" ? payload.data : payload;
+
+    if (!response.ok || payload?.success === false) {
+      throw createHttpError(
+        response.status || 502,
+        safeString(payload?.message || payload?.error, 180) ||
+          "GeniusPay payment creation failed."
+      );
+    }
+
+    const checkoutUrl = safeString(
+      data.checkout_url || data.checkoutUrl || data.payment_url || data.paymentUrl,
+      500
+    );
+    if (!checkoutUrl) {
+      throw createHttpError(502, "GeniusPay did not return a checkout URL.");
+    }
+
+    const now = new Date().toISOString();
+    return {
+      provider: "geniuspay",
+      reference: safeString(
+        data.reference || data.transaction_id || data.id,
+        120
+      ),
+      status: safeString(data.status, 40) || "pending",
+      amount: safeInteger(data.amount, body.amount),
+      currency: safeString(data.currency, 12) || "XOF",
+      checkoutUrl,
+      paymentUrl: safeString(data.payment_url || data.paymentUrl, 500) || checkoutUrl,
+      paymentMethod:
+        safeString(data.payment_method || data.paymentMethod || data.method, 60) ||
+        null,
+      environment: safeString(data.environment, 40) || null,
+      expiresAt: safeString(data.expires_at || data.expiresAt, 60) || null,
+      createdAt: now,
+      updatedAt: now,
+    };
+  }
+
+  async verifyGeniusPayWebhookSignature(request, rawBody) {
+    if (!this.geniusPayWebhookSecret) {
+      throw createHttpError(503, "GeniusPay webhook secret is not configured.");
+    }
+
+    const providedSignature = normalizeGeniusPaySignature(
+      request.headers.get("X-Webhook-Signature")
+    );
+    const timestampHeader = safeString(
+      request.headers.get("X-Webhook-Timestamp"),
+      60
+    );
+    const timestamp = Number(timestampHeader);
+    const timestampSeconds =
+      Number.isFinite(timestamp) && timestamp > 9999999999
+        ? Math.floor(timestamp / 1000)
+        : timestamp;
+
+    if (!providedSignature || !Number.isFinite(timestampSeconds)) {
+      throw createHttpError(401, "Invalid GeniusPay webhook signature.");
+    }
+
+    const age = Math.abs(Math.floor(Date.now() / 1000) - timestampSeconds);
+    if (age > GENIUSPAY_WEBHOOK_MAX_AGE_SECONDS) {
+      throw createHttpError(401, "Expired GeniusPay webhook signature.");
+    }
+
+    const expectedSignature = await hmacSha256Hex(
+      `${timestampHeader}.${rawBody}`,
+      this.geniusPayWebhookSecret
+    );
+    if (!constantTimeEqual(expectedSignature, providedSignature)) {
+      throw createHttpError(401, "Invalid GeniusPay webhook signature.");
+    }
+  }
+
+  isGeniusPayPaid(event, status) {
+    const normalizedEvent = safeString(event, 80).toLowerCase();
+    const normalizedStatus = safeString(status, 40).toLowerCase();
+    return normalizedEvent === "payment.success" || normalizedStatus === "completed";
+  }
+
+  findGeniusPayOrder(orders, paymentData) {
+    const metadata =
+      paymentData?.metadata && typeof paymentData.metadata === "object"
+        ? paymentData.metadata
+        : {};
+    const orderId = safeString(
+      metadata.order_id ||
+        metadata.orderId ||
+        paymentData?.order_id ||
+        paymentData?.orderId,
+      80
+    );
+    const reference = safeString(
+      paymentData?.reference || paymentData?.transaction_id || paymentData?.id,
+      120
+    );
+    const order = orders.find(
+      (entry) =>
+        (orderId && entry.id === orderId) ||
+        (reference && entry.payment?.provider === "geniuspay" && entry.payment.reference === reference)
+    );
+    return { order, orderId, reference };
+  }
+
+  applyGeniusPayWebhookToOrder(order, paymentData, event) {
+    const current =
+      order.payment && typeof order.payment === "object" ? order.payment : {};
+    const status =
+      safeString(paymentData.status || current.status, 40) || "pending";
+    const now = new Date().toISOString();
+    const payment = {
+      ...current,
+      provider: "geniuspay",
+      reference:
+        safeString(
+          paymentData.reference || paymentData.transaction_id || paymentData.id,
+          120
+        ) || safeString(current.reference, 120),
+      status,
+      amount: safeInteger(paymentData.amount ?? current.amount, order.subtotal),
+      currency:
+        safeString(paymentData.currency || current.currency, 12) || "XOF",
+      checkoutUrl: safeString(current.checkoutUrl || current.paymentUrl, 500),
+      paymentUrl: safeString(current.paymentUrl || current.checkoutUrl, 500),
+      paymentMethod:
+        safeString(
+          paymentData.payment_method ||
+            paymentData.paymentMethod ||
+            paymentData.method ||
+            current.paymentMethod,
+          60
+        ) || null,
+      environment:
+        safeString(paymentData.environment || current.environment, 40) || null,
+      expiresAt:
+        safeString(paymentData.expires_at || paymentData.expiresAt || current.expiresAt, 60) ||
+        null,
+      updatedAt: now,
+    };
+
+    if (this.isGeniusPayPaid(event, status)) {
+      payment.completedAt =
+        safeString(paymentData.completed_at || paymentData.completedAt, 60) ||
+        current.completedAt ||
+        now;
+    }
+
+    order.payment = payment;
+    return payment;
   }
 
   async getNewsletterSegmentId() {
@@ -1121,19 +1505,37 @@ export class OrdersStore {
     const emailKey = `${ORDER_TEAM_EMAIL_PREFIX}${order.id}.${event}`;
     if (await this.state.storage.get(emailKey)) return false;
 
-    const isPaymentReport = event === "payment_reported";
+    const eventMeta = {
+      created: {
+        label: "Nouvelle commande",
+        title: "NOUVELLE COMMANDE.",
+        kicker: "ORDER / NEW",
+        subject: `[ORDER / ${order.id}] Nouvelle commande`,
+      },
+      payment_reported: {
+        label: "Paiement signale",
+        title: "PAIEMENT SIGNALE.",
+        kicker: "ORDER / PAYMENT REPORT",
+        subject: `[ORDER / ${order.id}] Paiement signale`,
+      },
+      payment_confirmed: {
+        label: "Paiement confirme",
+        title: "PAIEMENT CONFIRME.",
+        kicker: "ORDER / PAYMENT CONFIRMED",
+        subject: `[ORDER / ${order.id}] Paiement confirme`,
+      },
+    }[event] || {
+      label: event || "Commande",
+      title: "MISE A JOUR COMMANDE.",
+      kicker: "ORDER / UPDATE",
+      subject: `[ORDER / ${order.id}] Mise a jour`,
+    };
     const safeOrderId = escapeHtml(order.id);
     const safeDashboardUrl = escapeHtml(this.orderDashboardUrl);
-    const safeEventLabel = escapeHtml(
-      isPaymentReport ? "Paiement signale" : "Nouvelle commande"
-    );
-    const title = isPaymentReport
-      ? "PAIEMENT SIGNALE."
-      : "NOUVELLE COMMANDE.";
-    const kicker = isPaymentReport ? "ORDER / PAYMENT REPORT" : "ORDER / NEW";
-    const subject = isPaymentReport
-      ? `[ORDER / ${order.id}] Paiement signale`
-      : `[ORDER / ${order.id}] Nouvelle commande`;
+    const safeEventLabel = escapeHtml(eventMeta.label);
+    const title = eventMeta.title;
+    const kicker = eventMeta.kicker;
+    const subject = eventMeta.subject;
     const html = `<!doctype html>
 <html lang="fr">
   <head>
@@ -1157,7 +1559,7 @@ export class OrdersStore {
       title,
       "",
       `Reference: ${order.id}`,
-      `Evenement: ${isPaymentReport ? "Paiement signale" : "Nouvelle commande"}`,
+      `Evenement: ${eventMeta.label}`,
       "",
       "Les details client sont disponibles dans le dashboard admin.",
       this.orderDashboardUrl,
@@ -1322,6 +1724,115 @@ export class OrdersStore {
 
       if (
         method === "POST" &&
+        pathname.match(/^\/api\/orders\/[^/]+\/geniuspay-payment$/)
+      ) {
+        const orderId = parseOrderIdFromPath(pathname, "geniuspay-payment");
+        if (!orderId) {
+          return json(400, { error: "Order id is missing." });
+        }
+
+        const payload = await parseOptionalJsonBody(request);
+        const orders = await this.loadOrders();
+        const order = orders.find((entry) => entry.id === orderId);
+        if (!order) {
+          return json(404, { error: "Order not found." });
+        }
+
+        this.assertPaymentToken(order, payload.paymentToken);
+
+        if (isReusableGeniusPayPayment(order.payment)) {
+          return json(200, {
+            order,
+            payment: publicGeniusPayPayment(order.payment),
+          });
+        }
+
+        const payment = await this.createGeniusPayPayment(order);
+        order.payment = payment;
+        await this.saveOrders(orders);
+        await this.appendAuditEntry({
+          orderId,
+          previousStatus: order.status,
+          nextStatus: order.status,
+          actor: "customer",
+          source: "geniuspay-payment-created",
+          paymentReference: payment.reference,
+        });
+        return json(201, {
+          order,
+          payment: publicGeniusPayPayment(order.payment),
+        });
+      }
+
+      if (method === "POST" && pathname === "/api/payments/geniuspay/webhook") {
+        const rawBody = await readTextBody(request);
+        await this.verifyGeniusPayWebhookSignature(request, rawBody);
+
+        let payload;
+        try {
+          payload = rawBody ? JSON.parse(rawBody) : {};
+        } catch (error) {
+          return json(400, { error: "Invalid JSON body." });
+        }
+
+        const event = safeString(
+          request.headers.get("X-Webhook-Event") || payload.event || payload.type,
+          80
+        );
+        const paymentData =
+          payload?.data && typeof payload.data === "object"
+            ? payload.data
+            : payload && typeof payload === "object"
+              ? payload
+              : {};
+        const orders = await this.loadOrders();
+        const { order, orderId, reference } = this.findGeniusPayOrder(
+          orders,
+          paymentData
+        );
+        if (!order) {
+          return json(404, { error: "Order not found." });
+        }
+
+        const previousStatus = order.status;
+        const payment = this.applyGeniusPayWebhookToOrder(order, paymentData, event);
+        if (this.isGeniusPayPaid(event, payment.status)) {
+          order.status = "paid";
+        }
+
+        await this.saveOrders(orders);
+        await this.appendAuditEntry({
+          orderId: order.id || orderId,
+          previousStatus,
+          nextStatus: order.status,
+          actor: "geniuspay",
+          source: event || "geniuspay-webhook",
+          paymentReference: payment.reference || reference,
+        });
+
+        if (previousStatus !== order.status && order.status === "paid") {
+          try {
+            await this.sendOrderStatusEmail(order, order.status);
+          } catch (error) {
+            console.error("Unable to send GeniusPay payment confirmation", error);
+          }
+          try {
+            await this.sendOrderTeamEmail(order, "payment_confirmed");
+          } catch (error) {
+            console.error("Unable to send team GeniusPay notification", error);
+          }
+        }
+
+        return json(200, {
+          ok: true,
+          orderId: order.id,
+          status: order.status,
+          paymentStatus: payment.status,
+        });
+      }
+
+      if (
+        method === "POST" &&
         pathname.match(/^\/api\/orders\/[^/]+\/report-payment$/)
       ) {
         const orderId = parseOrderIdFromPath(pathname, "report-payment");
@@ -1435,7 +1946,11 @@ export class OrdersStore {
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Unexpected server error.";
-      return json(400, { error: message });
+      const status =
+        Number.isInteger(error?.status) && error.status >= 400 && error.status < 600
+          ? error.status
+          : 400;
+      return json(status, { error: message });
     }
   }
 }

@@ -108,6 +108,42 @@ Compatibility note:
 - if `ADMIN_PASSWORD` is not set, the API falls back to `VITE_ADMIN_PASSWORD`.
 - the local Node API logs a startup warning if `ADMIN_PASSWORD` is missing, and also warns when the deprecated `VITE_ADMIN_PASSWORD` fallback is being used.
 
+## GeniusPay Mobile Payments
+
+The checkout creates a NewGbonhi order first, then requests a GeniusPay hosted
+checkout URL for the item subtotal. Delivery fees stay payable on arrival, like
+the manual Mobile Money flow.
+
+Local `.env` values for sandbox testing:
+
+```env
+GENIUSPAY_API_KEY=pk_sandbox_xxx
+GENIUSPAY_API_SECRET=sk_sandbox_xxx
+GENIUSPAY_WEBHOOK_SECRET=whsec_xxx
+GENIUSPAY_BASE_URL=https://geniuspay.ci/api/v1/merchant
+SITE_URL=http://localhost:5173
+GENIUSPAY_SUCCESS_URL=http://localhost:5173/checkout?payment=success
+GENIUSPAY_ERROR_URL=http://localhost:5173/checkout?payment=failed
+```
+
+Cloudflare Worker secrets:
+
+```sh
+npx wrangler secret put GENIUSPAY_API_KEY
+npx wrangler secret put GENIUSPAY_API_SECRET
+npx wrangler secret put GENIUSPAY_WEBHOOK_SECRET
+```
+
+Configure this webhook URL in the GeniusPay merchant dashboard:
+
+```text
+https://newgbonhi-api.dominiquekouakou2.workers.dev/api/payments/geniuspay/webhook
+```
+
+Webhook signatures are verified with `X-Webhook-Signature` and
+`X-Webhook-Timestamp`. A valid `payment.success` / `completed` event marks the
+order as `paid` automatically.
+
 ## Orders History
 
 Visit `/orders` in the frontend.

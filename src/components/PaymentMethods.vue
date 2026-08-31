@@ -13,10 +13,10 @@
 
 <script>
 const methods = [
-  "Orange Money",
+  "GeniusPay",
   "Wave",
+  "Orange Money",
   "MTN Money",
-  "Moov Money",
 ];
 
 export default {
@@ -67,6 +67,10 @@ export default {
 
 .is-wave {
   color: #00658f;
+}
+
+.is-geniuspay {
+  color: #0b0b0b;
 }
 
 @media (max-width: 700px) {

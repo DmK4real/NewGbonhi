@@ -23,15 +23,24 @@
           <span>{{ $t("preorderCheckoutCopy") }}</span>
         </div>
 
+        <div
+          v-if="paymentReturnMessage"
+          class="payment-return"
+          :class="`is-${paymentReturnStatus}`"
+        >
+          <p>{{ paymentReturnMessage }}</p>
+          <strong v-if="paymentReturnOrderId">{{ paymentReturnOrderId }}</strong>
+        </div>
+
         <div v-if="orderSent" class="confirmation payment-handoff">
           <p class="confirmation-kicker">
-            {{ paymentReported ? $t("paymentReportedKicker") : $t("manualPaymentKicker") }}
+            {{ paymentKicker }}
           </p>
           <h2>
-            {{ paymentReported ? $t("paymentReportedTitle") : $t("paymentPendingTitle") }}
+            {{ paymentTitle }}
           </h2>
           <p class="confirmation-copy">
-            {{ paymentReported ? $t("paymentReportedCopy") : $t("manualPaymentCopy") }}
+            {{ paymentCopy }}
           </p>
 
           <div class="payment-status-grid">
@@ -54,6 +63,35 @@
               <strong>{{ formatPrice(orderDeliveryFee) }}</strong>
               <small>{{ orderDeliveryLabel }}</small>
             </article>
+          </div>
+
+          <div class="geniuspay-panel">
+            <div>
+              <span>{{ $t("geniusPayProvider") }}</span>
+              <strong>{{ $t("geniusPayName") }}</strong>
+              <p>
+                {{
+                  geniusPayError
+                    ? $t("geniusPayFallback")
+                    : $t("geniusPayCopy")
+                }}
+              </p>
+              <small v-if="paymentReference">
+                {{ $t("geniusPayReference") }}: {{ paymentReference }}
+              </small>
+            </div>
+            <button
+              class="pay-button"
+              type="button"
+              @click="openGeniusPay"
+              :disabled="!paymentCheckoutUrl || isStartingPayment"
+            >
+              {{
+                isStartingPayment
+                  ? $t("openingPayment")
+                  : $t("payWithGeniusPay")
+              }}
+            </button>
           </div>
 
           <div class="payment-reference">
@@ -83,9 +121,9 @@
           </div>
 
           <ol class="payment-checklist" aria-label="Payment checklist">
-            <li>{{ $t("paymentStepTransfer") }}</li>
-            <li>{{ $t("paymentStepReference") }}</li>
-            <li>{{ $t("paymentStepReport") }}</li>
+            <li>{{ paymentCheckoutUrl ? $t("paymentStepOnline") : $t("paymentStepTransfer") }}</li>
+            <li>{{ paymentCheckoutUrl ? $t("paymentStepOnlineMethod") : $t("paymentStepReference") }}</li>
+            <li>{{ paymentCheckoutUrl ? $t("paymentStepAutoConfirm") : $t("paymentStepReport") }}</li>
           </ol>
 
           <div class="confirmation-actions">
@@ -296,7 +334,11 @@ import SiteHeader from "./components/SiteHeader.vue";
 import CartPanel from "./components/CartPanel.vue";
 import PaymentMethods from "./components/PaymentMethods.vue";
 import { cartStore } from "./data/cart.ts";
-import { createOrder, reportOrderPaid } from "./data/orders.js";
+import {
+  createGeniusPayPayment,
+  createOrder,
+  reportOrderPaid,
+} from "./data/orders.js";
 import {
   SHIPPING_OPTIONS,
   buildOrderId,
@@ -337,7 +379,12 @@ export default {
       orderSent: false,
       isSubmitting: false,
       isReportingPayment: false,
+      isStartingPayment: false,
       paymentReported: false,
+      paymentCheckoutUrl: "",
+      paymentReference: "",
+      paymentToken: "",
+      geniusPayError: "",
       lastOrderId: "",
       lastOrderMessage: "",
       lastOrderSubtotal: 0,
@@ -395,6 +442,49 @@ export default {
     orderTotal() {
       return this.orderSent ? this.lastOrderTotal : this.totalWithShipping;
     },
+    paymentReturnStatus() {
+      const status = String(this.$route?.query?.payment || "").toLowerCase();
+      return ["success", "failed"].includes(status) ? status : "";
+    },
+    paymentReturnOrderId() {
+      return String(this.$route?.query?.order || "").trim();
+    },
+    paymentReturnMessage() {
+      if (this.paymentReturnStatus === "success") {
+        return this.$t("paymentReturnSuccess");
+      }
+      if (this.paymentReturnStatus === "failed") {
+        return this.$t("paymentReturnFailed");
+      }
+      return "";
+    },
+    paymentKicker() {
+      if (this.paymentReported) {
+        return this.$t("paymentReportedKicker");
+      }
+      if (this.paymentCheckoutUrl) {
+        return this.$t("geniusPayKicker");
+      }
+      return this.$t("manualPaymentKicker");
+    },
+    paymentTitle() {
+      if (this.paymentReported) {
+        return this.$t("paymentReportedTitle");
+      }
+      if (this.paymentCheckoutUrl) {
+        return this.$t("geniusPayTitle");
+      }
+      return this.$t("paymentPendingTitle");
+    },
+    paymentCopy() {
+      if (this.paymentReported) {
+        return this.$t("paymentReportedCopy");
+      }
+      if (this.paymentCheckoutUrl) {
+        return this.$t("geniusPayCheckoutCopy");
+      }
+      return this.$t("manualPaymentCopy");
+    },
     manualPaymentMethods() {
       return [
         { label: "Wave", value: VITE_MOMO_WAVE },
@@ -440,8 +530,7 @@ export default {
         this.cartTotal > 0 &&
         this.isFormValid &&
         Boolean(this.selectedShipping) &&
-        !this.isSubmitting &&
-        Boolean(this.whatsappUrl)
+        !this.isSubmitting
       );
     },
   },
@@ -480,6 +569,13 @@ export default {
       }
       window.open(this.whatsappUrl, "_blank", "noopener");
     },
+    openGeniusPay() {
+      if (!this.paymentCheckoutUrl) {
+        this.error = this.$t("geniusPayUnavailable");
+        return;
+      }
+      window.location.assign(this.paymentCheckoutUrl);
+    },
     normalizePaymentValue(value) {
       return String(value || "")
         .replace(
@@ -503,6 +599,34 @@ export default {
     },
     copyPaymentMethod(method) {
       return this.copyText(method.copyValue || method.value, this.$t("numberCopied"));
+    },
+    async startGeniusPayPayment(order) {
+      if (!order?.id) {
+        return;
+      }
+      this.isStartingPayment = true;
+      this.geniusPayError = "";
+      this.paymentCheckoutUrl = "";
+      this.paymentReference = "";
+      try {
+        const result = await createGeniusPayPayment(
+          order.id,
+          order.paymentToken || this.paymentToken
+        );
+        const payment = result.payment || null;
+        this.paymentCheckoutUrl = payment?.checkoutUrl || payment?.paymentUrl || "";
+        this.paymentReference = payment?.reference || "";
+        if (!this.paymentCheckoutUrl) {
+          throw new Error(this.$t("geniusPayUnavailable"));
+        }
+        this.success = this.$t("geniusPayReady");
+      } catch (error) {
+        this.geniusPayError =
+          error instanceof Error ? error.message : this.$t("geniusPayUnavailable");
+        this.success = this.$t("manualPaymentReady");
+      } finally {
+        this.isStartingPayment = false;
+      }
     },
     async sendOrder() {
       this.error = "";
@@ -560,6 +684,7 @@ export default {
         }
 
         this.lastOrderId = createdOrder.id || buildOrderId(); // Use imported buildOrderId
+        this.paymentToken = createdOrder.paymentToken || "";
         this.lastOrderSubtotal = createdOrder.subtotal ?? this.cartTotal;
         this.lastOrderShippingFee = createdOrder.shipping?.fee ?? this.shippingFee;
         this.lastOrderShippingLabel =
@@ -567,9 +692,11 @@ export default {
         this.lastOrderTotal = createdOrder.total ?? this.totalWithShipping;
         this.lastOrderMessage = this.buildOrderMessage();
 
-        this.openWhatsApp();
         this.orderSent = true;
-        this.success = this.$t("whatsappReady");
+        await this.startGeniusPayPayment(createdOrder);
+        if (!this.paymentCheckoutUrl && !this.success) {
+          this.success = this.$t("manualPaymentReady");
+        }
       } catch (error) {
         this.error =
           error instanceof Error ? error.message : "Unable to send order.";
@@ -585,7 +712,7 @@ export default {
       this.success = "";
       this.isReportingPayment = true;
       try {
-        await reportOrderPaid(this.lastOrderId);
+        await reportOrderPaid(this.lastOrderId, this.paymentToken);
         this.paymentReported = true;
         cartStore.clearCart();
         this.success = this.$t("paymentReported");
@@ -886,6 +1013,39 @@ export default {
   gap: 10px;
 }
 
+.payment-return {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border: 1px solid currentColor;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 10px;
+}
+
+.payment-return p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.payment-return strong {
+  font-family: monospace;
+  overflow-wrap: anywhere;
+}
+
+.payment-return.is-success {
+  color: #007b2c;
+  background: #f1fff5;
+}
+
+.payment-return.is-failed {
+  color: #a00000;
+  background: #fff5f5;
+}
+
 .payment-handoff {
   margin-top: 20px;
   padding: clamp(18px, 3vw, 28px);
@@ -968,6 +1128,48 @@ export default {
   color: rgba(255, 255, 255, .72);
   font-size: 12px;
   line-height: 1.55;
+}
+
+.geniuspay-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 240px);
+  gap: 14px;
+  align-items: center;
+  padding: 18px;
+  border: 1px solid var(--line);
+  background: #f4f1e9;
+}
+
+.geniuspay-panel div {
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.geniuspay-panel span {
+  font: 700 9px/1.2 monospace;
+  color: var(--accent);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+.geniuspay-panel strong {
+  font-size: 13px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.geniuspay-panel p,
+.geniuspay-panel small {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.geniuspay-panel small {
+  font-family: monospace;
+  overflow-wrap: anywhere;
 }
 
 .manual-payment-list {
@@ -1408,8 +1610,14 @@ export default {
   .manual-payment-method {
     grid-template-columns: 1fr;
   }
+  .payment-return,
+  .geniuspay-panel {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
   .manual-payment-method button,
-  .payment-status-grid button {
+  .payment-status-grid button,
+  .geniuspay-panel button {
     width: 100%;
   }
   .checkout-mobile-bar { position: fixed; right: 0; bottom: 0; left: 0; z-index: 120; padding: 10px 14px; display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 12px; align-items: center; border-top: 1px solid #0b0b0b; background: rgba(255,255,255,.96); backdrop-filter: blur(14px); }
@@ -1457,6 +1665,7 @@ export default {
   .delivery-box,
   .payment-box,
   .preorder-banner,
+  .geniuspay-panel,
   .manual-payment-empty {
     background: #181818 !important;
     color: #f3f0e8 !important;
@@ -1467,6 +1676,7 @@ export default {
   .payment-status-grid article,
   .manual-payment-list,
   .manual-payment-method,
+  .geniuspay-panel,
   .payment-checklist li {
     border-color: rgba(243, 240, 232, .22) !important;
   }

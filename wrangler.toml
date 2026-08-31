@@ -14,6 +14,10 @@ ORDER_FROM_EMAIL = "NewGbonhi Orders <orders@newgbonhi.com>"
 ORDER_TO_EMAIL = "newgbonhifamily@gmail.com"
 ORDER_DASHBOARD_URL = "https://newgbonhi.com/orders"
 BRAND_LOGO_URL = "https://newgbonhi.com/email-logo.png"
+SITE_URL = "https://newgbonhi.com"
+GENIUSPAY_BASE_URL = "https://geniuspay.ci/api/v1/merchant"
+GENIUSPAY_SUCCESS_URL = "https://newgbonhi.com/checkout?payment=success"
+GENIUSPAY_ERROR_URL = "https://newgbonhi.com/checkout?payment=failed"
 
 [[durable_objects.bindings]]
 name = "ORDERS_STORE"
