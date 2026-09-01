@@ -217,7 +217,7 @@ export const messages = {
     mobilePayment: "Mobile payment",
     choosePaymentMethod: "Choose your payment method",
     manualPaymentDirectCopy:
-      "Choose Wave, Orange Money or MTN Money. Wave opens directly after confirmation; the other methods stay manual for now.",
+      "Choose Wave, Orange Money or MTN Money. Wave opens directly when you confirm; the other methods stay manual for now.",
     manualPaymentSelectedHint:
       "Send {amount} to this number and use {reference} as the payment reference.",
     paymentLaunchAfterOrder:
@@ -237,6 +237,8 @@ export const messages = {
     geniusPayUnavailable: "GeniusPay checkout is unavailable.",
     manualPaymentReady: "Order saved. Use the manual Mobile Money details below.",
     paymentRedirecting: "Order saved. Opening {method}...",
+    paymentLaunchBlocked:
+      "Order saved. {method} could not open automatically. Use the payment details below.",
     paymentReturnSuccess: "Payment received. The team will confirm production.",
     paymentReturnFailed:
       "Payment was not completed. Try again or use manual Mobile Money.",
@@ -250,7 +252,6 @@ export const messages = {
     copy: "Copy",
     copyNumber: "Copy number",
     copyPaymentDetails: "Copy payment details",
-    openPaymentLink: "Open payment link",
     copied: "Copied.",
     orderIdCopied: "Order ID copied.",
     amountCopied: "Amount copied.",
@@ -611,7 +612,7 @@ export const messages = {
     mobilePayment: "Paiement mobile",
     choosePaymentMethod: "Choisissez votre méthode de paiement",
     manualPaymentDirectCopy:
-      "Choisissez Wave, Orange Money ou MTN Money. Wave s’ouvre directement après validation ; les autres moyens restent manuels pour l’instant.",
+      "Choisissez Wave, Orange Money ou MTN Money. Wave s’ouvre directement quand vous validez ; les autres moyens restent manuels pour l’instant.",
     manualPaymentSelectedHint:
       "Envoyez {amount} à ce numéro et utilisez {reference} comme référence du paiement.",
     paymentLaunchAfterOrder:
@@ -632,6 +633,8 @@ export const messages = {
     manualPaymentReady:
       "Commande enregistrée. Utilisez les coordonnées Mobile Money ci-dessous.",
     paymentRedirecting: "Commande enregistrée. Ouverture de {method}...",
+    paymentLaunchBlocked:
+      "Commande enregistrée. {method} n’a pas pu s’ouvrir automatiquement. Utilisez les infos de paiement ci-dessous.",
     paymentReturnSuccess: "Paiement reçu. L’équipe confirme la production.",
     paymentReturnFailed:
       "Le paiement n’a pas abouti. Réessayez ou utilisez Mobile Money manuellement.",
@@ -645,7 +648,6 @@ export const messages = {
     copy: "Copier",
     copyNumber: "Copier numéro",
     copyPaymentDetails: "Copier les infos",
-    openPaymentLink: "Ouvrir le lien de paiement",
     copied: "Copié.",
     orderIdCopied: "ID commande copié.",
     amountCopied: "Montant copié.",

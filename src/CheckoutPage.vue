@@ -108,13 +108,6 @@
               <button type="button" @click="copySelectedPaymentDetails">
                 {{ $t("copyPaymentDetails") }}
               </button>
-              <button
-                v-if="currentManualPaymentMethod.launchUrl"
-                type="button"
-                @click="openSelectedPaymentLink"
-              >
-                {{ $t("openPaymentLink") }}
-              </button>
             </div>
           </div>
 
@@ -710,15 +703,21 @@ export default {
       }
       return this.copyText(this.manualPaymentDetails, this.$t("paymentDetailsCopied"));
     },
-    openSelectedPaymentLink() {
-      const method = this.currentManualPaymentMethod;
-      if (!method?.launchUrl) {
-        return;
+    launchPaymentUrl(url) {
+      const launchUrl = String(url || "").trim();
+      if (!launchUrl) {
+        return false;
       }
-      if (this.orderSent) {
-        this.copySelectedPaymentDetails();
+      try {
+        const paymentWindow = window.open(launchUrl, "_blank");
+        if (paymentWindow) {
+          paymentWindow.opener = null;
+          return true;
+        }
+      } catch (error) {
+        return false;
       }
-      window.location.assign(method.launchUrl);
+      return false;
     },
     async sendOrder() {
       this.error = "";
@@ -741,7 +740,9 @@ export default {
       this.isSubmitting = true;
 
       try {
-        const createdOrder = await createOrder({
+        const selectedPaymentMethod = this.currentManualPaymentMethod;
+        const paymentLaunchUrl = selectedPaymentMethod?.launchUrl || "";
+        const orderPayload = {
           customer: { ...this.customer },
           items: this.cartItems.map((item) => ({
             key: item.key,
@@ -769,7 +770,19 @@ export default {
           },
           type: "preorder",
           fulfillment: this.preorderFulfillment,
-        });
+        };
+        const orderRequest = createOrder(orderPayload);
+        const paymentLaunched = paymentLaunchUrl
+          ? this.launchPaymentUrl(paymentLaunchUrl)
+          : false;
+
+        if (paymentLaunchUrl) {
+          this.success = this.$t("paymentRedirecting", {
+            method: selectedPaymentMethod.label,
+          });
+        }
+
+        const createdOrder = await orderRequest;
 
         if (!createdOrder || !createdOrder.id) {
           throw new Error("Unable to create order.");
@@ -785,11 +798,10 @@ export default {
         this.lastOrderMessage = this.buildOrderMessage();
 
         this.orderSent = true;
-        if (this.currentManualPaymentMethod?.launchUrl) {
-          this.success = this.$t("paymentRedirecting", {
-            method: this.currentManualPaymentMethod.label,
+        if (paymentLaunchUrl) {
+          this.success = this.$t(paymentLaunched ? "paymentRedirecting" : "paymentLaunchBlocked", {
+            method: selectedPaymentMethod.label,
           });
-          window.location.assign(this.currentManualPaymentMethod.launchUrl);
         } else {
           this.success = this.$t("manualPaymentReady");
         }
