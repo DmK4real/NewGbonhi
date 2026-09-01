@@ -18,6 +18,12 @@ const ORDER_EMAIL_PREFIX = "order.email.";
 const ORDER_TEAM_EMAIL_PREFIX = "order.team.email.";
 const GENIUSPAY_DEFAULT_BASE_URL = "https://geniuspay.ci/api/v1/merchant";
 const GENIUSPAY_WEBHOOK_MAX_AGE_SECONDS = 60 * 5;
+const GENIUSPAY_PAYMENT_METHODS = new Set([
+  "wave",
+  "orange_money",
+  "mtn_money",
+  "card",
+]);
 
 const baseHeaders = {
   "content-type": "application/json; charset=utf-8",
@@ -506,12 +512,39 @@ const normalizePaymentPhone = (value) => {
 const normalizeGeniusPaySignature = (value) =>
   safeString(value, 200).replace(/^sha256=/i, "").toLowerCase();
 
-const isReusableGeniusPayPayment = (payment) => {
+const normalizeGeniusPayPaymentMethod = (value) => {
+  const raw = safeString(value, 60).toLowerCase().replace(/[\s-]+/g, "_");
+  const aliases = {
+    wave: "wave",
+    orange: "orange_money",
+    orange_money: "orange_money",
+    mtn: "mtn_money",
+    mtn_money: "mtn_money",
+    mtn_momo: "mtn_money",
+    card: "card",
+    carte: "card",
+    paystack: "card",
+  };
+  const method = aliases[raw] || "";
+  return GENIUSPAY_PAYMENT_METHODS.has(method) ? method : "";
+};
+
+const isReusableGeniusPayPayment = (payment, paymentMethod = "") => {
   if (!payment || payment.provider !== "geniuspay" || !payment.checkoutUrl) {
     return false;
   }
   const status = safeString(payment.status, 40).toLowerCase();
-  return !status || ["pending", "processing", "initiated"].includes(status);
+  const reusableStatus =
+    !status || ["pending", "processing", "initiated"].includes(status);
+  if (!reusableStatus) {
+    return false;
+  }
+
+  const expectedMethod = normalizeGeniusPayPaymentMethod(paymentMethod);
+  if (!expectedMethod) {
+    return true;
+  }
+  return normalizeGeniusPayPaymentMethod(payment.paymentMethod) === expectedMethod;
 };
 
 const publicGeniusPayPayment = (payment) => {
@@ -679,7 +712,7 @@ export class OrdersStore {
     }
   }
 
-  buildGeniusPayPaymentRequest(order) {
+  buildGeniusPayPaymentRequest(order, paymentMethod = "") {
     const amount = safeInteger(order.subtotal, 0);
     if (amount < 200) {
       throw createHttpError(
@@ -692,8 +725,9 @@ export class OrdersStore {
       `${order.customer?.firstName || ""} ${order.customer?.lastName || ""}`,
       140
     );
+    const method = normalizeGeniusPayPaymentMethod(paymentMethod);
 
-    return {
+    const body = {
       amount,
       currency: "XOF",
       description: safeString(`Commande ${order.id} NewGbonhi`, 180),
@@ -711,13 +745,19 @@ export class OrdersStore {
       metadata: {
         order_id: order.id,
         source: "newgbonhi_checkout",
+        ...(method ? { payment_method: method } : {}),
       },
     };
+    if (method) {
+      body.payment_method = method;
+    }
+    return body;
   }
 
-  async createGeniusPayPayment(order) {
+  async createGeniusPayPayment(order, paymentMethod = "") {
     this.assertGeniusPayConfigured();
-    const body = this.buildGeniusPayPaymentRequest(order);
+    const method = normalizeGeniusPayPaymentMethod(paymentMethod);
+    const body = this.buildGeniusPayPaymentRequest(order, method);
     const response = await fetch(`${this.geniusPayBaseUrl}/payments`, {
       method: "POST",
       headers: {
@@ -761,7 +801,15 @@ export class OrdersStore {
       checkoutUrl,
       paymentUrl: safeString(data.payment_url || data.paymentUrl, 500) || checkoutUrl,
       paymentMethod:
-        safeString(data.payment_method || data.paymentMethod || data.method, 60) ||
+        safeString(
+          data.payment_method ||
+            data.paymentMethod ||
+            data.method ||
+            data.gateway ||
+            data.payment_provider ||
+            method,
+          60
+        ) ||
         null,
       environment: safeString(data.environment, 40) || null,
       expiresAt: safeString(data.expires_at || data.expiresAt, 60) || null,
@@ -900,6 +948,8 @@ export class OrdersStore {
           paymentData.payment_method ||
             paymentData.paymentMethod ||
             paymentData.method ||
+            paymentData.gateway ||
+            paymentData.payment_provider ||
             current.paymentMethod,
           60
         ) || null,
@@ -1771,6 +1821,12 @@ export class OrdersStore {
         }
 
         const payload = await parseOptionalJsonBody(request);
+        const paymentMethod = normalizeGeniusPayPaymentMethod(
+          payload.paymentMethod || payload.payment_method
+        );
+        if ((payload.paymentMethod || payload.payment_method) && !paymentMethod) {
+          return json(400, { error: "Invalid GeniusPay payment method." });
+        }
         const orders = await this.loadOrders();
         const order = orders.find((entry) => entry.id === orderId);
         if (!order) {
@@ -1779,14 +1835,14 @@ export class OrdersStore {
 
         this.assertPaymentToken(order, payload.paymentToken);
 
-        if (isReusableGeniusPayPayment(order.payment)) {
+        if (isReusableGeniusPayPayment(order.payment, paymentMethod)) {
           return json(200, {
             order,
             payment: publicGeniusPayPayment(order.payment),
           });
         }
 
-        const payment = await this.createGeniusPayPayment(order);
+        const payment = await this.createGeniusPayPayment(order, paymentMethod);
         order.payment = payment;
         await this.saveOrders(orders);
         await this.appendAuditEntry({

@@ -126,12 +126,16 @@ export const reportOrderPaid = async (orderId, paymentToken = "") => {
   return payload.order || null;
 };
 
-export const createGeniusPayPayment = async (orderId, paymentToken = "") => {
+export const createGeniusPayPayment = async (
+  orderId,
+  paymentToken = "",
+  paymentMethod = ""
+) => {
   const payload = await request(
     `/orders/${encodeURIComponent(orderId)}/geniuspay-payment`,
     {
       method: "POST",
-      body: JSON.stringify({ paymentToken }),
+      body: JSON.stringify({ paymentToken, paymentMethod }),
     }
   );
   return {

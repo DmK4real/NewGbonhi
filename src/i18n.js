@@ -205,14 +205,23 @@ export const messages = {
     geniusPayName: "GeniusPay",
     geniusPayCopy:
       "Choose Wave, Orange Money, MTN Money or another method available on the secured GeniusPay page.",
+    geniusPayDirectCopy:
+      "Choose your payment method. NewGbonhi opens the matching GeniusPay gateway to validate the payment.",
     geniusPayCheckoutCopy:
       "Your order is saved. Pay the item now through GeniusPay to confirm production.",
     geniusPayFallback:
       "GeniusPay is not ready yet. Use the Mobile Money details below, then send the receipt on WhatsApp.",
     geniusPayReference: "GeniusPay reference",
     payWithGeniusPay: "Pay with GeniusPay",
+    choosePaymentMethod: "Choose your payment method",
+    paymentMethodWave: "Wave",
+    paymentMethodOrange: "Orange Money",
+    paymentMethodMtn: "MTN Money",
+    paymentMethodCard: "Bank card",
     openingPayment: "Opening payment...",
     geniusPayReady: "GeniusPay checkout is ready.",
+    geniusPaySelectMethodReady:
+      "Order saved. Choose a payment method to continue.",
     geniusPayUnavailable: "GeniusPay checkout is unavailable.",
     manualPaymentReady: "Order saved. Use the manual Mobile Money details below.",
     paymentReturnSuccess: "Payment received. The team will confirm production.",
@@ -238,9 +247,9 @@ export const messages = {
     paymentStepTransfer: "Transfer the item amount shown above.",
     paymentStepReference: "Use the order ID as the transfer reference.",
     paymentStepReport: "Send the receipt on WhatsApp, then tap “I’ve paid”.",
-    paymentStepOnline: "Open the secure GeniusPay checkout.",
+    paymentStepOnline: "Choose Wave, Orange Money, MTN Money or card.",
     paymentStepOnlineMethod:
-      "Choose the available Mobile Money method on GeniusPay.",
+      "Validate the payment in the page or app opened by GeniusPay.",
     paymentStepAutoConfirm:
       "After payment, GeniusPay confirms the order automatically.",
     openWhatsApp: "Open WhatsApp",
@@ -574,14 +583,23 @@ export const messages = {
     geniusPayName: "GeniusPay",
     geniusPayCopy:
       "Choisissez Wave, Orange Money, MTN Money ou un autre moyen activé sur la page sécurisée GeniusPay.",
+    geniusPayDirectCopy:
+      "Choisissez votre moyen de paiement. NewGbonhi ouvre le gateway GeniusPay correspondant pour valider le paiement.",
     geniusPayCheckoutCopy:
       "Votre commande est enregistrée. Payez l’article via GeniusPay pour confirmer la production.",
     geniusPayFallback:
       "GeniusPay n’est pas encore disponible. Utilisez les coordonnées Mobile Money ci-dessous, puis envoyez le reçu sur WhatsApp.",
     geniusPayReference: "Référence GeniusPay",
     payWithGeniusPay: "Payer avec GeniusPay",
+    choosePaymentMethod: "Choisissez votre méthode de paiement",
+    paymentMethodWave: "Wave",
+    paymentMethodOrange: "Orange Money",
+    paymentMethodMtn: "MTN Money",
+    paymentMethodCard: "Carte bancaire",
     openingPayment: "Ouverture du paiement...",
     geniusPayReady: "Le paiement GeniusPay est prêt.",
+    geniusPaySelectMethodReady:
+      "Commande enregistrée. Choisissez un moyen de paiement pour continuer.",
     geniusPayUnavailable: "Le paiement GeniusPay est indisponible.",
     manualPaymentReady:
       "Commande enregistrée. Utilisez les coordonnées Mobile Money ci-dessous.",
@@ -608,9 +626,9 @@ export const messages = {
     paymentStepTransfer: "Transférez le montant de l’article indiqué ci-dessus.",
     paymentStepReference: "Utilisez l’ID de commande comme référence du transfert.",
     paymentStepReport: "Envoyez le reçu sur WhatsApp, puis cliquez sur « J’ai payé ».",
-    paymentStepOnline: "Ouvrez le checkout sécurisé GeniusPay.",
+    paymentStepOnline: "Choisissez Wave, Orange Money, MTN Money ou carte.",
     paymentStepOnlineMethod:
-      "Choisissez le moyen Mobile Money disponible sur GeniusPay.",
+      "Validez le paiement dans la page ou l’application ouverte par GeniusPay.",
     paymentStepAutoConfirm:
       "Après paiement, GeniusPay confirme la commande automatiquement.",
     openWhatsApp: "Ouvrir WhatsApp",
