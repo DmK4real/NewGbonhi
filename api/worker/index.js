@@ -770,6 +770,38 @@ export class OrdersStore {
     };
   }
 
+  async fetchGeniusPayPayment(reference) {
+    this.assertGeniusPayConfigured();
+    const safeReference = safeString(reference, 120);
+    if (!safeReference) {
+      throw createHttpError(400, "GeniusPay payment reference is missing.");
+    }
+
+    const response = await fetch(
+      `${this.geniusPayBaseUrl}/payments/${encodeURIComponent(safeReference)}`,
+      {
+        headers: {
+          Accept: "application/json",
+          "X-API-Key": this.geniusPayApiKey,
+          "X-API-Secret": this.geniusPayApiSecret,
+        },
+      }
+    );
+    const payload = await response.json().catch(() => ({}));
+    const data =
+      payload?.data && typeof payload.data === "object" ? payload.data : payload;
+
+    if (!response.ok || payload?.success === false) {
+      throw createHttpError(
+        response.status || 502,
+        safeString(payload?.message || payload?.error, 180) ||
+          "GeniusPay payment lookup failed."
+      );
+    }
+
+    return data;
+  }
+
   async verifyGeniusPayWebhookSignature(request, rawBody) {
     if (!this.geniusPayWebhookSecret) {
       throw createHttpError(503, "GeniusPay webhook secret is not configured.");
@@ -809,7 +841,14 @@ export class OrdersStore {
   isGeniusPayPaid(event, status) {
     const normalizedEvent = safeString(event, 80).toLowerCase();
     const normalizedStatus = safeString(status, 40).toLowerCase();
-    return normalizedEvent === "payment.success" || normalizedStatus === "completed";
+    return (
+      ["payment.success", "payment.completed", "payment.paid"].includes(
+        normalizedEvent
+      ) ||
+      ["completed", "paid", "success", "succeeded", "successful"].includes(
+        normalizedStatus
+      )
+    );
   }
 
   findGeniusPayOrder(orders, paymentData) {
@@ -1785,6 +1824,10 @@ export class OrdersStore {
             : payload && typeof payload === "object"
               ? payload
               : {};
+        if (event === "webhook.test") {
+          return json(200, { ok: true, event });
+        }
+
         const orders = await this.loadOrders();
         const { order, orderId, reference } = this.findGeniusPayOrder(
           orders,
@@ -1829,6 +1872,71 @@ export class OrdersStore {
           status: order.status,
           paymentStatus: payment.status,
         });
+      }
+
+      if (
+        method === "POST" &&
+        pathname.match(/^\/api\/orders\/[^/]+\/geniuspay-sync$/)
+      ) {
+        if (!(await this.isAuthorized(request))) {
+          return json(401, { error: "Unauthorized." });
+        }
+
+        const orderId = parseOrderIdFromPath(pathname, "geniuspay-sync");
+        if (!orderId) {
+          return json(400, { error: "Order id is missing." });
+        }
+
+        const orders = await this.loadOrders();
+        const order = orders.find((entry) => entry.id === orderId);
+        if (!order) {
+          return json(404, { error: "Order not found." });
+        }
+
+        if (order.payment?.provider !== "geniuspay" || !order.payment?.reference) {
+          return json(400, { error: "GeniusPay payment reference is missing." });
+        }
+
+        const paymentData = await this.fetchGeniusPayPayment(
+          order.payment.reference
+        );
+        const previousStatus = order.status;
+        const payment = this.applyGeniusPayWebhookToOrder(
+          order,
+          paymentData,
+          "payment.sync"
+        );
+        if (
+          this.isGeniusPayPaid("payment.sync", payment.status) &&
+          !["production", "delivered"].includes(order.status)
+        ) {
+          order.status = "paid";
+        }
+
+        await this.saveOrders(orders);
+        await this.appendAuditEntry({
+          orderId: order.id,
+          previousStatus,
+          nextStatus: order.status,
+          actor: "admin",
+          source: "geniuspay-sync",
+          paymentReference: payment.reference,
+        });
+
+        if (previousStatus !== order.status && order.status === "paid") {
+          try {
+            await this.sendOrderStatusEmail(order, order.status);
+          } catch (error) {
+            console.error("Unable to send GeniusPay sync confirmation", error);
+          }
+          try {
+            await this.sendOrderTeamEmail(order, "payment_confirmed");
+          } catch (error) {
+            console.error("Unable to send team GeniusPay sync notification", error);
+          }
+        }
+
+        return json(200, { orders });
       }
 
       if (

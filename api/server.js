@@ -581,6 +581,38 @@ const createGeniusPayPayment = async (order) => {
   };
 };
 
+const fetchGeniusPayPayment = async (reference) => {
+  assertGeniusPayConfigured();
+  const safeReference = safeString(reference, 120);
+  if (!safeReference) {
+    throw createHttpError(400, "GeniusPay payment reference is missing.");
+  }
+
+  const response = await fetch(
+    `${GENIUSPAY_BASE_URL}/payments/${encodeURIComponent(safeReference)}`,
+    {
+      headers: {
+        Accept: "application/json",
+        "X-API-Key": GENIUSPAY_API_KEY,
+        "X-API-Secret": GENIUSPAY_API_SECRET,
+      },
+    }
+  );
+  const payload = await response.json().catch(() => ({}));
+  const data =
+    payload?.data && typeof payload.data === "object" ? payload.data : payload;
+
+  if (!response.ok || payload?.success === false) {
+    throw createHttpError(
+      response.status || 502,
+      safeString(payload?.message || payload?.error, 180) ||
+        "GeniusPay payment lookup failed."
+    );
+  }
+
+  return data;
+};
+
 const verifyGeniusPayWebhookSignature = (req, rawBody) => {
   if (!GENIUSPAY_WEBHOOK_SECRET) {
     throw createHttpError(503, "GeniusPay webhook secret is not configured.");
@@ -616,7 +648,14 @@ const verifyGeniusPayWebhookSignature = (req, rawBody) => {
 const isGeniusPayPaid = (event, status) => {
   const normalizedEvent = safeString(event, 80).toLowerCase();
   const normalizedStatus = safeString(status, 40).toLowerCase();
-  return normalizedEvent === "payment.success" || normalizedStatus === "completed";
+  return (
+    ["payment.success", "payment.completed", "payment.paid"].includes(
+      normalizedEvent
+    ) ||
+    ["completed", "paid", "success", "succeeded", "successful"].includes(
+      normalizedStatus
+    )
+  );
 };
 
 const findGeniusPayOrder = (orders, paymentData) => {
@@ -885,6 +924,10 @@ const server = createServer(async (req, res) => {
           : payload && typeof payload === "object"
             ? payload
             : {};
+      if (event === "webhook.test") {
+        respondJson(res, 200, { ok: true, event });
+        return;
+      }
 
       const result = await withWriteLock(async () => {
         const orders = await readOrders();
@@ -925,6 +968,64 @@ const server = createServer(async (req, res) => {
       }
 
       respondJson(res, 200, { ok: true, ...result });
+      return;
+    }
+
+    if (method === "POST" && pathname.match(/^\/api\/orders\/[^/]+\/geniuspay-sync$/)) {
+      if (!isAuthorized(req)) {
+        respondJson(res, 401, { error: "Unauthorized." });
+        return;
+      }
+
+      const orderId = parseOrderIdFromPath(pathname, "geniuspay-sync");
+      if (!orderId) {
+        respondJson(res, 400, { error: "Order id is missing." });
+        return;
+      }
+
+      const updatedOrders = await withWriteLock(async () => {
+        const orders = await readOrders();
+        const order = orders.find((entry) => entry.id === orderId);
+        if (!order) {
+          return null;
+        }
+
+        if (order.payment?.provider !== "geniuspay" || !order.payment?.reference) {
+          throw createHttpError(400, "GeniusPay payment reference is missing.");
+        }
+
+        const paymentData = await fetchGeniusPayPayment(order.payment.reference);
+        const previousStatus = order.status;
+        const payment = applyGeniusPayWebhookToOrder(
+          order,
+          paymentData,
+          "payment.sync"
+        );
+        if (
+          isGeniusPayPaid("payment.sync", payment.status) &&
+          !["production", "delivered"].includes(order.status)
+        ) {
+          order.status = "paid";
+        }
+
+        await writeOrders(orders);
+        await appendAuditLog({
+          orderId: order.id,
+          previousStatus,
+          nextStatus: order.status,
+          actor: "admin",
+          source: "geniuspay-sync",
+          paymentReference: payment.reference,
+        });
+        return orders;
+      });
+
+      if (!updatedOrders) {
+        respondJson(res, 404, { error: "Order not found." });
+        return;
+      }
+
+      respondJson(res, 200, { orders: updatedOrders });
       return;
     }
 

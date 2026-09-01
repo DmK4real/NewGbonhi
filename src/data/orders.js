@@ -168,6 +168,17 @@ export const updateOrderStatus = async (orderId, status, token) => {
   return Array.isArray(payload.orders) ? payload.orders : [];
 };
 
+export const syncGeniusPayPayment = async (orderId, token) => {
+  const payload = await request(
+    `/orders/${encodeURIComponent(orderId)}/geniuspay-sync`,
+    {
+      method: "POST",
+    },
+    token
+  );
+  return Array.isArray(payload.orders) ? payload.orders : [];
+};
+
 export const deleteOrder = async (orderId, token) => {
   const payload = await request(
     `/orders/${encodeURIComponent(orderId)}`,

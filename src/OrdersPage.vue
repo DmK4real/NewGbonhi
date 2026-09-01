@@ -139,6 +139,15 @@
               {{ $t("copySummary") }}
             </button>
             <button
+              v-if="canSyncGeniusPay(order)"
+              type="button"
+              class="ghost-button"
+              :disabled="isSaving"
+              @click="syncGeniusPay(order)"
+            >
+              {{ $t("syncGeniusPay") }}
+            </button>
+            <button
               v-if="order.status !== 'production' && order.status !== 'delivered'"
               type="button"
               class="pay-button"
@@ -191,6 +200,7 @@ import {
   adminLogin,
   deleteOrder,
   loadOrders,
+  syncGeniusPayPayment,
   updateOrderStatus,
 } from "./data/orders.js";
 
@@ -293,17 +303,30 @@ export default {
         : provider || this.$t("paymentUnknown");
     },
     formatPaymentStatus(status) {
+      const normalizedStatus = String(status || "").toLowerCase();
       const map = {
         pending: this.$t("paymentPending"),
         initiated: this.$t("paymentPending"),
         processing: this.$t("paymentProcessing"),
         completed: this.$t("paymentCompleted"),
+        paid: this.$t("paymentCompleted"),
+        success: this.$t("paymentCompleted"),
+        succeeded: this.$t("paymentCompleted"),
+        successful: this.$t("paymentCompleted"),
         failed: this.$t("paymentFailed"),
         cancelled: this.$t("paymentCancelled"),
         expired: this.$t("paymentExpired"),
         refunded: this.$t("paymentRefunded"),
       };
-      return map[status] || status || this.$t("paymentUnknown");
+      return map[normalizedStatus] || status || this.$t("paymentUnknown");
+    },
+    canSyncGeniusPay(order) {
+      const status = String(order?.status || "").toLowerCase();
+      return (
+        order?.payment?.provider === "geniuspay" &&
+        Boolean(order.payment.reference) &&
+        !["paid", "production", "delivered"].includes(status)
+      );
     },
     primaryActionLabel(order) {
       return order?.status === "paid"
@@ -387,6 +410,23 @@ export default {
       } catch (error) {
         this.authError =
           error instanceof Error ? error.message : "Unable to update order.";
+      } finally {
+        this.isSaving = false;
+      }
+    },
+    async syncGeniusPay(order) {
+      if (this.isSaving || !this.adminToken || !this.canSyncGeniusPay(order)) {
+        return;
+      }
+      this.authError = "";
+      this.actionSuccess = "";
+      this.isSaving = true;
+      try {
+        this.orders = await syncGeniusPayPayment(order.id, this.adminToken);
+        this.actionSuccess = this.$t("geniusPaySynced");
+      } catch (error) {
+        this.authError =
+          error instanceof Error ? error.message : "Unable to sync GeniusPay.";
       } finally {
         this.isSaving = false;
       }
