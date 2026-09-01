@@ -195,8 +195,9 @@ export const messages = {
     paymentReportedKicker: "Payment / Reported",
     paymentPendingTitle: "Payment pending.",
     paymentReportedTitle: "Payment under review.",
+    manualPaymentTitle: "Mobile payment pending.",
     manualPaymentCopy:
-      "Send the item amount to one of the Mobile Money accounts below. Use your order ID as the payment reference so the team can verify quickly.",
+      "Pay the item amount with the Mobile Money method below. Use your order ID as the payment reference so the team can verify quickly.",
     paymentReportedCopy:
       "Your payment report has been received. The team is checking the transaction before production starts.",
     geniusPayKicker: "Secure payment",
@@ -213,10 +214,21 @@ export const messages = {
       "GeniusPay is not ready yet. Use the Mobile Money details below, then send the receipt on WhatsApp.",
     geniusPayReference: "GeniusPay reference",
     payWithGeniusPay: "Pay with GeniusPay",
+    mobilePayment: "Mobile payment",
     choosePaymentMethod: "Choose your payment method",
+    manualPaymentDirectCopy:
+      "Choose Wave, Orange Money or MTN Money. Wave opens directly after confirmation; the other methods stay manual for now.",
+    manualPaymentSelectedHint:
+      "Send {amount} to this number and use {reference} as the payment reference.",
+    paymentLaunchAfterOrder:
+      "After confirmation, the site opens {method} so you can validate the payment in the app.",
+    paymentManualAfterOrder:
+      "After confirmation, pay manually with {method} to {number}. The order page will show the amount and reference.",
     paymentMethodWave: "Wave",
     paymentMethodOrange: "Orange Money",
     paymentMethodMtn: "MTN Money",
+    paymentMethodMoov: "Moov Money",
+    paymentMethodMobileMoney: "Mobile Money",
     paymentMethodCard: "Bank card",
     openingPayment: "Opening payment...",
     geniusPayReady: "GeniusPay checkout is ready.",
@@ -224,6 +236,7 @@ export const messages = {
       "Order saved. Choose a payment method to continue.",
     geniusPayUnavailable: "GeniusPay checkout is unavailable.",
     manualPaymentReady: "Order saved. Use the manual Mobile Money details below.",
+    paymentRedirecting: "Order saved. Opening {method}...",
     paymentReturnSuccess: "Payment received. The team will confirm production.",
     paymentReturnFailed:
       "Payment was not completed. Try again or use manual Mobile Money.",
@@ -236,10 +249,13 @@ export const messages = {
     transferTo: "Transfer to",
     copy: "Copy",
     copyNumber: "Copy number",
+    copyPaymentDetails: "Copy payment details",
+    openPaymentLink: "Open payment link",
     copied: "Copied.",
     orderIdCopied: "Order ID copied.",
     amountCopied: "Amount copied.",
     numberCopied: "Payment number copied.",
+    paymentDetailsCopied: "Payment details copied.",
     summaryCopied: "Order summary copied.",
     copyFailed: "Unable to copy.",
     paymentMethodFallback:
@@ -573,8 +589,9 @@ export const messages = {
     paymentReportedKicker: "Paiement / Signalé",
     paymentPendingTitle: "Paiement en attente.",
     paymentReportedTitle: "Paiement en vérification.",
+    manualPaymentTitle: "Paiement mobile en attente.",
     manualPaymentCopy:
-      "Envoyez le montant de l’article sur l’un des comptes Mobile Money ci-dessous. Utilisez l’ID de commande comme référence pour faciliter la vérification.",
+      "Payez le montant de l’article avec le moyen Mobile Money ci-dessous. Utilisez l’ID de commande comme référence pour faciliter la vérification.",
     paymentReportedCopy:
       "Votre signalement de paiement est bien reçu. L’équipe vérifie la transaction avant de lancer la production.",
     geniusPayKicker: "Paiement sécurisé",
@@ -591,10 +608,21 @@ export const messages = {
       "GeniusPay n’est pas encore disponible. Utilisez les coordonnées Mobile Money ci-dessous, puis envoyez le reçu sur WhatsApp.",
     geniusPayReference: "Référence GeniusPay",
     payWithGeniusPay: "Payer avec GeniusPay",
+    mobilePayment: "Paiement mobile",
     choosePaymentMethod: "Choisissez votre méthode de paiement",
+    manualPaymentDirectCopy:
+      "Choisissez Wave, Orange Money ou MTN Money. Wave s’ouvre directement après validation ; les autres moyens restent manuels pour l’instant.",
+    manualPaymentSelectedHint:
+      "Envoyez {amount} à ce numéro et utilisez {reference} comme référence du paiement.",
+    paymentLaunchAfterOrder:
+      "Après validation, le site ouvre {method} pour confirmer le paiement dans l’application.",
+    paymentManualAfterOrder:
+      "Après validation, payez manuellement avec {method} au {number}. La page commande affichera le montant et la référence.",
     paymentMethodWave: "Wave",
     paymentMethodOrange: "Orange Money",
     paymentMethodMtn: "MTN Money",
+    paymentMethodMoov: "Moov Money",
+    paymentMethodMobileMoney: "Mobile Money",
     paymentMethodCard: "Carte bancaire",
     openingPayment: "Ouverture du paiement...",
     geniusPayReady: "Le paiement GeniusPay est prêt.",
@@ -603,6 +631,7 @@ export const messages = {
     geniusPayUnavailable: "Le paiement GeniusPay est indisponible.",
     manualPaymentReady:
       "Commande enregistrée. Utilisez les coordonnées Mobile Money ci-dessous.",
+    paymentRedirecting: "Commande enregistrée. Ouverture de {method}...",
     paymentReturnSuccess: "Paiement reçu. L’équipe confirme la production.",
     paymentReturnFailed:
       "Le paiement n’a pas abouti. Réessayez ou utilisez Mobile Money manuellement.",
@@ -615,10 +644,13 @@ export const messages = {
     transferTo: "Transférer vers",
     copy: "Copier",
     copyNumber: "Copier numéro",
+    copyPaymentDetails: "Copier les infos",
+    openPaymentLink: "Ouvrir le lien de paiement",
     copied: "Copié.",
     orderIdCopied: "ID commande copié.",
     amountCopied: "Montant copié.",
     numberCopied: "Numéro de paiement copié.",
+    paymentDetailsCopied: "Infos de paiement copiées.",
     summaryCopied: "Récapitulatif copié.",
     copyFailed: "Copie impossible.",
     paymentMethodFallback:

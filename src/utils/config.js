@@ -6,6 +6,7 @@ const readEnv = (key, fallback = "") => {
 const DEFAULT_MOMO_WAVE = "Wave 07 89 53 83 88";
 const DEFAULT_MOMO_ORANGE = "Orange 07 89 53 83 88";
 const DEFAULT_MOMO_MTN = "MTN 05 04 31 53 31";
+const DEFAULT_MOMO_WAVE_LINK = "https://pay.wave.com/m/M_ci_cNiKvg4QvKE3/c/ci/";
 const DEFAULT_CONTACT_EMAIL = "newgbonhifamily@gmail.com";
 
 const warnedMessages = new Set();
@@ -26,6 +27,9 @@ export const checkoutConfig = {
   momoMtn: readEnv("VITE_MOMO_MTN", DEFAULT_MOMO_MTN),
   momoMoov: readEnv("VITE_MOMO_MOOV"),
   momoAdditional: readEnv("VITE_MOMO_ADDITIONAL"),
+  momoWaveLink: readEnv("VITE_MOMO_WAVE_LINK", DEFAULT_MOMO_WAVE_LINK),
+  momoOrangeLink: readEnv("VITE_MOMO_ORANGE_LINK"),
+  momoMtnLink: readEnv("VITE_MOMO_MTN_LINK"),
   paymentNote: readEnv(
     "VITE_PAYMENT_NOTE",
     "La production commence après validation du paiement. Livraison prévue sous 48/72 h."

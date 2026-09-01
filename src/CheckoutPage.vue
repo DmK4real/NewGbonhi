@@ -67,18 +67,9 @@
 
           <div class="geniuspay-panel">
             <div class="geniuspay-heading">
-              <span>{{ $t("geniusPayProvider") }}</span>
+              <span>{{ $t("mobilePayment") }}</span>
               <strong>{{ $t("choosePaymentMethod") }}</strong>
-              <p>
-                {{
-                  geniusPayError
-                    ? $t("geniusPayFallback")
-                    : $t("geniusPayDirectCopy")
-                }}
-              </p>
-              <small v-if="paymentReference">
-                {{ $t("geniusPayReference") }}: {{ paymentReference }}
-              </small>
+              <p>{{ $t("manualPaymentDirectCopy") }}</p>
             </div>
             <div
               class="geniuspay-method-grid"
@@ -86,58 +77,58 @@
               :aria-label="$t('choosePaymentMethod')"
             >
               <button
-                v-for="method in geniusPayMethods"
+                v-for="method in manualPaymentMethods"
                 :key="method.id"
                 type="button"
                 class="geniuspay-method-card"
-                :class="[method.className, { 'is-selected': selectedGeniusPayMethod === method.id }]"
-                :disabled="isStartingPayment"
-                :aria-pressed="selectedGeniusPayMethod === method.id"
-                @click="startGeniusPayPayment(null, method.id)"
+                :class="[method.className, { 'is-selected': selectedManualPaymentMethod === method.id }]"
+                :aria-pressed="selectedManualPaymentMethod === method.id"
+                @click="selectManualPaymentMethod(method)"
               >
                 <span class="method-check" aria-hidden="true"></span>
                 <span class="method-mark">{{ method.mark }}</span>
-                <strong>{{ $t(method.labelKey) }}</strong>
-                <small v-if="startingPaymentMethod === method.id">
-                  {{ $t("openingPayment") }}
-                </small>
+                <strong>{{ method.label }}</strong>
+                <small>{{ method.copyValue }}</small>
               </button>
             </div>
           </div>
 
-          <div v-if="geniusPayError" class="payment-reference">
-            <span>{{ $t("paymentReference") }}</span>
-            <strong>{{ lastOrderId }}</strong>
-            <p>{{ $t("paymentReferenceHint") }}</p>
+          <div v-if="currentManualPaymentMethod" class="payment-reference">
+            <span>{{ currentManualPaymentMethod.label }}</span>
+            <strong>{{ currentManualPaymentMethod.copyValue }}</strong>
+            <p>
+              {{
+                $t("manualPaymentSelectedHint", {
+                  amount: formatPrice(amountToPayNow),
+                  reference: lastOrderId,
+                })
+              }}
+            </p>
+            <div class="payment-reference-actions">
+              <button type="button" @click="copySelectedPaymentDetails">
+                {{ $t("copyPaymentDetails") }}
+              </button>
+              <button
+                v-if="currentManualPaymentMethod.launchUrl"
+                type="button"
+                @click="openSelectedPaymentLink"
+              >
+                {{ $t("openPaymentLink") }}
+              </button>
+            </div>
           </div>
 
-          <div v-if="geniusPayError" class="manual-payment-list">
-            <article
-              v-for="method in manualPaymentMethods"
-              :key="method.label"
-              class="manual-payment-method"
-            >
-              <div>
-                <span>{{ $t("transferTo") }}</span>
-                <strong>{{ method.label }}</strong>
-                <p>{{ method.value }}</p>
-              </div>
-              <button type="button" @click="copyPaymentMethod(method)">
-                {{ $t("copyNumber") }}
-              </button>
-            </article>
-            <article v-if="manualPaymentMethods.length === 0" class="manual-payment-empty">
-              {{ $t("paymentMethodFallback") }}
-            </article>
-          </div>
+          <p v-if="manualPaymentMethods.length === 0" class="manual-payment-empty">
+            {{ $t("paymentMethodFallback") }}
+          </p>
 
           <ol class="payment-checklist" aria-label="Payment checklist">
-            <li>{{ onlinePaymentAvailable ? $t("paymentStepOnline") : $t("paymentStepTransfer") }}</li>
-            <li>{{ onlinePaymentAvailable ? $t("paymentStepOnlineMethod") : $t("paymentStepReference") }}</li>
-            <li>{{ onlinePaymentAvailable ? $t("paymentStepAutoConfirm") : $t("paymentStepReport") }}</li>
+            <li>{{ $t("paymentStepTransfer") }}</li>
+            <li>{{ $t("paymentStepReference") }}</li>
+            <li>{{ $t("paymentStepReport") }}</li>
           </ol>
 
-          <div v-if="geniusPayError" class="confirmation-actions">
+          <div class="confirmation-actions">
             <button class="ghost-button" type="button" @click="openWhatsApp">
               {{ $t("openWhatsApp") }}
             </button>
@@ -233,8 +224,46 @@
 
           <div class="payment-box">
             <p class="checkout-step-label">03 / PAYMENT</p>
-            <h3>{{ $t("payment") }}</h3>
-            <PaymentMethods />
+            <div class="geniuspay-panel checkout-payment-selector">
+              <div class="geniuspay-heading">
+                <span>{{ $t("mobilePayment") }}</span>
+                <strong>{{ $t("choosePaymentMethod") }}</strong>
+                <p>{{ $t("manualPaymentDirectCopy") }}</p>
+              </div>
+              <div
+                class="geniuspay-method-grid"
+                role="radiogroup"
+                :aria-label="$t('choosePaymentMethod')"
+              >
+                <button
+                  v-for="method in manualPaymentMethods"
+                  :key="method.id"
+                  type="button"
+                  class="geniuspay-method-card"
+                  :class="[method.className, { 'is-selected': selectedManualPaymentMethod === method.id }]"
+                  :aria-pressed="selectedManualPaymentMethod === method.id"
+                  @click="selectManualPaymentMethod(method)"
+                >
+                  <span class="method-check" aria-hidden="true"></span>
+                  <span class="method-mark">{{ method.mark }}</span>
+                  <strong>{{ method.label }}</strong>
+                  <small>{{ method.copyValue }}</small>
+                </button>
+              </div>
+              <p v-if="currentManualPaymentMethod" class="payment-note payment-launch-note">
+                {{
+                  currentManualPaymentMethod.launchUrl
+                    ? $t("paymentLaunchAfterOrder", { method: currentManualPaymentMethod.label })
+                    : $t("paymentManualAfterOrder", {
+                        method: currentManualPaymentMethod.label,
+                        number: currentManualPaymentMethod.copyValue,
+                      })
+                }}
+              </p>
+              <p v-else class="manual-payment-empty">
+                {{ $t("paymentMethodFallback") }}
+              </p>
+            </div>
             <p class="payment-note">
               {{ $t("paymentNote") }}
             </p>
@@ -343,10 +372,8 @@
 <script>
 import SiteHeader from "./components/SiteHeader.vue";
 import CartPanel from "./components/CartPanel.vue";
-import PaymentMethods from "./components/PaymentMethods.vue";
 import { cartStore } from "./data/cart.ts";
 import {
-  createGeniusPayPayment,
   createOrder,
   reportOrderPaid,
 } from "./data/orders.js";
@@ -365,11 +392,14 @@ import {
   VITE_MOMO_MTN,
   VITE_MOMO_MOOV,
   VITE_MOMO_ADDITIONAL,
+  VITE_MOMO_WAVE_LINK,
+  VITE_MOMO_ORANGE_LINK,
+  VITE_MOMO_MTN_LINK,
   VITE_PAYMENT_NOTE,
 } from "./utils/checkout.ts";
 
 const logoUrl = new URL("./assets/newgbonhi-logo.png", import.meta.url).href;
-const GENIUSPAY_METHODS = [
+const MANUAL_PAYMENT_METHODS = [
   {
     id: "wave",
     labelKey: "paymentMethodWave",
@@ -388,12 +418,6 @@ const GENIUSPAY_METHODS = [
     mark: "MTN",
     className: "is-mtn-money",
   },
-  {
-    id: "card",
-    labelKey: "paymentMethodCard",
-    mark: "VISA",
-    className: "is-card",
-  },
 ];
 
 // These are now imported from checkout.ts
@@ -405,7 +429,6 @@ export default {
   components: {
     SiteHeader,
     CartPanel,
-    PaymentMethods,
   },
   data() {
     return {
@@ -416,15 +439,9 @@ export default {
       orderSent: false,
       isSubmitting: false,
       isReportingPayment: false,
-      isStartingPayment: false,
-      startingPaymentMethod: "",
       paymentReported: false,
-      paymentCheckoutUrl: "",
-      paymentReference: "",
       paymentToken: "",
-      geniusPayError: "",
-      selectedGeniusPayMethod: GENIUSPAY_METHODS[0]?.id || "wave",
-      geniusPayMethods: GENIUSPAY_METHODS,
+      selectedManualPaymentMethod: MANUAL_PAYMENT_METHODS[0]?.id || "wave",
       lastOrderId: "",
       lastOrderMessage: "",
       lastOrderSubtotal: 0,
@@ -502,45 +519,79 @@ export default {
       if (this.paymentReported) {
         return this.$t("paymentReportedKicker");
       }
-      if (this.onlinePaymentAvailable) {
-        return this.$t("geniusPayKicker");
-      }
       return this.$t("manualPaymentKicker");
     },
     paymentTitle() {
       if (this.paymentReported) {
         return this.$t("paymentReportedTitle");
       }
-      if (this.onlinePaymentAvailable) {
-        return this.$t("geniusPayTitle");
-      }
-      return this.$t("paymentPendingTitle");
+      return this.$t("manualPaymentTitle");
     },
     paymentCopy() {
       if (this.paymentReported) {
         return this.$t("paymentReportedCopy");
       }
-      if (this.onlinePaymentAvailable) {
-        return this.$t("geniusPayCheckoutCopy");
-      }
       return this.$t("manualPaymentCopy");
     },
-    onlinePaymentAvailable() {
-      return this.orderSent && !this.geniusPayError;
-    },
     manualPaymentMethods() {
+      const values = {
+        wave: { value: VITE_MOMO_WAVE, launchUrl: VITE_MOMO_WAVE_LINK },
+        orange_money: {
+          value: VITE_MOMO_ORANGE,
+          launchUrl: VITE_MOMO_ORANGE_LINK,
+        },
+        mtn_money: { value: VITE_MOMO_MTN, launchUrl: VITE_MOMO_MTN_LINK },
+        moov_money: { value: VITE_MOMO_MOOV, launchUrl: "" },
+        mobile_money: { value: VITE_MOMO_ADDITIONAL, launchUrl: "" },
+      };
       return [
-        { label: "Wave", value: VITE_MOMO_WAVE },
-        { label: "Orange Money", value: VITE_MOMO_ORANGE },
-        { label: "MTN Money", value: VITE_MOMO_MTN },
-        { label: "Moov Money", value: VITE_MOMO_MOOV },
-        { label: "Mobile Money", value: VITE_MOMO_ADDITIONAL },
+        ...MANUAL_PAYMENT_METHODS,
+        {
+          id: "moov_money",
+          labelKey: "paymentMethodMoov",
+          mark: "MOOV",
+          className: "is-moov-money",
+        },
+        {
+          id: "mobile_money",
+          labelKey: "paymentMethodMobileMoney",
+          mark: "MM",
+          className: "is-mobile-money",
+        },
       ]
+        .map((method) => ({
+          ...method,
+          label: this.$t(method.labelKey),
+          value: values[method.id]?.value || "",
+          launchUrl: this.buildPaymentLaunchUrl(values[method.id]?.launchUrl || ""),
+        }))
         .filter((method) => method.value)
         .map((method) => ({
           ...method,
           copyValue: this.normalizePaymentValue(method.value),
         }));
+    },
+    currentManualPaymentMethod() {
+      return (
+        this.manualPaymentMethods.find(
+          (method) => method.id === this.selectedManualPaymentMethod
+        ) ||
+        this.manualPaymentMethods[0] ||
+        null
+      );
+    },
+    manualPaymentDetails() {
+      const method = this.currentManualPaymentMethod;
+      if (!method) {
+        return "";
+      }
+      return [
+        `${method.label}: ${method.copyValue || method.value}`,
+        `${this.$t("paymentNow")}: ${this.formatPrice(this.amountToPayNow)}`,
+        this.lastOrderId && `${this.$t("paymentReference")}: ${this.lastOrderId}`,
+      ]
+        .filter(Boolean)
+        .join("\n");
     },
     preorderFulfillment() {
       return {
@@ -612,13 +663,6 @@ export default {
       }
       window.open(this.whatsappUrl, "_blank", "noopener");
     },
-    openGeniusPay() {
-      if (!this.paymentCheckoutUrl) {
-        this.error = this.$t("geniusPayUnavailable");
-        return;
-      }
-      window.location.assign(this.paymentCheckoutUrl);
-    },
     normalizePaymentValue(value) {
       return String(value || "")
         .replace(
@@ -626,6 +670,19 @@ export default {
           ""
         )
         .trim();
+    },
+    buildPaymentLaunchUrl(value) {
+      const rawUrl = String(value || "").trim();
+      if (!rawUrl) {
+        return "";
+      }
+      try {
+        const url = new URL(rawUrl);
+        url.searchParams.set("amount", String(Math.round(this.amountToPayNow)));
+        return url.toString();
+      } catch (error) {
+        return rawUrl;
+      }
     },
     async copyText(value, message) {
       const text = String(value || "").trim();
@@ -640,45 +697,28 @@ export default {
         this.error = this.$t("copyFailed");
       }
     },
-    copyPaymentMethod(method) {
-      return this.copyText(method.copyValue || method.value, this.$t("numberCopied"));
-    },
-    async startGeniusPayPayment(order = null, paymentMethod = this.selectedGeniusPayMethod) {
-      const orderId = order?.id || this.lastOrderId;
-      const paymentToken = order?.paymentToken || this.paymentToken;
-      if (!orderId) {
+    selectManualPaymentMethod(method) {
+      if (!method?.id) {
         return;
       }
-      this.selectedGeniusPayMethod = paymentMethod;
-      this.startingPaymentMethod = paymentMethod;
-      this.error = "";
+      this.selectedManualPaymentMethod = method.id;
       this.success = "";
-      this.isStartingPayment = true;
-      this.geniusPayError = "";
-      this.paymentCheckoutUrl = "";
-      this.paymentReference = "";
-      try {
-        const result = await createGeniusPayPayment(
-          orderId,
-          paymentToken,
-          paymentMethod
-        );
-        const payment = result.payment || null;
-        this.paymentCheckoutUrl = payment?.paymentUrl || payment?.checkoutUrl || "";
-        this.paymentReference = payment?.reference || "";
-        if (!this.paymentCheckoutUrl) {
-          throw new Error(this.$t("geniusPayUnavailable"));
-        }
-        this.success = this.$t("geniusPayReady");
-        window.location.assign(this.paymentCheckoutUrl);
-      } catch (error) {
-        this.geniusPayError =
-          error instanceof Error ? error.message : this.$t("geniusPayUnavailable");
-        this.success = this.$t("manualPaymentReady");
-      } finally {
-        this.isStartingPayment = false;
-        this.startingPaymentMethod = "";
+    },
+    copySelectedPaymentDetails() {
+      if (!this.manualPaymentDetails) {
+        return Promise.resolve();
       }
+      return this.copyText(this.manualPaymentDetails, this.$t("paymentDetailsCopied"));
+    },
+    openSelectedPaymentLink() {
+      const method = this.currentManualPaymentMethod;
+      if (!method?.launchUrl) {
+        return;
+      }
+      if (this.orderSent) {
+        this.copySelectedPaymentDetails();
+      }
+      window.location.assign(method.launchUrl);
     },
     async sendOrder() {
       this.error = "";
@@ -745,7 +785,14 @@ export default {
         this.lastOrderMessage = this.buildOrderMessage();
 
         this.orderSent = true;
-        this.success = this.$t("geniusPaySelectMethodReady");
+        if (this.currentManualPaymentMethod?.launchUrl) {
+          this.success = this.$t("paymentRedirecting", {
+            method: this.currentManualPaymentMethod.label,
+          });
+          window.location.assign(this.currentManualPaymentMethod.launchUrl);
+        } else {
+          this.success = this.$t("manualPaymentReady");
+        }
       } catch (error) {
         this.error =
           error instanceof Error ? error.message : "Unable to send order.";
@@ -1177,6 +1224,31 @@ export default {
   color: rgba(255, 255, 255, .72);
   font-size: 12px;
   line-height: 1.55;
+}
+
+.payment-reference-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.payment-reference-actions button {
+  width: fit-content;
+  border: 1px solid rgba(255, 255, 255, .28);
+  background: #fff;
+  color: #0b0b0b;
+  padding: 10px 12px;
+  font: 900 10px/1 sans-serif;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.payment-reference-actions button:hover {
+  border-color: #fff;
+  background: var(--accent);
+  color: #fff;
 }
 
 .geniuspay-panel {

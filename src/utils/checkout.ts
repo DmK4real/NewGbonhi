@@ -104,6 +104,9 @@ export const VITE_MOMO_ORANGE = checkoutConfig.momoOrange;
 export const VITE_MOMO_MTN = checkoutConfig.momoMtn;
 export const VITE_MOMO_MOOV = checkoutConfig.momoMoov;
 export const VITE_MOMO_ADDITIONAL = checkoutConfig.momoAdditional;
+export const VITE_MOMO_WAVE_LINK = checkoutConfig.momoWaveLink;
+export const VITE_MOMO_ORANGE_LINK = checkoutConfig.momoOrangeLink;
+export const VITE_MOMO_MTN_LINK = checkoutConfig.momoMtnLink;
 export const VITE_PAYMENT_NOTE = checkoutConfig.paymentNote;
 
 export const formatPrice = (value: number): string => {
