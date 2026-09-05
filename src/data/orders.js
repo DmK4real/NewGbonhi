@@ -144,6 +144,24 @@ export const createGeniusPayPayment = async (
   };
 };
 
+export const createMobileMoneyPayment = async (
+  orderId,
+  paymentToken = "",
+  paymentMethod = ""
+) => {
+  const payload = await request(
+    `/orders/${encodeURIComponent(orderId)}/mobile-money-payment`,
+    {
+      method: "POST",
+      body: JSON.stringify({ paymentToken, paymentMethod }),
+    }
+  );
+  return {
+    order: payload.order || null,
+    payment: payload.payment || null,
+  };
+};
+
 export const adminLogin = async (password) => {
   const payload = await request("/admin/login", {
     method: "POST",
@@ -175,6 +193,17 @@ export const updateOrderStatus = async (orderId, status, token) => {
 export const syncGeniusPayPayment = async (orderId, token) => {
   const payload = await request(
     `/orders/${encodeURIComponent(orderId)}/geniuspay-sync`,
+    {
+      method: "POST",
+    },
+    token
+  );
+  return Array.isArray(payload.orders) ? payload.orders : [];
+};
+
+export const syncMobileMoneyPayment = async (orderId, token) => {
+  const payload = await request(
+    `/orders/${encodeURIComponent(orderId)}/mobile-money-sync`,
     {
       method: "POST",
     },

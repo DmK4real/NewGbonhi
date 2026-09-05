@@ -367,6 +367,7 @@ import SiteHeader from "./components/SiteHeader.vue";
 import CartPanel from "./components/CartPanel.vue";
 import { cartStore } from "./data/cart.ts";
 import {
+  createMobileMoneyPayment,
   createOrder,
   reportOrderPaid,
 } from "./data/orders.js";
@@ -388,6 +389,7 @@ import {
   VITE_MOMO_WAVE_LINK,
   VITE_MOMO_ORANGE_LINK,
   VITE_MOMO_MTN_LINK,
+  VITE_MOBILE_MONEY_API_ENABLED,
   VITE_PAYMENT_NOTE,
 } from "./utils/checkout.ts";
 
@@ -557,6 +559,9 @@ export default {
           label: this.$t(method.labelKey),
           value: values[method.id]?.value || "",
           launchUrl: this.buildPaymentLaunchUrl(values[method.id]?.launchUrl || ""),
+          apiProvider: ["wave", "orange_money", "mtn_money"].includes(method.id)
+            ? method.id
+            : "",
         }))
         .filter((method) => method.value)
         .map((method) => ({
@@ -703,21 +708,46 @@ export default {
       }
       return this.copyText(this.manualPaymentDetails, this.$t("paymentDetailsCopied"));
     },
-    launchPaymentUrl(url) {
+    openPaymentWindow(url = "about:blank") {
+      try {
+        const paymentWindow = window.open(url, "_blank");
+        if (paymentWindow) {
+          paymentWindow.opener = null;
+          return paymentWindow;
+        }
+      } catch (error) {
+        return null;
+      }
+      return null;
+    },
+    closePaymentWindow(paymentWindow) {
+      try {
+        if (paymentWindow && !paymentWindow.closed) {
+          paymentWindow.close();
+        }
+      } catch (error) {
+        // Ignore browser restrictions around external payment windows.
+      }
+    },
+    redirectPaymentWindow(paymentWindow, url) {
       const launchUrl = String(url || "").trim();
       if (!launchUrl) {
         return false;
       }
       try {
-        const paymentWindow = window.open(launchUrl, "_blank");
-        if (paymentWindow) {
+        if (paymentWindow && !paymentWindow.closed) {
+          paymentWindow.location.href = launchUrl;
           paymentWindow.opener = null;
           return true;
         }
       } catch (error) {
-        return false;
+        // Fall through to a regular user-gesture launch.
       }
-      return false;
+      return Boolean(this.openPaymentWindow(launchUrl));
+    },
+    launchPaymentUrl(url) {
+      const launchUrl = String(url || "").trim();
+      return Boolean(launchUrl && this.openPaymentWindow(launchUrl));
     },
     async sendOrder() {
       this.error = "";
@@ -771,12 +801,20 @@ export default {
           type: "preorder",
           fulfillment: this.preorderFulfillment,
         };
+        const shouldUsePaymentApi = Boolean(
+          VITE_MOBILE_MONEY_API_ENABLED && selectedPaymentMethod?.apiProvider
+        );
         const orderRequest = createOrder(orderPayload);
-        const paymentLaunched = paymentLaunchUrl
-          ? this.launchPaymentUrl(paymentLaunchUrl)
-          : false;
+        let paymentWindow = null;
+        let paymentLaunched = false;
 
-        if (paymentLaunchUrl) {
+        if (shouldUsePaymentApi) {
+          paymentWindow = this.openPaymentWindow();
+        } else if (paymentLaunchUrl) {
+          paymentLaunched = this.launchPaymentUrl(paymentLaunchUrl);
+        }
+
+        if (paymentLaunchUrl || shouldUsePaymentApi) {
           this.success = this.$t("paymentRedirecting", {
             method: selectedPaymentMethod.label,
           });
@@ -797,8 +835,32 @@ export default {
         this.lastOrderTotal = createdOrder.total ?? this.totalWithShipping;
         this.lastOrderMessage = this.buildOrderMessage();
 
+        if (shouldUsePaymentApi) {
+          try {
+            const result = await createMobileMoneyPayment(
+              createdOrder.id,
+              createdOrder.paymentToken || "",
+              selectedPaymentMethod.apiProvider
+            );
+            const apiPaymentUrl =
+              result.payment?.paymentUrl || result.payment?.checkoutUrl || "";
+            paymentLaunched = this.redirectPaymentWindow(
+              paymentWindow,
+              apiPaymentUrl || paymentLaunchUrl
+            );
+          } catch {
+            paymentLaunched = paymentLaunchUrl
+              ? this.redirectPaymentWindow(paymentWindow, paymentLaunchUrl)
+              : false;
+          }
+
+          if (!paymentLaunched) {
+            this.closePaymentWindow(paymentWindow);
+          }
+        }
+
         this.orderSent = true;
-        if (paymentLaunchUrl) {
+        if (paymentLaunchUrl || paymentLaunched) {
           this.success = this.$t(paymentLaunched ? "paymentRedirecting" : "paymentLaunchBlocked", {
             method: selectedPaymentMethod.label,
           });

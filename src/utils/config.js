@@ -3,6 +3,14 @@ const readEnv = (key, fallback = "") => {
   return value || fallback;
 };
 
+const readBooleanEnv = (key, fallback = false) => {
+  const value = String(import.meta.env[key] ?? "").trim().toLowerCase();
+  if (!value) {
+    return fallback;
+  }
+  return ["1", "true", "yes", "on"].includes(value);
+};
+
 const DEFAULT_MOMO_WAVE = "Wave 07 89 53 83 88";
 const DEFAULT_MOMO_ORANGE = "Orange 07 89 53 83 88";
 const DEFAULT_MOMO_MTN = "MTN 05 04 31 53 31";
@@ -30,6 +38,7 @@ export const checkoutConfig = {
   momoWaveLink: readEnv("VITE_MOMO_WAVE_LINK", DEFAULT_MOMO_WAVE_LINK),
   momoOrangeLink: readEnv("VITE_MOMO_ORANGE_LINK"),
   momoMtnLink: readEnv("VITE_MOMO_MTN_LINK"),
+  mobileMoneyApiEnabled: readBooleanEnv("VITE_MOBILE_MONEY_API_ENABLED"),
   paymentNote: readEnv(
     "VITE_PAYMENT_NOTE",
     "La production commence après validation du paiement. Livraison prévue sous 48/72 h."

@@ -139,13 +139,13 @@
               {{ $t("copySummary") }}
             </button>
             <button
-              v-if="canSyncGeniusPay(order)"
+              v-if="canSyncPayment(order)"
               type="button"
               class="ghost-button"
               :disabled="isSaving"
-              @click="syncGeniusPay(order)"
+              @click="syncPayment(order)"
             >
-              {{ $t("syncGeniusPay") }}
+              {{ $t("syncPayment") }}
             </button>
             <button
               v-if="order.status !== 'production' && order.status !== 'delivered'"
@@ -201,6 +201,7 @@ import {
   deleteOrder,
   loadOrders,
   syncGeniusPayPayment,
+  syncMobileMoneyPayment,
   updateOrderStatus,
 } from "./data/orders.js";
 
@@ -298,13 +299,18 @@ export default {
       return map[status] || status || this.$t("sent");
     },
     formatPaymentProvider(provider) {
-      return provider === "geniuspay"
-        ? "GeniusPay"
-        : provider || this.$t("paymentUnknown");
+      const map = {
+        geniuspay: "GeniusPay",
+        wave: "Wave",
+        orange_money: "Orange Money",
+        mtn_money: "MTN Money",
+      };
+      return map[provider] || provider || this.$t("paymentUnknown");
     },
     formatPaymentStatus(status) {
       const normalizedStatus = String(status || "").toLowerCase();
       const map = {
+        open: this.$t("paymentPending"),
         pending: this.$t("paymentPending"),
         initiated: this.$t("paymentPending"),
         processing: this.$t("paymentProcessing"),
@@ -320,11 +326,13 @@ export default {
       };
       return map[normalizedStatus] || status || this.$t("paymentUnknown");
     },
-    canSyncGeniusPay(order) {
+    canSyncPayment(order) {
       const status = String(order?.status || "").toLowerCase();
+      const provider = String(order?.payment?.provider || "").toLowerCase();
       return (
-        order?.payment?.provider === "geniuspay" &&
+        ["geniuspay", "wave"].includes(provider) &&
         Boolean(order.payment.reference) &&
+        (provider !== "wave" || order.payment.mode === "api") &&
         !["paid", "production", "delivered"].includes(status)
       );
     },
@@ -414,19 +422,23 @@ export default {
         this.isSaving = false;
       }
     },
-    async syncGeniusPay(order) {
-      if (this.isSaving || !this.adminToken || !this.canSyncGeniusPay(order)) {
+    async syncPayment(order) {
+      if (this.isSaving || !this.adminToken || !this.canSyncPayment(order)) {
         return;
       }
       this.authError = "";
       this.actionSuccess = "";
       this.isSaving = true;
       try {
-        this.orders = await syncGeniusPayPayment(order.id, this.adminToken);
-        this.actionSuccess = this.$t("geniusPaySynced");
+        const provider = String(order?.payment?.provider || "").toLowerCase();
+        this.orders =
+          provider === "geniuspay"
+            ? await syncGeniusPayPayment(order.id, this.adminToken)
+            : await syncMobileMoneyPayment(order.id, this.adminToken);
+        this.actionSuccess = this.$t("paymentSynced");
       } catch (error) {
         this.authError =
-          error instanceof Error ? error.message : "Unable to sync GeniusPay.";
+          error instanceof Error ? error.message : "Unable to sync payment.";
       } finally {
         this.isSaving = false;
       }

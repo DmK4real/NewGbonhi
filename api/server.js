@@ -25,6 +25,13 @@ const GENIUSPAY_PAYMENT_METHODS = new Set([
   "mtn_money",
   "card",
 ]);
+const MOBILE_MONEY_PAYMENT_METHODS = new Set([
+  "wave",
+  "orange_money",
+  "mtn_money",
+]);
+const WAVE_DEFAULT_BASE_URL = "https://api.wave.com";
+const WAVE_DEFAULT_PAYMENT_LINK = "https://pay.wave.com/m/M_ci_cNiKvg4QvKE3/c/ci/";
 const DEFAULT_HEADERS = {
   "Content-Type": "application/json; charset=utf-8",
   "Cache-Control": "no-store",
@@ -65,6 +72,17 @@ const GENIUSPAY_SUCCESS_URL =
   process.env.GENIUSPAY_SUCCESS_URL || `${SITE_URL}/checkout?payment=success`;
 const GENIUSPAY_ERROR_URL =
   process.env.GENIUSPAY_ERROR_URL || `${SITE_URL}/checkout?payment=failed`;
+const WAVE_BASE_URL = trimTrailingSlash(
+  process.env.WAVE_BASE_URL ||
+    process.env.WAVE_API_BASE_URL ||
+    WAVE_DEFAULT_BASE_URL
+);
+const WAVE_API_KEY = process.env.WAVE_API_KEY || "";
+const WAVE_SIGNING_SECRET = process.env.WAVE_SIGNING_SECRET || "";
+const WAVE_SUCCESS_URL = process.env.WAVE_SUCCESS_URL || GENIUSPAY_SUCCESS_URL;
+const WAVE_ERROR_URL = process.env.WAVE_ERROR_URL || GENIUSPAY_ERROR_URL;
+const WAVE_FALLBACK_LINK =
+  process.env.WAVE_FALLBACK_LINK || WAVE_DEFAULT_PAYMENT_LINK;
 let writeLock = Promise.resolve();
 
 logConfigWarnings();
@@ -502,6 +520,70 @@ const publicGeniusPayPayment = (payment) => {
   };
 };
 
+const normalizeMobileMoneyPaymentMethod = (value) => {
+  const raw = safeString(value, 60).toLowerCase().replace(/[\s-]+/g, "_");
+  const aliases = {
+    wave: "wave",
+    orange: "orange_money",
+    orange_money: "orange_money",
+    om: "orange_money",
+    mtn: "mtn_money",
+    mtn_money: "mtn_money",
+    mtn_momo: "mtn_money",
+  };
+  const method = aliases[raw] || "";
+  return MOBILE_MONEY_PAYMENT_METHODS.has(method) ? method : "";
+};
+
+const isReusableMobileMoneyPayment = (payment, paymentMethod = "") => {
+  if (!payment || !safeString(payment.checkoutUrl || payment.paymentUrl, 500)) {
+    return false;
+  }
+  const currentMethod = normalizeMobileMoneyPaymentMethod(
+    payment.paymentMethod || payment.provider
+  );
+  const expectedMethod = normalizeMobileMoneyPaymentMethod(paymentMethod);
+  if (!expectedMethod || currentMethod !== expectedMethod) {
+    return false;
+  }
+  const status = safeString(payment.status, 40).toLowerCase();
+  return !status || ["open", "pending", "processing", "initiated"].includes(status);
+};
+
+const publicMobileMoneyPayment = (payment) => {
+  if (!payment || typeof payment !== "object") {
+    return null;
+  }
+
+  const method = normalizeMobileMoneyPaymentMethod(
+    payment.paymentMethod || payment.provider
+  );
+  return {
+    provider: method || safeString(payment.provider, 60),
+    reference: safeString(payment.reference, 120),
+    status: safeString(payment.status, 40) || "pending",
+    amount: safeInteger(payment.amount, 0),
+    currency: safeString(payment.currency, 12) || "XOF",
+    checkoutUrl: safeString(payment.checkoutUrl || payment.paymentUrl, 500),
+    paymentUrl: safeString(payment.paymentUrl || payment.checkoutUrl, 500),
+    paymentMethod: method || safeString(payment.paymentMethod, 60) || null,
+    mode: safeString(payment.mode, 40) || null,
+    expiresAt: safeString(payment.expiresAt, 60) || null,
+    completedAt: safeString(payment.completedAt, 60) || null,
+    updatedAt: safeString(payment.updatedAt, 60) || null,
+  };
+};
+
+const readProviderErrorMessage = (payload, fallback) =>
+  safeString(
+    payload?.message ||
+      payload?.error?.message ||
+      payload?.error_description ||
+      (typeof payload?.error === "string" ? payload.error : "") ||
+      payload?.code,
+    180
+  ) || fallback;
+
 const buildGeniusPayReturnUrl = (baseUrl, orderId) => {
   let target;
   try {
@@ -510,6 +592,18 @@ const buildGeniusPayReturnUrl = (baseUrl, orderId) => {
     target = new URL("/checkout", `${SITE_URL}/`);
   }
   target.searchParams.set("provider", "geniuspay");
+  target.searchParams.set("order", orderId);
+  return target.toString();
+};
+
+const buildMobileMoneyReturnUrl = (baseUrl, provider, orderId) => {
+  let target;
+  try {
+    target = new URL(baseUrl, `${SITE_URL}/`);
+  } catch (error) {
+    target = new URL("/checkout", `${SITE_URL}/`);
+  }
+  target.searchParams.set("provider", provider);
   target.searchParams.set("order", orderId);
   return target.toString();
 };
@@ -527,6 +621,238 @@ const assertPaymentToken = (order, paymentToken) => {
   if (!constantTimeStringEqual(order.paymentToken, safeString(paymentToken, 120))) {
     throw createHttpError(403, "Unauthorized payment session.");
   }
+};
+
+const buildWaveSignatureHeader = (body = "") => {
+  if (!WAVE_SIGNING_SECRET) {
+    return "";
+  }
+  const timestamp = Math.floor(Date.now() / 1000);
+  const signature = createHmac("sha256", WAVE_SIGNING_SECRET)
+    .update(`${timestamp}${body}`)
+    .digest("hex");
+  return `t=${timestamp},v1=${signature}`;
+};
+
+const buildWaveHeaders = (body = "", includeContentType = false) => {
+  const headers = {
+    Accept: "application/json",
+    Authorization: `Bearer ${WAVE_API_KEY}`,
+  };
+  if (includeContentType) {
+    headers["Content-Type"] = "application/json";
+  }
+  const signature = buildWaveSignatureHeader(body);
+  if (signature) {
+    headers["Wave-Signature"] = signature;
+  }
+  return headers;
+};
+
+const buildWaveFallbackPaymentUrl = (order) => {
+  const rawUrl = safeString(WAVE_FALLBACK_LINK, 500);
+  if (!rawUrl) {
+    return "";
+  }
+  try {
+    const url = new URL(rawUrl);
+    const amount = safeInteger(order.subtotal, 0);
+    if (amount > 0) {
+      url.searchParams.set("amount", String(amount));
+    }
+    return url.toString();
+  } catch (error) {
+    return rawUrl;
+  }
+};
+
+const normalizeWaveStatus = (data = {}) => {
+  const paymentStatus = safeString(
+    data.payment_status || data.paymentStatus,
+    40
+  ).toLowerCase();
+  if (paymentStatus) {
+    return paymentStatus;
+  }
+  const checkoutStatus = safeString(
+    data.checkout_status || data.checkoutStatus,
+    40
+  ).toLowerCase();
+  if (checkoutStatus === "complete") {
+    return "succeeded";
+  }
+  return checkoutStatus || "pending";
+};
+
+const isMobileMoneyPaid = (status) =>
+  ["completed", "complete", "paid", "success", "succeeded", "successful"].includes(
+    safeString(status, 40).toLowerCase()
+  );
+
+const buildWaveCheckoutRequest = (order) => {
+  const amount = safeInteger(order.subtotal, 0);
+  if (amount < 1) {
+    throw createHttpError(400, "Wave requires a positive payment amount.");
+  }
+  return {
+    amount: String(amount),
+    currency: "XOF",
+    client_reference: safeString(order.id, 80),
+    success_url: buildMobileMoneyReturnUrl(WAVE_SUCCESS_URL, "wave", order.id),
+    error_url: buildMobileMoneyReturnUrl(WAVE_ERROR_URL, "wave", order.id),
+  };
+};
+
+const applyWaveCheckoutToOrder = (order, paymentData) => {
+  const current =
+    order.payment && typeof order.payment === "object" ? order.payment : {};
+  const status = normalizeWaveStatus(paymentData);
+  const now = new Date().toISOString();
+  const launchUrl = safeString(
+    paymentData.wave_launch_url ||
+      paymentData.waveLaunchUrl ||
+      current.paymentUrl ||
+      current.checkoutUrl,
+    500
+  );
+  const payment = {
+    ...current,
+    provider: "wave",
+    reference:
+      safeString(paymentData.id || paymentData.checkout_id, 120) ||
+      safeString(current.reference, 120),
+    status,
+    amount: safeInteger(paymentData.amount ?? current.amount, order.subtotal),
+    currency: safeString(paymentData.currency || current.currency, 12) || "XOF",
+    checkoutUrl: launchUrl,
+    paymentUrl: launchUrl,
+    paymentMethod: "wave",
+    mode: "api",
+    clientReference:
+      safeString(paymentData.client_reference || current.clientReference, 255) ||
+      order.id,
+    transactionId:
+      safeString(paymentData.transaction_id || current.transactionId, 120) || null,
+    environment:
+      safeString(current.environment, 40) ||
+      (WAVE_API_KEY.includes("_test_") ? "test" : "live"),
+    expiresAt:
+      safeString(paymentData.when_expires || paymentData.expiresAt, 60) ||
+      current.expiresAt ||
+      null,
+    updatedAt: now,
+  };
+  if (isMobileMoneyPaid(status)) {
+    payment.completedAt =
+      safeString(paymentData.when_completed || paymentData.completedAt, 60) ||
+      current.completedAt ||
+      now;
+  }
+  order.payment = payment;
+  return payment;
+};
+
+const createWaveFallbackPayment = (order) => {
+  const now = new Date().toISOString();
+  const paymentUrl = buildWaveFallbackPaymentUrl(order);
+  return {
+    provider: "wave",
+    reference: order.id,
+    status: "pending",
+    amount: safeInteger(order.subtotal, 0),
+    currency: "XOF",
+    checkoutUrl: paymentUrl,
+    paymentUrl,
+    paymentMethod: "wave",
+    mode: "merchant_link",
+    environment: "fallback",
+    createdAt: now,
+    updatedAt: now,
+  };
+};
+
+const createWaveCheckoutPayment = async (order) => {
+  if (!WAVE_API_KEY) {
+    return createWaveFallbackPayment(order);
+  }
+  const body = JSON.stringify(buildWaveCheckoutRequest(order));
+  const response = await fetch(`${WAVE_BASE_URL}/v1/checkout/sessions`, {
+    method: "POST",
+    headers: buildWaveHeaders(body, true),
+    body,
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw createHttpError(
+      response.status || 502,
+      readProviderErrorMessage(payload, "Wave payment creation failed.")
+    );
+  }
+
+  const launchUrl = safeString(
+    payload.wave_launch_url || payload.waveLaunchUrl,
+    500
+  );
+  if (!launchUrl) {
+    throw createHttpError(502, "Wave did not return a launch URL.");
+  }
+  const now = new Date().toISOString();
+  return {
+    provider: "wave",
+    reference: safeString(payload.id || payload.checkout_id, 120),
+    status: normalizeWaveStatus(payload),
+    amount: safeInteger(payload.amount, order.subtotal),
+    currency: safeString(payload.currency, 12) || "XOF",
+    checkoutUrl: launchUrl,
+    paymentUrl: launchUrl,
+    paymentMethod: "wave",
+    mode: "api",
+    clientReference: safeString(payload.client_reference, 255) || order.id,
+    transactionId: safeString(payload.transaction_id, 120) || null,
+    environment: WAVE_API_KEY.includes("_test_") ? "test" : "live",
+    expiresAt: safeString(payload.when_expires, 60) || null,
+    completedAt: safeString(payload.when_completed, 60) || null,
+    createdAt: safeString(payload.when_created, 60) || now,
+    updatedAt: now,
+  };
+};
+
+const fetchWaveCheckoutPayment = async (reference) => {
+  if (!WAVE_API_KEY) {
+    throw createHttpError(503, "Wave API is not configured yet.");
+  }
+  const safeReference = safeString(reference, 120);
+  if (!safeReference) {
+    throw createHttpError(400, "Wave payment reference is missing.");
+  }
+  const response = await fetch(
+    `${WAVE_BASE_URL}/v1/checkout/sessions/${encodeURIComponent(safeReference)}`,
+    {
+      headers: buildWaveHeaders(),
+    }
+  );
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw createHttpError(
+      response.status || 502,
+      readProviderErrorMessage(payload, "Wave payment lookup failed.")
+    );
+  }
+  return payload;
+};
+
+const createMobileMoneyPayment = async (order, paymentMethod = "") => {
+  const method = normalizeMobileMoneyPaymentMethod(paymentMethod);
+  if (method === "wave") {
+    return createWaveCheckoutPayment(order);
+  }
+  if (method === "orange_money") {
+    throw createHttpError(503, "Orange Money API is not configured yet.");
+  }
+  if (method === "mtn_money") {
+    throw createHttpError(503, "MTN Money API is not configured yet.");
+  }
+  throw createHttpError(400, "Invalid Mobile Money payment method.");
 };
 
 const buildGeniusPayPaymentRequest = (order, paymentMethod = "") => {
@@ -841,6 +1167,12 @@ function logConfigWarnings() {
       "[config] GENIUSPAY_WEBHOOK_SECRET is not configured. GeniusPay payment confirmations will be rejected."
     );
   }
+
+  if (!WAVE_API_KEY) {
+    console.warn(
+      "[config] WAVE_API_KEY is not configured. Wave API payments will use the merchant link fallback."
+    );
+  }
 }
 
 const server = createServer(async (req, res) => {
@@ -899,6 +1231,72 @@ const server = createServer(async (req, res) => {
       });
 
       respondJson(res, 201, { order });
+      return;
+    }
+
+    if (
+      method === "POST" &&
+      pathname.match(/^\/api\/orders\/[^/]+\/mobile-money-payment$/)
+    ) {
+      const orderId = parseOrderIdFromPath(pathname, "mobile-money-payment");
+      if (!orderId) {
+        respondJson(res, 400, { error: "Order id is missing." });
+        return;
+      }
+
+      const payload = await readJsonBody(req);
+      const paymentMethod = normalizeMobileMoneyPaymentMethod(
+        payload.paymentMethod || payload.payment_method || payload.provider
+      );
+      if (!paymentMethod) {
+        respondJson(res, 400, { error: "Invalid Mobile Money payment method." });
+        return;
+      }
+
+      const result = await withWriteLock(async () => {
+        const orders = await readOrders();
+        const order = orders.find((entry) => entry.id === orderId);
+        if (!order) {
+          return null;
+        }
+
+        assertPaymentToken(order, payload.paymentToken);
+
+        if (isReusableMobileMoneyPayment(order.payment, paymentMethod)) {
+          return {
+            order,
+            payment: publicMobileMoneyPayment(order.payment),
+            status: 200,
+          };
+        }
+
+        const payment = await createMobileMoneyPayment(order, paymentMethod);
+        order.payment = payment;
+        await writeOrders(orders);
+        await appendAuditLog({
+          orderId,
+          previousStatus: order.status,
+          nextStatus: order.status,
+          actor: "customer",
+          source: `${paymentMethod}-payment-created`,
+          paymentReference: payment.reference,
+        });
+        return {
+          order,
+          payment: publicMobileMoneyPayment(order.payment),
+          status: 201,
+        };
+      });
+
+      if (!result) {
+        respondJson(res, 404, { error: "Order not found." });
+        return;
+      }
+
+      respondJson(res, result.status, {
+        order: result.order,
+        payment: result.payment,
+      });
       return;
     }
 
@@ -1072,6 +1470,69 @@ const server = createServer(async (req, res) => {
           nextStatus: order.status,
           actor: "admin",
           source: "geniuspay-sync",
+          paymentReference: payment.reference,
+        });
+        return orders;
+      });
+
+      if (!updatedOrders) {
+        respondJson(res, 404, { error: "Order not found." });
+        return;
+      }
+
+      respondJson(res, 200, { orders: updatedOrders });
+      return;
+    }
+
+    if (
+      method === "POST" &&
+      pathname.match(/^\/api\/orders\/[^/]+\/mobile-money-sync$/)
+    ) {
+      if (!isAuthorized(req)) {
+        respondJson(res, 401, { error: "Unauthorized." });
+        return;
+      }
+
+      const orderId = parseOrderIdFromPath(pathname, "mobile-money-sync");
+      if (!orderId) {
+        respondJson(res, 400, { error: "Order id is missing." });
+        return;
+      }
+
+      const updatedOrders = await withWriteLock(async () => {
+        const orders = await readOrders();
+        const order = orders.find((entry) => entry.id === orderId);
+        if (!order) {
+          return null;
+        }
+
+        const provider = normalizeMobileMoneyPaymentMethod(
+          order.payment?.provider || order.payment?.paymentMethod
+        );
+        if (provider !== "wave" || !order.payment?.reference) {
+          throw createHttpError(400, "Wave payment reference is missing.");
+        }
+        if (order.payment.mode !== "api") {
+          throw createHttpError(400, "This Wave payment uses the manual link.");
+        }
+
+        const paymentData = await fetchWaveCheckoutPayment(order.payment.reference);
+        const previousStatus = order.status;
+        const payment = applyWaveCheckoutToOrder(order, paymentData);
+        if (
+          isMobileMoneyPaid(payment.status) &&
+          !["production", "delivered"].includes(order.status)
+        ) {
+          order.status = "paid";
+        }
+
+        await writeOrders(orders);
+        await appendAuditLog({
+          orderId: order.id,
+          previousStatus,
+          nextStatus: order.status,
+          actor: "admin",
+          source: "wave-sync",
           paymentReference: payment.reference,
         });
         return orders;

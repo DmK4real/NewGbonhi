@@ -18,6 +18,10 @@ SITE_URL = "https://newgbonhi.com"
 GENIUSPAY_BASE_URL = "https://geniuspay.ci/api/v1/merchant"
 GENIUSPAY_SUCCESS_URL = "https://newgbonhi.com/checkout?payment=success"
 GENIUSPAY_ERROR_URL = "https://newgbonhi.com/checkout?payment=failed"
+WAVE_BASE_URL = "https://api.wave.com"
+WAVE_SUCCESS_URL = "https://newgbonhi.com/checkout?payment=success"
+WAVE_ERROR_URL = "https://newgbonhi.com/checkout?payment=failed"
+WAVE_FALLBACK_LINK = "https://pay.wave.com/m/M_ci_cNiKvg4QvKE3/c/ci/"
 
 [[durable_objects.bindings]]
 name = "ORDERS_STORE"

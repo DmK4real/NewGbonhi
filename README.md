@@ -68,10 +68,12 @@ Configure your contact details and Mobile Money numbers in `.env`:
 VITE_WHATSAPP_NUMBER=2250700000000
 VITE_CONTACT_EMAIL=hello@newgbonhi.com
 VITE_MOMO_WAVE=Wave 07 00 00 00 00
+VITE_MOMO_WAVE_LINK=https://pay.wave.com/m/M_ci_cNiKvg4QvKE3/c/ci/
 VITE_MOMO_ORANGE=Orange 07 00 00 00 00
 VITE_MOMO_MTN=MTN 05 00 00 00 00
 VITE_MOMO_MOOV=Moov 01 00 00 00 00
 VITE_MOMO_ADDITIONAL=Mobile Money 05 05 20 15 15
+VITE_MOBILE_MONEY_API_ENABLED=false
 VITE_PAYMENT_NOTE=Carte sur demande via WhatsApp.
 ```
 
@@ -80,6 +82,7 @@ Notes:
 - The customer pays via Mobile Money and sends proof on WhatsApp.
 - Delivery fees are defined in `src/utils/checkout.ts`.
 - The frontend logs config warnings if `VITE_WHATSAPP_NUMBER` or `VITE_CONTACT_EMAIL` is missing, or if no Mobile Money number is configured.
+- Keep `VITE_MOBILE_MONEY_API_ENABLED=false` until backend provider secrets are configured. With the flag off, Wave keeps using the direct merchant link.
 
 ## Orders API & Admin Access
 
@@ -143,6 +146,39 @@ https://newgbonhi-api.dominiquekouakou2.workers.dev/api/payments/geniuspay/webho
 Webhook signatures are verified with `X-Webhook-Signature` and
 `X-Webhook-Timestamp`. A valid `payment.success` / `completed` event marks the
 order as `paid` automatically.
+
+## Direct Mobile Money APIs
+
+The checkout can call `/api/orders/:id/mobile-money-payment` after an order is
+created. It is disabled by default so the current manual/Wave-link flow remains
+unchanged.
+
+Wave Checkout API is implemented. If `WAVE_API_KEY` is configured, the backend
+creates a Wave checkout session and returns `wave_launch_url`; otherwise it
+falls back to `WAVE_FALLBACK_LINK`.
+
+Local `.env` values for Wave testing:
+
+```env
+WAVE_API_KEY=wave_sn_prod_xxx
+WAVE_SIGNING_SECRET=wave_sn_AKS_xxx
+WAVE_BASE_URL=https://api.wave.com
+WAVE_SUCCESS_URL=http://localhost:5173/checkout?payment=success
+WAVE_ERROR_URL=http://localhost:5173/checkout?payment=failed
+WAVE_FALLBACK_LINK=https://pay.wave.com/m/M_ci_cNiKvg4QvKE3/c/ci/
+VITE_MOBILE_MONEY_API_ENABLED=true
+```
+
+Cloudflare Worker secrets:
+
+```sh
+npx wrangler secret put WAVE_API_KEY
+npx wrangler secret put WAVE_SIGNING_SECRET
+```
+
+`WAVE_SIGNING_SECRET` is optional and only needed if request signing is enabled
+for the Wave API key. Orange Money and MTN Money API routes are scaffolded but
+need the official merchant API credentials before they can be enabled.
 
 ## Orders History
 
