@@ -32,7 +32,7 @@
       </div>
     </section>
 
-    <section class="fit-section">
+    <section id="fit-guide" class="fit-section" style="scroll-margin-top: calc(var(--header-height, 80px) + 24px)">
       <div class="fit-head">
         <p>{{ $t("fitGuide") }}</p>
         <h2>{{ $t("sizesRecommendations") }}</h2>

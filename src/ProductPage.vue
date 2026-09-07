@@ -81,6 +81,7 @@
               :key="variant.id"
               type="button"
               :class="{ active: selectedColor === variant.id }"
+              :aria-pressed="selectedColor === variant.id"
               @click="selectColor(variant.id)"
             >
               {{ variant.label }}
@@ -88,19 +89,24 @@
           </div>
         </div>
 
-        <div class="size-picker">
-          <p><span>{{ $t("sizes") }}</span><strong>{{ selectedSize }}</strong></p>
-          <div class="size-grid">
+        <div ref="sizePicker" class="size-picker" tabindex="-1" :aria-label="$t('sizes')" :aria-describedby="sizeRequired ? 'size-error' : undefined">
+          <div class="size-heading">
+            <p><span>{{ $t("sizes") }}</span><strong>{{ selectedSize || $t("chooseSize") }}</strong></p>
+            <RouterLink to="/about#fit-guide">{{ $t("fitGuide") }}</RouterLink>
+          </div>
+          <div class="size-grid" role="group" :aria-label="$t('sizes')">
             <button
               v-for="size in sizeOptions"
               :key="size"
               type="button"
               :class="{ active: selectedSize === size }"
+              :aria-pressed="selectedSize === size"
               @click="selectSize(size)"
             >
               {{ size }}
             </button>
           </div>
+          <p v-if="sizeRequired" id="size-error" class="size-error" role="alert">{{ $t("chooseSizeBeforeCart") }}</p>
         </div>
 
         <div class="product-actions">
@@ -110,7 +116,7 @@
             :disabled="product.soldOut"
             @click="addProductToCart"
           >
-            {{ product.soldOut ? $t("outOfStock") : $t("addToCart") }}
+            {{ product.soldOut ? $t("outOfStock") : purchaseLabel }}
           </button>
           <RouterLink class="ghost" to="/">{{ $t("backToShop") }}</RouterLink>
         </div>
@@ -175,9 +181,13 @@
     <div class="toast" :class="{ show: toastVisible }" role="status">
       {{ toastMessage }}
     </div>
-    <div v-if="product && !product.soldOut" class="mobile-buy-bar">
-      <div><strong>{{ product.title }}</strong><span>{{ formatPrice(product.price) }}</span></div>
-      <button type="button" @click="addProductToCart">{{ $t("addToCart") }}</button>
+    <div v-if="product && !product.soldOut && !cartOpen" class="mobile-buy-bar">
+      <div>
+        <strong>{{ product.title }}</strong>
+        <span>{{ formatPrice(product.price) }}</span>
+        <span class="mobile-buy-selection">{{ purchaseSelection }}</span>
+      </div>
+      <button type="button" @click="addProductToCart">{{ purchaseLabel }}</button>
     </div>
   </div>
 </template>
@@ -209,12 +219,19 @@ export default {
       campaignImages,
       cartOpen: false,
       selectedSize: null,
+      sizeRequired: false,
       selectedColor: null,
       toastMessage: "",
       toastVisible: false,
     };
   },
   computed: {
+    purchaseLabel() {
+      return this.$t(this.selectedSize ? "addToCart" : "chooseSize");
+    },
+    purchaseSelection() {
+      return [this.activeVariant?.label, this.selectedSize ? `${this.$t("size")} ${this.selectedSize}` : this.$t("chooseSize")].filter(Boolean).join(" / ");
+    },
     product() {
       return findProductBySlug(this.$route.params.slug);
     },
@@ -308,7 +325,8 @@ export default {
     product: {
       immediate: true,
       handler(product) {
-        this.selectedSize = product?.sizes?.[0] || null;
+        this.selectedSize = null;
+        this.sizeRequired = false;
         this.selectedColor = product?.variants?.[0]?.id || null;
         if (product) {
           applySeo({
@@ -329,6 +347,9 @@ export default {
       },
     },
   },
+  beforeUnmount() {
+    clearTimeout(this.toastTimer);
+  },
   methods: {
     formatPrice(value) {
       if (typeof value !== "number" || Number.isNaN(value)) {
@@ -341,7 +362,9 @@ export default {
       return `${formatted} FCFA`;
     },
     selectSize(size) {
+      if (!this.sizeOptions.includes(size)) return;
       this.selectedSize = size;
+      this.sizeRequired = false;
     },
     selectColor(colorId) {
       this.selectedColor = colorId;
@@ -357,6 +380,14 @@ export default {
     },
     addProductToCart() {
       if (!this.product || this.product.soldOut) {
+        return;
+      }
+      if (!this.sizeOptions.includes(this.selectedSize)) {
+        this.sizeRequired = true;
+        this.$nextTick(() => {
+          this.$refs.sizePicker?.focus({ preventScroll: true });
+          this.$refs.sizePicker?.scrollIntoView({ block: "center", behavior: "instant" });
+        });
         return;
       }
       const variant = this.activeVariant;
@@ -735,6 +766,13 @@ export default {
   font-size: 11px;
 }
 
+.size-picker { scroll-margin-top: calc(var(--header-height, 80px) + 24px); }
+.size-heading { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px 16px; margin-bottom: 10px; }
+.size-heading p { display: flex; gap: 12px; margin: 0; letter-spacing: 0; }
+.size-heading a { color: inherit; font-size: 12px; text-underline-offset: 3px; }
+.size-picker .size-error { margin: 12px 0 0; color: var(--accent); font-size: 12px; line-height: 1.5; letter-spacing: 0; text-transform: none; }
+.size-picker:focus-visible { outline: 2px solid var(--accent); outline-offset: 6px; }
+
 .size-grid {
   display: flex;
   flex-wrap: wrap;
@@ -742,6 +780,8 @@ export default {
 }
 
 .size-grid button {
+  min-width: 44px;
+  min-height: 44px;
   border: 1px solid var(--line);
   background: #fff;
   padding: 8px 12px;
@@ -990,11 +1030,12 @@ export default {
     left: 16px;
     text-align: center;
   }
-  .mobile-buy-bar { position: fixed; right: 0; bottom: 0; left: 0; z-index: 120; padding: 10px 14px; display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 12px; align-items: center; border-top: 1px solid #0b0b0b; background: rgba(255,255,255,.96); backdrop-filter: blur(14px); }
+  .mobile-buy-bar { position: fixed; right: 0; bottom: 0; left: 0; z-index: 120; padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px)); display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 12px; align-items: center; border-top: 1px solid #0b0b0b; background: rgba(255,255,255,.96); backdrop-filter: blur(14px); }
   .mobile-buy-bar div { min-width: 0; display: grid; gap: 3px; }
   .mobile-buy-bar strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10px; text-transform: uppercase; }
   .mobile-buy-bar span { font: 700 10px/1 monospace; }
-  .mobile-buy-bar button { min-height: 42px; border: 0; background: var(--accent); color: #fff; padding: 10px 14px; font: 700 9px/1 sans-serif; letter-spacing: .14em; text-transform: uppercase; }
-  .product-page { padding-bottom: 100px; }
+  .mobile-buy-bar .mobile-buy-selection { line-height: 1.4; overflow-wrap: anywhere; }
+  .mobile-buy-bar button { min-height: 44px; border: 0; background: var(--accent); color: #fff; padding: 10px; font: 700 11px/1.4 sans-serif; letter-spacing: 0; text-transform: uppercase; overflow-wrap: anywhere; }
+  .product-page { padding-bottom: calc(132px + env(safe-area-inset-bottom, 0px)); }
 }
 </style>
