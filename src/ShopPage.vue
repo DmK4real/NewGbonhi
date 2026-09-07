@@ -295,6 +295,38 @@
           <p class="content-count">{{ $t("itemCount", { count: filteredProducts.length }) }}</p>
         </div>
 
+        <section class="product-controls" :aria-label="$t('productControls')">
+          <label class="product-search">
+            <span>{{ $t("searchProducts") }}</span>
+            <input
+              v-model.trim="searchQuery"
+              type="search"
+              :placeholder="$t('searchPlaceholder')"
+              autocomplete="off"
+            />
+          </label>
+          <label class="product-sort">
+            <span>{{ $t("sortProducts") }}</span>
+            <select v-model="sortMode">
+              <option
+                v-for="option in sortOptions"
+                :key="option.id"
+                :value="option.id"
+              >
+                {{ option.label }}
+              </option>
+            </select>
+          </label>
+          <button
+            v-if="hasActiveProductControls"
+            class="control-reset"
+            type="button"
+            @click="clearProductControls"
+          >
+            {{ $t("resetFilters") }}
+          </button>
+        </section>
+
         <div
           v-if="isProductsLoading"
           class="skeleton-grid"
@@ -448,6 +480,7 @@ export default {
       activeFilter: null,
       products,
       searchQuery: "",
+      sortMode: "featured",
       isProductsLoading: true,
       skeletonCount: 8,
     };
@@ -493,6 +526,22 @@ export default {
         (product) => !arwStudioOnlySlugs.has(product.slug)
       );
     },
+    sortOptions() {
+      return [
+        { id: "featured", label: this.$t("sortFeatured") },
+        { id: "newest", label: this.$t("sortNewest") },
+        { id: "priceAsc", label: this.$t("sortPriceAsc") },
+        { id: "priceDesc", label: this.$t("sortPriceDesc") },
+      ];
+    },
+    hasActiveProductControls() {
+      return Boolean(
+        this.searchQuery ||
+          this.activeFilter ||
+          this.activeCategory !== "all" ||
+          this.sortMode !== "featured"
+      );
+    },
     categoryOptions() {
       const labelMap = {
         "t-shirts": this.$t("categoryTshirts"),
@@ -536,9 +585,9 @@ export default {
         ? this.activeCategory
         : "all";
 
-      const query = this.searchQuery.toLowerCase();
+      const query = this.normalizeProductSearch(this.searchQuery);
 
-      return this.shopProducts.filter((product) => {
+      const matches = this.shopProducts.filter((product) => {
         const productCategory = String(product?.category || "")
           .trim()
           .toLowerCase();
@@ -557,13 +606,11 @@ export default {
           filterMatch = tagList.includes("restock");
         }
 
-        const searchMatch =
-          !query ||
-          (product.title && product.title.toLowerCase().includes(query)) ||
-          (product.description && product.description.toLowerCase().includes(query));
+        const searchMatch = !query || this.matchesProductSearch(product, query);
 
         return categoryMatch && filterMatch && searchMatch;
       });
+      return this.sortProducts(matches);
     },
   },
   methods: {
@@ -620,6 +667,54 @@ export default {
     },
     toggleFilter(filterId) {
       this.activeFilter = this.activeFilter === filterId ? null : filterId;
+    },
+    clearProductControls() {
+      this.searchQuery = "";
+      this.activeCategory = "all";
+      this.activeFilter = null;
+      this.sortMode = "featured";
+      this.closeFilters();
+    },
+    normalizeProductSearch(value) {
+      return String(value || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
+    },
+    matchesProductSearch(product, query) {
+      const variantText = Array.isArray(product.variants)
+        ? product.variants.map((variant) => variant.label).join(" ")
+        : "";
+      const searchableText = [
+        product.title,
+        product.description,
+        product.category,
+        product.creatorName,
+        variantText,
+        ...(Array.isArray(product.tags) ? product.tags : []),
+      ].join(" ");
+      return this.normalizeProductSearch(searchableText).includes(query);
+    },
+    sortProducts(productList) {
+      const originalIndex = new Map(
+        this.shopProducts.map((product, index) => [product.slug, index])
+      );
+      const byOriginalOrder = (a, b) =>
+        (originalIndex.get(a.slug) ?? 0) - (originalIndex.get(b.slug) ?? 0);
+
+      return [...productList].sort((a, b) => {
+        if (this.sortMode === "priceAsc") {
+          return (a.price || 0) - (b.price || 0) || byOriginalOrder(a, b);
+        }
+        if (this.sortMode === "priceDesc") {
+          return (b.price || 0) - (a.price || 0) || byOriginalOrder(a, b);
+        }
+        if (this.sortMode === "newest") {
+          return (Number(b.id) || 0) - (Number(a.id) || 0) || byOriginalOrder(a, b);
+        }
+        return byOriginalOrder(a, b);
+      });
     },
     toggleCart() {
       this.menuOpen = false;
@@ -1817,6 +1912,66 @@ export default {
   color: var(--muted);
 }
 
+.product-controls {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(170px, 240px) auto;
+  gap: 10px;
+  align-items: end;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--ng-radius, 2px);
+  background: #fff;
+}
+
+.product-search,
+.product-sort {
+  min-width: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.product-search span,
+.product-sort span {
+  color: var(--muted);
+  font: 700 9px/1 monospace;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.product-search input,
+.product-sort select {
+  width: 100%;
+  min-height: 46px;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: #fff;
+  color: var(--text);
+  padding: 0 12px;
+  font: 700 12px/1.2 "Space Grotesk", Arial, sans-serif;
+  letter-spacing: 0;
+}
+
+.product-search input:focus,
+.product-sort select:focus {
+  outline: 0;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(225, 6, 0, .12);
+}
+
+.control-reset {
+  min-height: 46px;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: #0b0b0b;
+  color: #fff;
+  padding: 0 14px;
+  font: 800 10px/1 "Space Grotesk", Arial, sans-serif;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
 .skeleton-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -2412,6 +2567,14 @@ export default {
   .content-head {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .product-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .control-reset {
+    width: 100%;
   }
 
   .skeleton-grid {
