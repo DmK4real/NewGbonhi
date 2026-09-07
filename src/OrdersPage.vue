@@ -55,8 +55,42 @@
         {{ $t("noOrders") }}
       </div>
 
-      <section v-else class="orders-grid">
-        <article v-for="order in orders" :key="order.id" class="order-card">
+      <template v-else>
+        <section class="orders-toolbar" :aria-label="$t('orderControls')">
+          <label class="orders-search">
+            <span>{{ $t("searchOrders") }}</span>
+            <input
+              v-model.trim="orderSearch"
+              type="search"
+              :placeholder="$t('searchOrdersPlaceholder')"
+              autocomplete="off"
+            />
+          </label>
+          <div
+            class="orders-filter-tabs"
+            role="tablist"
+            :aria-label="$t('filterOrders')"
+          >
+            <button
+              v-for="filter in statusFilters"
+              :key="filter.id"
+              type="button"
+              :class="{ 'is-active': activeStatusFilter === filter.id }"
+              :aria-pressed="activeStatusFilter === filter.id"
+              @click="activeStatusFilter = filter.id"
+            >
+              <span>{{ filter.label }}</span>
+              <strong>{{ filter.count }}</strong>
+            </button>
+          </div>
+        </section>
+
+        <div v-if="filteredOrders.length === 0" class="orders-empty">
+          {{ $t("noFilteredOrders") }}
+        </div>
+
+        <section v-else class="orders-grid">
+          <article v-for="order in filteredOrders" :key="order.id" class="order-card">
           <header>
             <div>
               <h2>{{ order.id }}</h2>
@@ -139,6 +173,17 @@
               {{ $t("copySummary") }}
             </button>
             <button
+              v-if="buildCustomerWhatsappUrl(order)"
+              type="button"
+              class="ghost-button"
+              @click="openCustomerWhatsApp(order)"
+            >
+              {{ $t("openCustomerWhatsApp") }}
+            </button>
+            <button type="button" class="ghost-button" @click="copyCustomerContact(order)">
+              {{ $t("copyCustomerContact") }}
+            </button>
+            <button
               v-if="canSyncPayment(order)"
               type="button"
               class="ghost-button"
@@ -184,8 +229,9 @@
               {{ $t("cancel") }}
             </button>
           </footer>
-        </article>
-      </section>
+          </article>
+        </section>
+      </template>
     </main>
 
     <SiteFooter />
@@ -227,6 +273,8 @@ export default {
       isSaving: false,
       pendingDeleteId: "",
       actionSuccess: "",
+      orderSearch: "",
+      activeStatusFilter: "all",
     };
   },
   async created() {
@@ -262,6 +310,61 @@ export default {
     },
     deliveredOrders() {
       return this.orders.filter((order) => order.status === "delivered").length;
+    },
+    statusFilters() {
+      return [
+        {
+          id: "all",
+          label: this.$t("ordersFilterAll"),
+          count: this.orders.length,
+        },
+        {
+          id: "to_validate",
+          label: this.$t("ordersFilterToValidate"),
+          count: this.orders.filter((order) =>
+            ["sent", "paid_reported"].includes(order.status)
+          ).length,
+        },
+        {
+          id: "paid",
+          label: this.$t("paidStatus"),
+          count: this.orders.filter((order) => order.status === "paid").length,
+        },
+        {
+          id: "production",
+          label: this.$t("production"),
+          count: this.productionOrders,
+        },
+        {
+          id: "delivered",
+          label: this.$t("delivered"),
+          count: this.deliveredOrders,
+        },
+      ];
+    },
+    filteredOrders() {
+      const statusFilter = this.activeStatusFilter;
+      const query = this.normalizeSearchText(this.orderSearch);
+      return this.orders.filter((order) => {
+        if (
+          statusFilter === "to_validate" &&
+          !["sent", "paid_reported"].includes(order.status)
+        ) {
+          return false;
+        }
+        if (
+          !["all", "to_validate"].includes(statusFilter) &&
+          order.status !== statusFilter
+        ) {
+          return false;
+        }
+        if (!query) {
+          return true;
+        }
+        return this.normalizeSearchText(this.buildOrderSearchText(order)).includes(
+          query
+        );
+      });
     },
   },
   methods: {
@@ -299,13 +402,14 @@ export default {
       return map[status] || status || this.$t("sent");
     },
     formatPaymentProvider(provider) {
+      const normalizedProvider = String(provider || "").toLowerCase();
       const map = {
         geniuspay: "GeniusPay",
         wave: "Wave",
         orange_money: "Orange Money",
         mtn_money: "MTN Money",
       };
-      return map[provider] || provider || this.$t("paymentUnknown");
+      return map[normalizedProvider] || provider || this.$t("paymentUnknown");
     },
     formatPaymentStatus(status) {
       const normalizedStatus = String(status || "").toLowerCase();
@@ -325,6 +429,77 @@ export default {
         refunded: this.$t("paymentRefunded"),
       };
       return map[normalizedStatus] || status || this.$t("paymentUnknown");
+    },
+    normalizeSearchText(value) {
+      return String(value || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
+    },
+    buildOrderSearchText(order) {
+      const itemText = Array.isArray(order.items)
+        ? order.items
+            .map((item) =>
+              [
+                item.title,
+                item.selectedSize,
+                item.selectedColor,
+                item.selectedDesignName,
+              ]
+                .filter(Boolean)
+                .join(" ")
+            )
+            .join(" ")
+        : "";
+      return [
+        order.id,
+        order.status,
+        order.customer?.firstName,
+        order.customer?.lastName,
+        order.customer?.phone,
+        order.customer?.email,
+        order.customer?.address,
+        order.customer?.city,
+        order.shipping?.label,
+        order.payment?.provider,
+        order.payment?.status,
+        order.payment?.reference,
+        itemText,
+      ]
+        .filter(Boolean)
+        .join(" ");
+    },
+    normalizeWhatsappPhone(value) {
+      const digits = String(value || "").replace(/\D/g, "").replace(/^00/, "");
+      if (!digits) {
+        return "";
+      }
+      if (digits.startsWith("225")) {
+        return digits;
+      }
+      if (digits.length === 10 && digits.startsWith("0")) {
+        return `225${digits}`;
+      }
+      return digits;
+    },
+    buildCustomerWhatsappUrl(order) {
+      const phone = this.normalizeWhatsappPhone(order?.customer?.phone);
+      if (!phone) {
+        return "";
+      }
+      const message = encodeURIComponent(
+        [
+          `Bonjour ${order.customer?.firstName || ""}`.trim(),
+          `Commande ${order.id} NewGbonhi.`,
+          `Statut: ${this.formatStatus(order.status)}.`,
+          `Montant article: ${this.formatPrice(order.subtotal)}.`,
+          `Livraison: ${order.shipping?.label || "-"} (${this.formatPrice(
+            order.shipping?.fee || 0
+          )}).`,
+        ].join("\n")
+      );
+      return `https://wa.me/${phone}?text=${message}`;
     },
     canSyncPayment(order) {
       const status = String(order?.status || "").toLowerCase();
@@ -402,9 +577,34 @@ export default {
     async copyOrder(order) {
       try {
         await navigator.clipboard.writeText(this.buildOrderSummary(order));
+        this.actionSuccess = this.$t("summaryCopied");
       } catch (error) {
         // noop
       }
+    },
+    async copyCustomerContact(order) {
+      try {
+        await navigator.clipboard.writeText(
+          [
+            `${order.customer?.firstName || ""} ${order.customer?.lastName || ""}`.trim(),
+            order.customer?.phone,
+            order.customer?.email,
+            `${order.customer?.address || ""}, ${order.customer?.city || ""}`.trim(),
+          ]
+            .filter(Boolean)
+            .join("\n")
+        );
+        this.actionSuccess = this.$t("customerContactCopied");
+      } catch (error) {
+        this.authError = this.$t("copyFailed");
+      }
+    },
+    openCustomerWhatsApp(order) {
+      const url = this.buildCustomerWhatsappUrl(order);
+      if (!url) {
+        return;
+      }
+      window.open(url, "_blank", "noopener");
     },
     async advanceOrder(order) {
       if (this.isSaving || !this.adminToken) {
@@ -740,6 +940,84 @@ export default {
   background: #fff;
 }
 
+.orders-toolbar {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: minmax(240px, 0.9fr) minmax(0, 1.5fr);
+  gap: 14px;
+  align-items: end;
+}
+
+.orders-search {
+  display: grid;
+  gap: 8px;
+}
+
+.orders-search span {
+  font: 700 9px/1 monospace;
+  color: var(--accent);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+.orders-search input {
+  width: 100%;
+  min-height: 46px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--text);
+  padding: 12px 14px;
+  font: 700 12px/1.2 "Space Grotesk", Arial, sans-serif;
+  letter-spacing: 0;
+}
+
+.orders-search input:focus {
+  outline: 0;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(225, 6, 0, .12);
+}
+
+.orders-filter-tabs {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+}
+
+.orders-filter-tabs button {
+  min-height: 46px;
+  border: 0;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  background: #fff;
+  color: var(--text);
+  padding: 9px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.orders-filter-tabs button.is-active {
+  background: #0b0b0b;
+  color: #fff;
+}
+
+.orders-filter-tabs span {
+  min-width: 0;
+  font: 800 8px/1.2 monospace;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.orders-filter-tabs strong {
+  font: 900 14px/1 "Space Grotesk", Arial, sans-serif;
+}
+
 .orders-grid {
   margin-top: 20px;
   display: grid;
@@ -973,6 +1251,7 @@ export default {
 .orders-stats article { min-height: 110px; padding: 18px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); display: flex; flex-direction: column; justify-content: space-between; }
 .orders-stats span { font: 700 9px/1 monospace; letter-spacing: .14em; }
 .orders-stats strong { font-family: "Archivo Black","Space Grotesk",sans-serif; font-size: 34px; }
+.orders-toolbar { border-radius: var(--ng-radius); }
 .orders-login,
 .orders-empty,
 .order-card,
@@ -1005,6 +1284,15 @@ export default {
   }
   .orders-index { flex-direction: column; }
   .orders-stats { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .orders-toolbar {
+    grid-template-columns: 1fr;
+  }
+  .orders-filter-tabs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .orders-filter-tabs button:first-child {
+    grid-column: 1 / -1;
+  }
 
   .shop-header {
     align-items: flex-start;

@@ -217,6 +217,18 @@
 
           <div class="payment-box">
             <p class="checkout-step-label">03 / PAYMENT</p>
+            <div class="payment-breakdown" :aria-label="$t('paymentBreakdown')">
+              <article>
+                <span>{{ $t("paymentDueNow") }}</span>
+                <strong>{{ formatPrice(cartTotal) }}</strong>
+                <p>{{ $t("paymentDueNowCopy") }}</p>
+              </article>
+              <article>
+                <span>{{ $t("deliveryDueLater") }}</span>
+                <strong>{{ formatPrice(shippingFee) }}</strong>
+                <p>{{ $t("deliveryDueLaterCopy") }}</p>
+              </article>
+            </div>
             <div class="geniuspay-panel checkout-payment-selector">
               <div class="geniuspay-heading">
                 <span>{{ $t("mobilePayment") }}</span>
@@ -352,7 +364,11 @@
     </main>
 
     <div v-if="!orderSent && cartItems.length" class="checkout-mobile-bar">
-      <div><span>{{ $t("finalTotal") }}</span><strong>{{ formatPrice(totalWithShipping) }}</strong></div>
+      <div>
+        <span>{{ $t("paymentDueNow") }}</span>
+        <strong>{{ formatPrice(cartTotal) }}</strong>
+        <small>{{ $t("excludingDelivery") }}</small>
+      </div>
       <button type="submit" form="checkout-order-form" :disabled="!canSend || isSubmitting">
         {{ isSubmitting ? $t("sending") : $t("sendOrder") }}
       </button>
@@ -1592,6 +1608,40 @@ export default {
   font-size: 11px;
 }
 
+.payment-breakdown {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.payment-breakdown article {
+  display: grid;
+  gap: 7px;
+  min-height: 112px;
+  padding: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: #fff;
+}
+
+.payment-breakdown span {
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font: 700 9px/1 monospace;
+  color: var(--muted);
+}
+
+.payment-breakdown strong {
+  font: 700 16px/1 monospace;
+}
+
+.payment-breakdown p {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
 .payment-note {
   margin: 10px 0 0;
   font-size: 11px;
@@ -1911,6 +1961,9 @@ export default {
     display: grid;
     grid-template-columns: 1fr;
   }
+  .payment-breakdown {
+    grid-template-columns: 1fr;
+  }
   .geniuspay-method-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1926,6 +1979,7 @@ export default {
   .checkout-mobile-bar div { display: grid; gap: 3px; }
   .checkout-mobile-bar span { font: 700 8px/1 monospace; letter-spacing: .12em; text-transform: uppercase; }
   .checkout-mobile-bar strong { font: 700 12px/1 monospace; }
+  .checkout-mobile-bar small { color: var(--muted); font: 700 8px/1 monospace; letter-spacing: .08em; text-transform: uppercase; }
   .checkout-mobile-bar button { min-height: 42px; border: 0; background: var(--accent); color: #fff; padding: 10px 14px; font: 700 9px/1 sans-serif; letter-spacing: .12em; text-transform: uppercase; }
   .checkout-mobile-bar button:disabled { opacity: .45; }
   .checkout-page { padding-bottom: 100px; }
@@ -1964,6 +2018,7 @@ export default {
   }
 
   .payment-handoff,
+  .payment-breakdown article,
   .delivery-box,
   .payment-box,
   .preorder-banner,
