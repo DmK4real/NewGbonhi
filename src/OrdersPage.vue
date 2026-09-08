@@ -10,9 +10,15 @@
         <p>{{ $t("navOrders") }}</p>
         <div class="orders-title">
           <h1>{{ $t("orderHistory") }}</h1>
-          <button v-if="isAuthorized" class="ghost-button" type="button" @click="logout">
-            {{ $t("logout") }}
-          </button>
+          <div v-if="isAuthorized" class="orders-header-actions">
+            <button class="ghost-button orders-tool-button" type="button" :disabled="isLoading || isSaving" :title="$t('refreshOrders')" @click="refreshOrders">
+              <RefreshCw :size="16" aria-hidden="true" />
+              {{ isLoading ? $t("loading") : $t("refreshOrders") }}
+            </button>
+            <button class="ghost-button" type="button" :disabled="isLoading || isSaving" @click="logout">
+              {{ $t("logout") }}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -68,7 +74,7 @@
           </label>
           <div
             class="orders-filter-tabs"
-            role="tablist"
+            role="group"
             :aria-label="$t('filterOrders')"
           >
             <button
@@ -84,6 +90,14 @@
             </button>
           </div>
         </section>
+
+        <div class="orders-results">
+          <p role="status">{{ $t("ordersResultCount", { count: filteredOrders.length, total: orders.length }) }}</p>
+          <button class="ghost-button orders-tool-button" type="button" :disabled="!filteredOrders.length || isSaving" :title="$t('exportFilteredOrders')" @click="exportOrders">
+            <Download :size="16" aria-hidden="true" />
+            {{ $t("exportOrdersCsv") }}
+          </button>
+        </div>
 
         <div v-if="filteredOrders.length === 0" class="orders-empty">
           {{ $t("noFilteredOrders") }}
@@ -241,6 +255,8 @@
 <script>
 import SiteHeader from "./components/SiteHeader.vue";
 import CartPanel from "./components/CartPanel.vue";
+import { Download, RefreshCw } from "@lucide/vue";
+import { buildOrdersCsv } from "./utils/orderExport.js";
 import { cartStore } from "./data/cart.ts";
 import {
   adminLogin,
@@ -259,6 +275,8 @@ export default {
   components: {
     SiteHeader,
     CartPanel,
+    Download,
+    RefreshCw,
   },
   data() {
     return {
@@ -368,6 +386,51 @@ export default {
     },
   },
   methods: {
+    async refreshOrders() {
+      if (!this.isAuthorized || !this.adminToken || this.isLoading || this.isSaving) return;
+      const token = this.adminToken;
+      this.authError = "";
+      this.actionSuccess = "";
+      this.pendingDeleteId = "";
+      this.isLoading = true;
+      try {
+        const orders = await loadOrders(token);
+        if (this.adminToken !== token) return;
+        this.orders = orders;
+        this.actionSuccess = this.$t("ordersRefreshed");
+      } catch (error) {
+        if (this.adminToken !== token) return;
+        this.authError = error instanceof Error ? error.message : this.$t("ordersRefreshFailed");
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    exportOrders() {
+      if (!this.isAuthorized || this.isLoading || this.isSaving || !this.filteredOrders.length) return;
+      this.authError = "";
+      this.actionSuccess = "";
+      let url;
+      const link = document.createElement("a");
+      try {
+        const csv = buildOrdersCsv(this.filteredOrders, {
+          translate: (key) => this.$t(key),
+          formatStatus: this.formatStatus,
+          formatPaymentStatus: this.formatPaymentStatus,
+          formatPaymentProvider: this.formatPaymentProvider,
+        });
+        url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+        link.href = url;
+        link.download = `newgbonhi-orders-${new Date().toISOString().slice(0, 10)}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        this.actionSuccess = this.$t("ordersExportStarted", { count: this.filteredOrders.length });
+      } catch {
+        this.authError = this.$t("ordersExportFailed");
+      } finally {
+        link.remove();
+        if (url) setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }
+    },
     toggleCart() {
       this.cartOpen = !this.cartOpen;
     },
@@ -947,6 +1010,15 @@ export default {
   gap: 14px;
   align-items: end;
 }
+
+.orders-header-actions,
+.orders-results { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+.orders-results { margin-top: 16px; justify-content: space-between; }
+.orders-results p { margin: 0; font-size: 12px; color: var(--muted); }
+.orders-tool-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; letter-spacing: 0; }
+.orders-tool-button svg { flex-shrink: 0; }
+.orders-tool-button:disabled { opacity: .5; cursor: not-allowed; }
+.orders-tool-button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
 .orders-search {
   display: grid;
