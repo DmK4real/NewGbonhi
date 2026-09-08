@@ -45,6 +45,8 @@
         <img
           class="hero-photo"
           :src="heroImage"
+          :srcset="heroImageSrcset"
+          sizes="(max-width: 700px) 100vw, 600px"
           alt="Next drop preview"
           loading="eager"
           fetchpriority="high"
@@ -406,31 +408,32 @@ import LanguageSwitch from "./components/LanguageSwitch.vue";
 import { products } from "./data/products.ts";
 import { cartStore } from "./data/cart.ts";
 
-const logoUrl = new URL("./assets/newgbonhi-logo.png", import.meta.url).href;
+const logoUrl = new URL("./assets/webp/newgbonhi-logo-128.webp", import.meta.url).href;
 const heroImage = new URL(
-  "./assets/NEW GBONHI CAMO TEE WHITE CUTOUT.png",
+  "./assets/webp/NEW GBONHI CAMO TEE WHITE CUTOUT.webp",
   import.meta.url
 ).href;
+const heroImageSrcset = `${new URL("./assets/webp/NEW GBONHI CAMO TEE WHITE CUTOUT-400.webp", import.meta.url).href} 400w, ${heroImage} 672w`;
 const stickerArwFilm = new URL("./assets/ARW FILM.png", import.meta.url).href;
 const stickerCup = new URL("./assets/ARW FILM CUP STICKER.png", import.meta.url).href;
 const collabLockup = new URL("./assets/ARW FILM X NEW GBONHI.jpeg", import.meta.url).href;
 const collabCityWhiteTeeCutout = new URL(
-  "./assets/ARW FILM CITY TEE WHITE FRONT CUTOUT.png",
+  "./assets/webp/ARW FILM CITY TEE WHITE FRONT CUTOUT-800.webp",
   import.meta.url
 ).href;
 const collabCityBlackTeeCutout = new URL(
-  "./assets/ARW FILM CITY TEE BLACK FRONT CUTOUT.png",
+  "./assets/webp/ARW FILM CITY TEE BLACK FRONT CUTOUT-800.webp",
   import.meta.url
 ).href;
 const collabChromeLogo = new URL(
-  "./assets/ARW FILM CHROME LOGO CUTOUT.png",
+  "./assets/webp/ARW FILM CHROME LOGO CUTOUT-400.webp",
   import.meta.url
 ).href;
 const camoEditorialImages = [
-  { src: new URL("./assets/editorial/cameleon-worn-01.jpg", import.meta.url).href, alt: "NewGbonhi Cameleon Camo tee porté à Abidjan" },
-  { src: new URL("./assets/editorial/cameleon-worn-02.jpg", import.meta.url).href, alt: "Vue rapprochée du graphisme Cameleon Camo NewGbonhi" },
-  { src: new URL("./assets/editorial/cameleon-worn-03.jpg", import.meta.url).href, alt: "Portrait de campagne du tee Cameleon Camo" },
-  { src: new URL("./assets/editorial/cameleon-worn-04.jpg", import.meta.url).href, alt: "Coupe portée du tee blanc NewGbonhi Cameleon Camo" },
+  { src: new URL("./assets/webp/editorial/cameleon-worn-01-800.webp", import.meta.url).href, alt: "NewGbonhi Cameleon Camo tee porté à Abidjan" },
+  { src: new URL("./assets/webp/editorial/cameleon-worn-02-800.webp", import.meta.url).href, alt: "Vue rapprochée du graphisme Cameleon Camo NewGbonhi" },
+  { src: new URL("./assets/webp/editorial/cameleon-worn-03-800.webp", import.meta.url).href, alt: "Portrait de campagne du tee Cameleon Camo" },
+  { src: new URL("./assets/webp/editorial/cameleon-worn-04-800.webp", import.meta.url).href, alt: "Coupe portée du tee blanc NewGbonhi Cameleon Camo" },
 ];
 
 const arwStudioOnlySlugs = new Set([
@@ -450,6 +453,7 @@ export default {
     return {
       logoUrl,
       heroImage,
+      heroImageSrcset,
       stickerArwFilm,
       stickerCup,
       collabLockup,

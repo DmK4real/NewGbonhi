@@ -1,9 +1,11 @@
 import productsData from "./products.json";
+import imageMetadata from "../assets/webp/manifest.json";
 
 type ProductVariant = {
   imageKey?: string;
   imagePrimary?: string;
   imageWebp?: string;
+  imageSrcset?: string;
   [key: string]: unknown;
 };
 
@@ -17,6 +19,7 @@ export type ProductRecord = {
   imagePrimary: string;
   imageSecondary: string;
   imageWebp: string;
+  imageSrcset: string;
   category?: string;
   tags?: string[];
   soldOut?: boolean;
@@ -99,6 +102,19 @@ const resolveWebpByKey = (imageKey?: string): string => {
   return webpMap[webpName] || "";
 };
 
+const resolveSrcsetByKey = (imageKey?: string): string => {
+  const fileName = imageKey ? imageKeyToFile[imageKey] : "";
+  if (!fileName) return "";
+  const sources = [400, 800].map((width) => {
+    const url = webpMap[fileName.replace(/\.(png|jpe?g)$/i, `-${width}.webp`)];
+    return url ? `${url} ${width}w` : "";
+  }).filter(Boolean);
+  const metadata = (imageMetadata as Record<string, { width: number }>)[fileName];
+  const original = resolveWebpByKey(imageKey);
+  if (original && metadata) sources.push(`${original} ${metadata.width}w`);
+  return sources.join(", ");
+};
+
 const resolveImagePrimary = (product: RawProduct): string => {
   if (Array.isArray(product.variants) && product.variants.length) {
     return resolveImageByKey(product.variants[0].imageKey);
@@ -138,6 +154,7 @@ export const products: ProductRecord[] = rawProducts.map((product, index) => {
         ...variant,
         imagePrimary: resolveImageByKey(variant.imageKey),
         imageWebp: resolveWebpByKey(variant.imageKey),
+        imageSrcset: resolveSrcsetByKey(variant.imageKey),
       }))
     : null;
   const primaryFromVariants = variants?.[0]?.imagePrimary || "";
@@ -154,6 +171,7 @@ export const products: ProductRecord[] = rawProducts.map((product, index) => {
       product.imageSecondary ||
       "",
     imageWebp: resolveImageWebp(product),
+    imageSrcset: resolveSrcsetByKey(product.variants?.[0]?.imageKey || product.imageKey),
   };
 });
 

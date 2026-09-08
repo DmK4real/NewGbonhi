@@ -98,9 +98,9 @@
 import LanguageSwitch from "./LanguageSwitch.vue";
 import { cartStore } from "../data/cart.ts";
 
-const logoUrl = new URL("../assets/newgbonhi-logo.png", import.meta.url).href;
+const logoUrl = new URL("../assets/webp/newgbonhi-logo-128.webp", import.meta.url).href;
 const campaignImage = new URL(
-  "../assets/editorial/cameleon-worn-01.jpg",
+  "../assets/webp/editorial/cameleon-worn-01-800.webp",
   import.meta.url
 ).href;
 

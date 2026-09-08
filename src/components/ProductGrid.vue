@@ -20,6 +20,8 @@
             product.imagePrimary
           "
         >
+          <picture class="pg-picture">
+          <source v-if="product.imageWebp" :srcset="product.imageSrcset || product.imageWebp" sizes="(max-width: 700px) 50vw, (max-width: 1100px) 33vw, 300px" type="image/webp" />
           <img
             class="pg-image pg-image-dual-front"
             loading="lazy"
@@ -27,12 +29,14 @@
             :src="product.imagePrimary"
             :alt="product.title || ''"
           />
+          </picture>
         </template>
         <template v-else-if="product.imagePrimary || product.imageSecondary">
           <picture class="pg-picture">
             <source
               v-if="product.imageWebp"
-              :srcset="product.imageWebp"
+              :srcset="product.imageSrcset || product.imageWebp"
+              sizes="(max-width: 700px) 50vw, (max-width: 1100px) 33vw, 300px"
               type="image/webp"
             />
             <img
