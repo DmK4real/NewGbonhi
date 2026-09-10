@@ -69,4 +69,9 @@ window.addEventListener("unhandledrejection", (event) => {
   });
 });
 
-app.use(router).mount("#app");
+app.use(router);
+
+// Avoid treating the first async route as an animated page transition.
+// On failure, still mount the error screen populated by router.onError.
+const mountApp = () => app.mount("#app");
+router.isReady().then(mountApp, mountApp);

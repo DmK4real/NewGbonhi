@@ -1002,7 +1002,6 @@ export default {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 24px;
   background: transparent;
-  animation: rise 0.7s ease both;
 }
 
 .hero-copy {
