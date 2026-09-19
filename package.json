@@ -13,7 +13,9 @@
     "preview": "vite preview",
     "test": "vitest run",
     "products:build": "node scripts/build-products.js",
-    "images:optimize": "node scripts/optimize-images.js"
+    "images:optimize": "node scripts/optimize-images.js",
+    "audit:site": "node scripts/audit-site.js",
+    "images:social": "node scripts/generate-social-image.js"
   },
   "dependencies": {
     "@lucide/vue": "^1.42.0",

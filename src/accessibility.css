@@ -1,0 +1,13 @@
+/* Shared keyboard, form and narrow-screen safeguards. */
+:focus-visible { outline: 3px solid #176ac6; outline-offset: 4px; }
+.form-privacy { font-size: 14px; line-height: 1.6; }
+.form-privacy a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+input, select, textarea { max-width: 100%; box-sizing: border-box; }
+@media (max-width: 700px) { input, select, textarea { font-size: 16px; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
+
+@media (prefers-color-scheme: dark) {
+  .shop-page .hero-kicker, .product-page .product-kicker { color: #ff746c !important; }
+}
+.early-access .form-privacy { grid-column: 1 / -1; color: #fff; }
+.early-access .form-privacy a { color: #fff; }

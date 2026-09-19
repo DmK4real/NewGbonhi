@@ -55,7 +55,10 @@ export const applySeo = (options = {}) => {
   setMeta("property", "og:site_name", "New Gbonhi Shop");
   setMeta("property", "og:title", title);
   setMeta("property", "og:description", description);
-  setMeta("name", "twitter:card", "summary");
+  setMeta("name", "twitter:card", "summary_large_image");
+  const image = `${CANONICAL_ORIGIN}/social-share.jpg`;
+  setMeta("property", "og:image", image);
+  setMeta("name", "twitter:image", image);
   setMeta("name", "twitter:title", title);
   setMeta("name", "twitter:description", description);
 

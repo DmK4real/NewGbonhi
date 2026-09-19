@@ -87,7 +87,7 @@ const resolveImageByKey = (imageKey?: string): string => {
   if (!imageKey) {
     return "";
   }
-  return imageKeyMap[imageKey] || "";
+  return resolveWebpByKey(imageKey) || imageKeyMap[imageKey] || "";
 };
 
 const resolveWebpByKey = (imageKey?: string): string => {
@@ -120,7 +120,7 @@ const resolveImagePrimary = (product: RawProduct): string => {
     return resolveImageByKey(product.variants[0].imageKey);
   }
   if (product.imageKey && imageKeyMap[product.imageKey]) {
-    return imageKeyMap[product.imageKey];
+    return resolveImageByKey(product.imageKey);
   }
   return product.imagePrimary || "";
 };

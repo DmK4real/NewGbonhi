@@ -1,10 +1,12 @@
+import products from "../src/data/products.json" with { type: "json" };
+const appPaths = new Set(["/", "/collections", "/lookbook", "/lab", "/lab/arw-studio", "/about", "/studio", "/checkout", "/orders", "/confidentialite", "/cgu", ...products.map(product => `/product/${product.slug}`)]);
 const PRIMARY_HOST = "newgbonhi.com";
 const REDIRECT_HOSTS = new Set(["www.newgbonhi.com"]);
 
 export const onRequest = async (context) => {
   const url = new URL(context.request.url);
 
-  if (REDIRECT_HOSTS.has(url.hostname.toLowerCase())) {
+  if (REDIRECT_HOSTS.has(url.hostname.toLowerCase()) || (url.hostname === PRIMARY_HOST && url.protocol !== "https:")) {
     url.protocol = "https:";
     url.hostname = PRIMARY_HOST;
     url.port = "";
@@ -13,11 +15,14 @@ export const onRequest = async (context) => {
 
   const withHtmlCachePolicy = (response) => {
     const contentType = response.headers.get("Content-Type") || "";
-    if (!contentType.includes("text/html")) return response;
     const headers = new Headers(response.headers);
-    headers.set("Cache-Control", "no-cache, no-store, must-revalidate");
+    headers.set("X-Content-Type-Options", "nosniff");
+    headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+    headers.set("X-Frame-Options", "DENY");
+    if (url.protocol === "https:") headers.set("Strict-Transport-Security", "max-age=31536000");
+    if (contentType.includes("text/html")) headers.set("Cache-Control", "no-cache, no-store, must-revalidate");
     return new Response(response.body, {
-      status: response.status,
+      status: contentType.includes("text/html") && !appPaths.has(url.pathname.replace(/\/$/, "") || "/") ? 404 : response.status,
       statusText: response.statusText,
       headers,
     });

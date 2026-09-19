@@ -10,6 +10,9 @@
       <RouterLink to="/lab">{{ $t("navLab") }}</RouterLink>
       <RouterLink to="/studio">{{ $t("navStudio") }}</RouterLink>
       <RouterLink to="/about">{{ $t("navAbout") }}</RouterLink>
+      <RouterLink to="/confidentialite">Confidentialité</RouterLink>
+      <RouterLink to="/cgu">CGU</RouterLink>
+      <button class="privacy-link" type="button" @click="openPrivacy">Gérer les cookies</button>
       <RouterLink to="/orders">{{ $t("navOrders") }}</RouterLink>
     </nav>
     <div class="footer-contact">
@@ -29,7 +32,7 @@
         >
           TikTok
         </a>
-        <a href="mailto:hello@newgbonhi.com">Email</a>
+        <a :href="`mailto:${contactEmail}`">Email</a>
       </div>
     </div>
     <PaymentMethods />
@@ -37,11 +40,15 @@
 </template>
 
 <script>
+import { checkoutConfig } from "../utils/config.js";
+import { openPrivacy } from "../utils/privacy.js";
 import PaymentMethods from "./PaymentMethods.vue";
 import LanguageSwitch from "./LanguageSwitch.vue";
 
 export default {
   name: "SiteFooter",
+  data: () => ({ contactEmail: checkoutConfig.contactEmail }),
+  methods: { openPrivacy },
   components: {
     PaymentMethods,
     LanguageSwitch,
@@ -103,7 +110,8 @@ export default {
   gap: 14px 28px;
 }
 
-.footer-sitemap a {
+.footer-sitemap a, .privacy-link {
+  background: transparent; border: 0; padding: 0; cursor: pointer; font-family: inherit;
   color: inherit;
   text-decoration: none;
   text-transform: uppercase;
@@ -138,6 +146,7 @@ export default {
 }
 
 .footer-links a {
+  background: transparent; border: 0; padding: 0; cursor: pointer; font-family: inherit;
   color: inherit;
   text-decoration: none;
   text-transform: uppercase;
@@ -171,7 +180,7 @@ export default {
   }
   .footer-index { align-items: flex-start; flex-direction: column; }
   .footer-sitemap { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); text-align: left; }
-  .footer-sitemap a { min-width: 0; letter-spacing: .1em; overflow-wrap: anywhere; }
+  .footer-sitemap a, .privacy-link { min-width: 0; letter-spacing: .1em; overflow-wrap: anywhere; }
   .footer-links { width: 100%; display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; }
   .footer-links a { min-width: 0; font-size: 9px; letter-spacing: .1em; overflow-wrap: anywhere; }
 }

@@ -23,9 +23,7 @@
           <button class="hero-button" type="button" @click="scrollToProducts">
             {{ $t("viewItems") }}
           </button>
-          <RouterLink class="hero-button ghost" to="/about">
-            {{ $t("dropDetails") }}
-          </RouterLink>
+
         </div>
       </div>
       <div class="hero-panel">
@@ -200,11 +198,12 @@
         <input
           id="early-access-email"
           v-model.trim="earlyAccessEmail"
-          type="email"
+          type="email" maxlength="140"
           autocomplete="email"
           placeholder="nom@email.com"
           required
         />
+        <p class="form-privacy">En vous inscrivant, vous acceptez de recevoir les nouvelles de NewGbonhi par email. Désinscription sur demande. <RouterLink to="/confidentialite">Utilisation de vos données</RouterLink>.</p>
         <input v-model="earlyAccessWebsite" class="early-access-honeypot" type="text" tabindex="-1" autocomplete="off" aria-hidden="true" />
         <button type="submit" :disabled="earlyAccessLoading">
           {{ earlyAccessLoading ? $t("earlyAccessSending") : $t("earlyAccessCta") }}
@@ -414,9 +413,9 @@ const heroImage = new URL(
   import.meta.url
 ).href;
 const heroImageSrcset = `${new URL("./assets/webp/NEW GBONHI CAMO TEE WHITE CUTOUT-400.webp", import.meta.url).href} 400w, ${heroImage} 672w`;
-const stickerArwFilm = new URL("./assets/ARW FILM.png", import.meta.url).href;
-const stickerCup = new URL("./assets/ARW FILM CUP STICKER.png", import.meta.url).href;
-const collabLockup = new URL("./assets/ARW FILM X NEW GBONHI.jpeg", import.meta.url).href;
+const stickerArwFilm = new URL("./assets/webp/ARW FILM.webp", import.meta.url).href;
+const stickerCup = new URL("./assets/webp/ARW FILM CUP STICKER.webp", import.meta.url).href;
+const collabLockup = new URL("./assets/webp/ARW FILM X NEW GBONHI.webp", import.meta.url).href;
 const collabCityWhiteTeeCutout = new URL(
   "./assets/webp/ARW FILM CITY TEE WHITE FRONT CUTOUT-800.webp",
   import.meta.url

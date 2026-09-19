@@ -1,3 +1,4 @@
+import { createRateLimiter, guardedRoute, validateCustomerContact, validateItems, validateOrderCatalog } from "./guard.js";
 import fs from "node:fs";
 import { promises as fsp } from "node:fs";
 import path from "node:path";
@@ -58,7 +59,7 @@ const TOKEN_TTL_MS =
     : 1000 * 60 * 60 * 8;
 
 const ADMIN_PASSWORD =
-  process.env.ADMIN_PASSWORD || process.env.VITE_ADMIN_PASSWORD || "";
+  process.env.ADMIN_PASSWORD || "";
 const ADMIN_JWT_SECRET = process.env.ADMIN_JWT_SECRET || "";
 const JWT_SECRET = ADMIN_JWT_SECRET || ADMIN_PASSWORD;
 const SITE_URL = trimTrailingSlash(process.env.SITE_URL || "http://localhost:5173");
@@ -303,10 +304,12 @@ const normalizeCustomer = (customer) => {
     throw new Error("Customer details are incomplete.");
   }
 
+  validateCustomerContact(normalized);
   return normalized;
 };
 
 const normalizeItems = (items) => {
+  validateItems(items);
   if (!Array.isArray(items) || items.length === 0) {
     throw new Error("Order items are required.");
   }
@@ -380,6 +383,7 @@ const buildOrderFromDraft = (draft) => {
     throw new Error("Order payload is missing.");
   }
 
+  validateOrderCatalog(draft);
   const customer = normalizeCustomer(draft.customer);
   const items = normalizeItems(draft.items);
   const shipping = normalizeShipping(draft.shipping);
@@ -1146,10 +1150,6 @@ function logConfigWarnings() {
     console.warn(
       "[config] ADMIN_PASSWORD is not configured. Admin login will be unavailable."
     );
-  } else if (!process.env.ADMIN_PASSWORD && process.env.VITE_ADMIN_PASSWORD) {
-    console.warn(
-      "[config] Using deprecated VITE_ADMIN_PASSWORD fallback for the API. Set ADMIN_PASSWORD instead."
-    );
   }
 
   if (!ADMIN_JWT_SECRET) {
@@ -1175,6 +1175,8 @@ function logConfigWarnings() {
   }
 }
 
+const allowRequest = createRateLimiter();
+
 const server = createServer(async (req, res) => {
   const method = req.method || "GET";
   const url = new URL(req.url || "/", "http://localhost");
@@ -1186,6 +1188,19 @@ const server = createServer(async (req, res) => {
   }
 
   try {
+    if (guardedRoute(method, pathname) && !allowRequest(`${req.socket.remoteAddress}:${pathname.replace(/\/orders\/[^/]+\//, "/orders/item/")}`)) {
+      respondJson(res, 429, { error: "Trop de tentatives. Réessayez dans une minute." });
+      return;
+    }
+    if (method === "POST" && pathname === "/api/studio/login") {
+      const payload = await readJsonBody(req);
+      const expected = process.env.STUDIO_PASSWORD || "";
+      const supplied = Buffer.from(String(payload.password || ""));
+      const secret = Buffer.from(expected);
+      const ok = expected && supplied.length === secret.length && timingSafeEqual(supplied, secret);
+      respondJson(res, ok ? 200 : 401, { ok: Boolean(ok) });
+      return;
+    }
     if (method === "GET" && pathname === "/api/health") {
       respondJson(res, 200, { ok: true });
       return;
@@ -1554,12 +1569,14 @@ const server = createServer(async (req, res) => {
         return;
       }
 
+      const payload = await readJsonBody(req);
       const result = await withWriteLock(async () => {
         const orders = await readOrders();
         const order = orders.find((entry) => entry.id === orderId);
         if (!order) {
           return null;
         }
+        assertPaymentToken(order, payload.paymentToken);
         const previousStatus = order.status;
         if (previousStatus === "sent") {
           order.status = "paid_reported";

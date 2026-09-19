@@ -263,13 +263,14 @@
             <p>{{ labContent.applicationIntro }}</p>
           </header>
           <form class="join-form" @submit.prevent="submitOpenCall">
+            <p class="form-privacy">Ces informations servent à examiner votre candidature et à vous répondre. <RouterLink to="/confidentialite">Utilisation de vos données</RouterLink>.</p>
           <label>
             <span>{{ labContent.formName }}</span>
             <input v-model.trim="openCall.name" type="text" required />
           </label>
           <label>
             <span>{{ labContent.formEmail }}</span>
-            <input v-model.trim="openCall.email" type="email" autocomplete="email" required />
+            <input v-model.trim="openCall.email" type="email" maxlength="140" autocomplete="email" required />
           </label>
           <label>
             <span>{{ labContent.formDiscipline }}</span>
@@ -411,14 +412,14 @@ import { cartStore } from "./data/cart.ts";
 import { products } from "./data/products.ts";
 import { i18nState } from "./i18n.js";
 
-const logoUrl = new URL("./assets/newgbonhi-logo.png", import.meta.url).href;
-const arwLogo = new URL("./assets/ARW FILM.png", import.meta.url).href;
-const newgbonhiOval = new URL("./assets/NEW GBONHI OVAL.png", import.meta.url).href;
+const logoUrl = new URL("./assets/webp/newgbonhi-logo.webp", import.meta.url).href;
+const arwLogo = new URL("./assets/webp/ARW FILM.webp", import.meta.url).href;
+const newgbonhiOval = new URL("./assets/webp/NEW GBONHI OVAL.webp", import.meta.url).href;
 const cityWhiteTee = new URL(
-  "./assets/ARW FILM CITY TEE WHITE FRONT CUTOUT.png",
+  "./assets/webp/ARW FILM CITY TEE WHITE FRONT CUTOUT.webp",
   import.meta.url
 ).href;
-const cupSticker = new URL("./assets/ARW FILM CUP STICKER.png", import.meta.url).href;
+const cupSticker = new URL("./assets/webp/ARW FILM CUP STICKER.webp", import.meta.url).href;
 
 const pageCopies = {
   en: {

@@ -96,7 +96,8 @@ const main = async () => {
     { path: "/lookbook", changefreq: "weekly", priority: "0.8" },
     { path: "/lab", changefreq: "weekly", priority: "0.9" },
     { path: "/lab/arw-studio", changefreq: "weekly", priority: "0.9" },
-    { path: "/studio", changefreq: "weekly", priority: "0.8" },
+    { path: "/confidentialite", changefreq: "yearly", priority: "0.3" },
+    { path: "/cgu", changefreq: "yearly", priority: "0.3" },
   ];
 
   const productRoutes = products

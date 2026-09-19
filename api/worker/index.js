@@ -1,3 +1,4 @@
+import { createRateLimiter, guardedRoute, validateCustomerContact, validateItems, validateOrderCatalog } from "../guard.js";
 const STATUS_VALUES = new Set([
   "sent",
   "paid_reported",
@@ -241,10 +242,12 @@ const normalizeCustomer = (customer) => {
     throw new Error("Customer details are incomplete.");
   }
 
+  validateCustomerContact(normalized);
   return normalized;
 };
 
 const normalizeItems = (items) => {
+  validateItems(items);
   if (!Array.isArray(items) || items.length === 0) {
     throw new Error("Order items are required.");
   }
@@ -316,6 +319,7 @@ const buildOrderFromDraft = (draft) => {
     throw new Error("Order payload is missing.");
   }
 
+  validateOrderCatalog(draft);
   const customer = normalizeCustomer(draft.customer);
   const items = normalizeItems(draft.items);
   const shipping = normalizeShipping(draft.shipping);
@@ -418,11 +422,6 @@ const normalizeLabApplication = (payload) => {
   application.link = linkUrl.toString();
   return { ...application, isSpam: false };
 };
-
-// Emergency admin credential reset. Only the SHA-256 fingerprint is stored in
-// source; the plaintext password is never shipped to the client bundle.
-const ADMIN_PASSWORD_SHA256 =
-  "23b10ab3813d43f62b47d08f66be3a5aede1b293b8246e44087a1f1ca0c987e1";
 
 const sha256Hex = async (value) => {
   const digest = await crypto.subtle.digest(
@@ -665,6 +664,7 @@ export class OrdersStore {
   constructor(state, env) {
     this.state = state;
     this.env = env;
+    this.allowRequest = createRateLimiter();
   }
 
   get tokenTtlMs() {
@@ -676,7 +676,7 @@ export class OrdersStore {
   }
 
   get adminPassword() {
-    return this.env.ADMIN_PASSWORD || this.env.VITE_ADMIN_PASSWORD || "";
+    return this.env.ADMIN_PASSWORD || "";
   }
 
   get jwtSecret() {
@@ -2071,6 +2071,17 @@ export class OrdersStore {
     }
 
     try {
+      if (guardedRoute(method, pathname)) {
+        const fingerprint = await sha256Hex(request.headers.get("CF-Connecting-IP") || "unknown");
+        const group = pathname.replace(/\/orders\/[^/]+\//, "/orders/item/");
+        if (!this.allowRequest(`${fingerprint}:${group}`)) return json(429, { error: "Trop de tentatives. Réessayez dans une minute." });
+      }
+      if (method === "POST" && pathname === "/api/studio/login") {
+        const payload = await parseJsonBody(request);
+        const expected = this.env.STUDIO_PASSWORD || "";
+        const ok = Boolean(expected) && constantTimeEqual(await sha256Hex(payload.password), await sha256Hex(expected));
+        return json(ok ? 200 : 401, { ok });
+      }
       if (method === "GET" && pathname === "/api/health") {
         return json(200, { ok: true });
       }
@@ -2085,7 +2096,7 @@ export class OrdersStore {
 
         const payload = await parseJsonBody(request);
         const passwordFingerprint = await sha256Hex(payload.password);
-        if (!constantTimeEqual(passwordFingerprint, ADMIN_PASSWORD_SHA256)) {
+        if (!constantTimeEqual(passwordFingerprint, await sha256Hex(this.adminPassword))) {
           return json(401, { error: "Incorrect password." });
         }
 
@@ -2474,12 +2485,14 @@ export class OrdersStore {
           return json(400, { error: "Order id is missing." });
         }
 
+        const payload = await parseJsonBody(request);
         const orders = await this.loadOrders();
         const order = orders.find((entry) => entry.id === orderId);
         if (!order) {
           return json(404, { error: "Order not found." });
         }
 
+        this.assertPaymentToken(order, payload.paymentToken);
         const previousStatus = order.status;
         if (previousStatus === "sent") {
           order.status = "paid_reported";

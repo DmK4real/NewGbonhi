@@ -1,5 +1,6 @@
 ﻿<template>
   <a class="skip-link" href="#app-content">Skip to content</a>
+  <CookieConsent />
   <ScrollProgress v-if="!appError.active" />
   <main v-if="appError.active" class="app-error-shell">
     <section class="app-error-panel" role="alert" aria-live="assertive">
@@ -36,6 +37,10 @@
 </template>
 
 <script>
+import CookieConsent from "./components/CookieConsent.vue";
+import { watch } from "vue";
+import { privacy } from "./utils/privacy.js";
+import { trackPage } from "./utils/analytics.js";
 import ScrollProgress from "./components/ScrollProgress.vue";
 import { appErrorState, clearAppError, reportAppError } from "./utils/appError.js";
 
@@ -43,6 +48,7 @@ export default {
   name: "App",
   components: {
     ScrollProgress,
+    CookieConsent,
   },
   data() {
     return {
@@ -63,6 +69,7 @@ export default {
     return false;
   },
   mounted() {
+    this.stopAnalytics = watch(() => [this.$route.fullPath, privacy.analytics], () => { trackPage(this.$route); }, { immediate: true });
     this.lastScrollY = window.scrollY || 0;
     if (this.lastScrollY > 0) {
       this.headerHidden = true;
@@ -77,6 +84,7 @@ export default {
     this.observeHeader();
   },
   beforeUnmount() {
+    this.stopAnalytics?.();
     window.removeEventListener("scroll", this.onScroll);
     if (this.headerMeasureFrame) cancelAnimationFrame(this.headerMeasureFrame);
     this.disconnectHeaderObserver();

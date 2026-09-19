@@ -4,6 +4,8 @@ import { ViteImageOptimizer } from "vite-plugin-image-optimizer";
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
+  const exposedSecrets = Object.keys(env).filter(key => /^VITE_.*(PASSWORD|SECRET|PRIVATE_KEY|API_KEY)$/.test(key));
+  if (exposedSecrets.length) throw new Error(`Move secrets to backend-only variables: ${exposedSecrets.join(", ")}`);
   const targetPort = env.API_PORT || "8787";
   const frontendPort = Number(env.VITE_PORT || 4000);
   const optimizeImages = env.SKIP_IMAGE_OPTIMIZER !== "true";

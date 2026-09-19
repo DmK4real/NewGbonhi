@@ -107,9 +107,7 @@ ADMIN_TOKEN_TTL_MS=28800000
 VITE_API_BASE=/api
 ```
 
-Compatibility note:
-- if `ADMIN_PASSWORD` is not set, the API falls back to `VITE_ADMIN_PASSWORD`.
-- the local Node API logs a startup warning if `ADMIN_PASSWORD` is missing, and also warns when the deprecated `VITE_ADMIN_PASSWORD` fallback is being used.
+Security: set `ADMIN_PASSWORD` and `STUDIO_PASSWORD` only on the backend. Never use a `VITE_` variable for a secret: those values are public in the browser bundle. Admin access is unavailable without the server secret. The Studio password gate is a convenience gate; its published static assets are not confidential.
 
 ## GeniusPay Mobile Payments
 
@@ -263,3 +261,18 @@ npm run api:worker:dev   # Local Worker dev (requires Wrangler)
 npm run api:worker:deploy
 npm test                 # Unit tests
 ```
+
+
+## Audit qualité du 19 septembre 2026
+
+Voir `docs/AUDIT-20-POINTS.md` pour les résultats et limites des vérifications.
+
+- `npm run audit:site` contrôle les références internes statiques, les attributs alt et les fichiers SEO.
+- `npm run images:social` régénère la carte de partage 1200 × 630.
+- Les nouvelles routes sont `/confidentialite` et `/cgu`.
+- Pour activer Plausible, renseigner `VITE_PLAUSIBLE_SCRIPT_URL` avec l’URL HTTPS du script propre au site, fournie dans les réglages Plausible (`https://plausible.io/js/…js`), puis reconstruire le frontend. Aucun script analytics n’est chargé sans configuration et consentement. Vérifier l’arrivée des événements dans le compte après déploiement.
+- Configurer `STUDIO_PASSWORD` côté API (Node `.env` ou secret Worker). Le Studio n’a plus de mot de passe embarqué dans le JavaScript public. Son verrou d’interface ne protège pas les fichiers statiques publiés.
+- Le Worker utilise désormais exclusivement `ADMIN_PASSWORD` pour vérifier la connexion, sans empreinte de mot de passe codée en dur. Vérifier ce secret avant déploiement.
+- Ne jamais placer un secret dans `VITE_*`. La configuration Vite refuse les variables dont le nom indique un mot de passe ou une clé secrète.
+- Sur Cloudflare Pages, le middleware redirige HTTP vers HTTPS pour le domaine principal, pose les en-têtes de sécurité et renvoie 404 pour une route inconnue. Sur GitHub Pages, activer **Enforce HTTPS** dans les paramètres de l’hébergement ; le middleware Cloudflare n’y est pas exécuté.
+- Les règles anti-spam limitent les soumissions à 10 tentatives par minute, par client et groupe de route. Les compteurs en mémoire expirent et se réinitialisent au redémarrage ; ce n’est pas une protection contre une attaque distribuée.

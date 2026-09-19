@@ -82,7 +82,7 @@ import SiteHeader from "./components/SiteHeader.vue";
 import CartPanel from "./components/CartPanel.vue";
 import { cartStore } from "./data/cart.ts";
 
-const logoUrl = new URL("./assets/newgbonhi-logo.png", import.meta.url).href;
+const logoUrl = new URL("./assets/webp/newgbonhi-logo.webp", import.meta.url).href;
 
 export default {
   name: "AboutPage",

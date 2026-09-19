@@ -145,6 +145,7 @@
         </div>
 
         <form v-if="!orderSent" id="checkout-order-form" @submit.prevent="sendOrder">
+          <p class="form-privacy">Vos coordonnées servent à traiter et livrer votre commande. <RouterLink to="/confidentialite">Confidentialité</RouterLink> · <RouterLink to="/cgu">Conditions d’utilisation</RouterLink>.</p>
           <p class="checkout-step-label">01 / CUSTOMER</p>
           <div class="form-grid">
             <label>
@@ -157,7 +158,7 @@
             </label>
             <label>
               {{ $t("email") }}
-              <input v-model.trim="customer.email" type="email" autocomplete="email" inputmode="email" required />
+              <input v-model.trim="customer.email" type="email" maxlength="140" autocomplete="email" inputmode="email" required />
             </label>
             <label>
               {{ $t("phone") }}
@@ -409,7 +410,7 @@ import {
   VITE_PAYMENT_NOTE,
 } from "./utils/checkout.ts";
 
-const logoUrl = new URL("./assets/newgbonhi-logo.png", import.meta.url).href;
+const logoUrl = new URL("./assets/webp/newgbonhi-logo.webp", import.meta.url).href;
 const MANUAL_PAYMENT_METHODS = [
   {
     id: "wave",

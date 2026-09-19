@@ -5,7 +5,10 @@ on:
     branches:
       - main
     paths:
-      - "api/worker/**"
+      - "api/**"
+      - "src/data/products.json"
+      - "src/data/shipping.json"
+      - "src/data/studioMockups.json"
       - "wrangler.toml"
       - ".github/workflows/deploy-worker.yml"
   workflow_dispatch:
