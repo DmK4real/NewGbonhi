@@ -14,6 +14,9 @@ const StudioPage = () => import("./StudioPage.vue");
 const CollectionsPage = () => import("./CollectionsPage.vue");
 
 const routes = [
+  { path: "/confidentialite", name: "privacy", component: () => import("./LegalPage.vue"), meta: { title: "Confidentialité et données personnelles | NewGbonhi", description: "Données personnelles, cookies et droits des visiteurs NewGbonhi." } },
+  { path: "/cgu", name: "terms", component: () => import("./LegalPage.vue"), meta: { title: "Conditions générales d’utilisation | NewGbonhi", description: "Conditions d’utilisation des services NewGbonhi et contact." } },
+  { path: "/:pathMatch(.*)*", name: "not-found", component: () => import("./NotFoundPage.vue"), meta: { title: "Page introuvable | NewGbonhi", robots: "noindex, follow" } },
   {
     path: "/",
     name: "shop",

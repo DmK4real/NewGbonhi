@@ -199,7 +199,7 @@ import { cartStore } from "./data/cart.ts";
 import { findProductBySlug, products } from "./data/products.ts";
 import { applySeo } from "./utils/seo.js";
 
-const logoUrl = new URL("./assets/newgbonhi-logo.png", import.meta.url).href;
+const logoUrl = new URL("./assets/webp/newgbonhi-logo.webp", import.meta.url).href;
 const campaignImages = [
   new URL("./assets/editorial/cameleon-worn-01.jpg", import.meta.url).href,
   new URL("./assets/editorial/cameleon-worn-02.jpg", import.meta.url).href,

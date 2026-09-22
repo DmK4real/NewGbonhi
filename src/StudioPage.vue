@@ -439,9 +439,9 @@ import { cartStore } from "./data/cart.ts";
 import { studioDesigns } from "./data/studioDesigns.ts";
 import studioMockups from "./data/studioMockups.json";
 
-const logoUrl = new URL("./assets/newgbonhi-logo.png", import.meta.url).href;
+const logoUrl = new URL("./assets/webp/newgbonhi-logo.webp", import.meta.url).href;
 const studioAccessStorageKey = "newgbonhi-studio-access";
-const studioPassword = import.meta.env.VITE_STUDIO_PASSWORD || "NEWGBONHICREW2026";
+
 const mockupModules = import.meta.glob("./assets/studio/mockups/*.png", {
   eager: true,
   import: "default",
@@ -714,8 +714,15 @@ export default {
     toggleCart() {
       this.cartOpen = !this.cartOpen;
     },
-    unlockStudio() {
-      if (this.studioPasswordInput.trim() !== studioPassword.trim()) {
+    async unlockStudio() {
+      let response;
+      try {
+        response = await fetch(`${String(import.meta.env.VITE_API_BASE || "/api").replace(/\/$/, "")}/studio/login`, {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ password: this.studioPasswordInput }),
+        });
+      } catch { this.studioPasswordError = "Service indisponible. Réessayez plus tard."; return; }
+      if (!response.ok) {
         this.studioPasswordError = this.$t("invalidPassword");
         return;
       }

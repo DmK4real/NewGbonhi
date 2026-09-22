@@ -137,51 +137,51 @@ import SiteHeader from "./components/SiteHeader.vue";
 import CartPanel from "./components/CartPanel.vue";
 import { cartStore } from "./data/cart.ts";
 
-const logoUrl = new URL("./assets/newgbonhi-logo.png", import.meta.url).href;
+const logoUrl = new URL("./assets/webp/newgbonhi-logo.webp", import.meta.url).href;
 const safeZoneBlackUrl = new URL(
-  "./assets/BLACK SAFE zone 4 BOY.png",
+  "./assets/webp/BLACK SAFE zone 4 BOY.webp",
   import.meta.url
 ).href;
 const safeZoneWhiteUrl = new URL(
-  "./assets/WHITE SAFE zone 4 BOY.png",
+  "./assets/webp/WHITE SAFE zone 4 BOY.webp",
   import.meta.url
 ).href;
 const safeBabiGirlBlackUrl = new URL(
-  "./assets/BLACK SAFE BABI GIRL.png",
+  "./assets/webp/BLACK SAFE BABI GIRL.webp",
   import.meta.url
 ).href;
 const safeBabiGirlWhiteUrl = new URL(
-  "./assets/WHITE SAFE BABI GIRL.png",
+  "./assets/webp/WHITE SAFE BABI GIRL.webp",
   import.meta.url
 ).href;
-const blackCameleonUrl = new URL("./assets/BLACK CAMELEON.png", import.meta.url).href;
-const whiteCameleonUrl = new URL("./assets/WHITE CAMELEON.png", import.meta.url).href;
+const blackCameleonUrl = new URL("./assets/webp/BLACK CAMELEON.webp", import.meta.url).href;
+const whiteCameleonUrl = new URL("./assets/webp/WHITE CAMELEON.webp", import.meta.url).href;
 const onTopCameleonUrl = new URL(
-  "./assets/NEW GBONHI ON TOP CAMELEON.png",
+  "./assets/webp/NEW GBONHI ON TOP CAMELEON.webp",
   import.meta.url
 ).href;
 const onTopBgabUrl = new URL(
-  "./assets/NEW GBONHI ON TOP BGAB.png",
+  "./assets/webp/NEW GBONHI ON TOP BGAB.webp",
   import.meta.url
 ).href;
 const arwFilmLogoTeeUrl = new URL(
-  "./assets/ARW FILM TEE FRONT CUTOUT.png",
+  "./assets/webp/ARW FILM TEE FRONT CUTOUT.webp",
   import.meta.url
 ).href;
 const arwFilmCityBlackFrontUrl = new URL(
-  "./assets/ARW FILM CITY TEE BLACK FRONT CUTOUT.png",
+  "./assets/webp/ARW FILM CITY TEE BLACK FRONT CUTOUT.webp",
   import.meta.url
 ).href;
 const arwFilmCityBlackBackUrl = new URL(
-  "./assets/ARW FILM CITY TEE BLACK BACK CUTOUT.png",
+  "./assets/webp/ARW FILM CITY TEE BLACK BACK CUTOUT.webp",
   import.meta.url
 ).href;
 const arwFilmCityWhiteFrontUrl = new URL(
-  "./assets/ARW FILM CITY TEE WHITE FRONT CUTOUT.png",
+  "./assets/webp/ARW FILM CITY TEE WHITE FRONT CUTOUT.webp",
   import.meta.url
 ).href;
 const arwFilmCityWhiteBackUrl = new URL(
-  "./assets/ARW FILM CITY TEE WHITE BACK CUTOUT.png",
+  "./assets/webp/ARW FILM CITY TEE WHITE BACK CUTOUT.webp",
   import.meta.url
 ).href;
 

@@ -1,3 +1,4 @@
+import shippingOptions from "../data/shipping.json";
 import { checkoutConfig, validateFrontendConfig } from "./config.js";
 
 export type ShippingOption = {
@@ -50,50 +51,7 @@ export const DEFAULT_PREORDER_FULFILLMENT: OrderFulfillment = {
   deliveryWindow: "48/72h after payment confirmation",
 };
 
-export const SHIPPING_OPTIONS: ShippingOption[] = [
-  {
-    id: "abidjan-cocody",
-    label: "Cocody",
-    fee: 2000,
-    eta: "48/72 h après paiement confirmé",
-  },
-  {
-    id: "abidjan-plateau",
-    label: "Plateau",
-    fee: 2500,
-    eta: "48/72 h après paiement confirmé",
-  },
-  {
-    id: "abidjan-yopougon",
-    label: "Yopougon",
-    fee: 3000,
-    eta: "48/72 h après paiement confirmé",
-  },
-  {
-    id: "abidjan-marcory",
-    label: "Marcory",
-    fee: 2000,
-    eta: "48/72 h après paiement confirmé",
-  },
-  {
-    id: "abidjan-bingerville",
-    label: "Bingerville",
-    fee: 3500,
-    eta: "48/72 h après paiement confirmé",
-  },
-  {
-    id: "abidjan-abobo",
-    label: "Abobo",
-    fee: 3500,
-    eta: "48/72 h après paiement confirmé",
-  },
-  {
-    id: "abidjan-other",
-    label: "Other area in Abidjan",
-    fee: 4000,
-    eta: "48/72 h après paiement confirmé",
-  },
-];
+export const SHIPPING_OPTIONS: ShippingOption[] = shippingOptions;
 
 validateFrontendConfig();
 

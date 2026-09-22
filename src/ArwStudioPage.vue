@@ -141,9 +141,9 @@ import CartPanel from "./components/CartPanel.vue";
 import { cartStore } from "./data/cart.ts";
 import { products } from "./data/products.ts";
 
-const chromeLogo = new URL("./assets/ARW FILM CHROME LOGO CUTOUT.png", import.meta.url).href;
+const chromeLogo = new URL("./assets/webp/ARW FILM CHROME LOGO CUTOUT.webp", import.meta.url).href;
 const cityBlackBack = new URL(
-  "./assets/ARW FILM CITY TEE BLACK BACK CUTOUT.png",
+  "./assets/webp/ARW FILM CITY TEE BLACK BACK CUTOUT.webp",
   import.meta.url
 ).href;
 

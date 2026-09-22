@@ -267,7 +267,7 @@ import {
   updateOrderStatus,
 } from "./data/orders.js";
 
-const logoUrl = new URL("./assets/newgbonhi-logo.png", import.meta.url).href;
+const logoUrl = new URL("./assets/webp/newgbonhi-logo.webp", import.meta.url).href;
 const AUTH_KEY = "newgbonhi.orders.token";
 
 export default {
