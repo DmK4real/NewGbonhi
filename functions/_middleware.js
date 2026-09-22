@@ -1,4 +1,5 @@
-import products from "../src/data/products.json" with { type: "json" };
+// Pages currently bundles Functions with Wrangler 3; use its JSON loader.
+import products from "../src/data/products.json";
 const appPaths = new Set(["/", "/collections", "/lookbook", "/lab", "/lab/arw-studio", "/about", "/studio", "/checkout", "/orders", "/confidentialite", "/cgu", ...products.map(product => `/product/${product.slug}`)]);
 const PRIMARY_HOST = "newgbonhi.com";
 const REDIRECT_HOSTS = new Set(["www.newgbonhi.com"]);
