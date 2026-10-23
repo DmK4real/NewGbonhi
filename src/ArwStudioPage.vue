@@ -85,7 +85,7 @@
               :to="product.url"
             >
               <img
-                :class="`product-visual product-visual-${product.slug}`"
+                class="product-visual"
                 :src="product.imagePrimary"
                 :alt="product.title"
                 loading="lazy"

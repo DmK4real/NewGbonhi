@@ -1,0 +1,415 @@
+{
+  "newGbonhiCamoWhite": {
+    "primary": {
+      "id": "camo-white-front",
+      "source": "NEW GBONHI CAMO TEE WHITE CUTOUT.png",
+      "fabric": "cotton-white",
+      "whiteFabric": true,
+      "printRegion": [
+        0.28,
+        0.17,
+        0.74,
+        0.57
+      ]
+    }
+  },
+  "newGbonhiCamoBlack": {
+    "primary": {
+      "id": "camo-black-front",
+      "source": "NEW GBONHI CAMO TEE BLACK CUTOUT.png",
+      "fabric": "cotton-black",
+      "printRegion": [
+        0.28,
+        0.17,
+        0.74,
+        0.57
+      ]
+    }
+  },
+  "arwFilmLogoTee": {
+    "primary": {
+      "id": "arw-logo-front",
+      "source": "ARW FILM TEE FRONT CUTOUT.png",
+      "fabric": "cotton-washed",
+      "printRegion": [
+        0.27,
+        0.16,
+        0.74,
+        0.43
+      ]
+    }
+  },
+  "arwFilmDopamineTee": {
+    "primary": {
+      "id": "arw-dopamine-front",
+      "source": "ARW FILM DOPAMINE TEE CUTOUT.png",
+      "fabric": "cotton-washed",
+      "posterPrint": true,
+      "printRegion": [
+        0.27,
+        0.17,
+        0.73,
+        0.8
+      ]
+    }
+  },
+  "arwFilmCityWhiteFront": {
+    "primary": {
+      "id": "arw-city-white-front",
+      "source": "ARW FILM CITY TEE WHITE FRONT CUTOUT.png",
+      "fabric": "cotton-white",
+      "whiteFabric": true,
+      "printRegion": [
+        0.25,
+        0.17,
+        0.76,
+        0.4
+      ]
+    },
+    "secondary": {
+      "id": "arw-city-white-back",
+      "source": "ARW FILM CITY TEE WHITE BACK CUTOUT.png",
+      "fabric": "cotton-back-white",
+      "whiteFabric": true,
+      "fabricPoint": [
+        0.23,
+        0.82
+      ],
+      "printRegion": [
+        0.27,
+        0.08,
+        0.73,
+        0.97
+      ]
+    }
+  },
+  "arwFilmCityBlackFront": {
+    "primary": {
+      "id": "arw-city-black-front",
+      "source": "ARW FILM CITY TEE BLACK FRONT CUTOUT.png",
+      "fabric": "cotton-black",
+      "printRegion": [
+        0.25,
+        0.17,
+        0.76,
+        0.4
+      ]
+    },
+    "secondary": {
+      "id": "arw-city-black-back",
+      "source": "ARW FILM CITY TEE BLACK BACK CUTOUT.png",
+      "fabric": "cotton-back-black",
+      "fabricPoint": [
+        0.23,
+        0.82
+      ],
+      "printRegion": [
+        0.27,
+        0.08,
+        0.73,
+        0.97
+      ]
+    }
+  },
+  "safeZoneBlack": {
+    "primaryView": "back",
+    "primary": {
+      "id": "safe-boy-black-back",
+      "source": "BLACK SAFE zone 4 BOY.png",
+      "crop": [
+        400,
+        0,
+        400,
+        541
+      ],
+      "fabric": "cotton-back-black",
+      "fabricPoint": [
+        0.5,
+        0.76
+      ],
+      "printRegion": [
+        0.15,
+        0.05,
+        0.79,
+        1
+      ]
+    },
+    "secondary": {
+      "id": "safe-boy-black-front",
+      "source": "BLACK SAFE zone 4 BOY.png",
+      "crop": [
+        0,
+        0,
+        416,
+        541
+      ],
+      "fabric": "cotton-black",
+      "fabricPoint": [
+        0.5,
+        0.7
+      ],
+      "printRegion": [
+        0.35,
+        0.18,
+        0.65,
+        0.32
+      ]
+    }
+  },
+  "safeZoneWhite": {
+    "primaryView": "back",
+    "primary": {
+      "id": "safe-boy-white-back",
+      "source": "WHITE SAFE zone 4 BOY.png",
+      "crop": [
+        400,
+        0,
+        400,
+        542
+      ],
+      "fabric": "cotton-back-white",
+      "whiteFabric": true,
+      "fabricPoint": [
+        0.5,
+        0.76
+      ],
+      "printRegion": [
+        0.15,
+        0.05,
+        0.79,
+        1
+      ],
+      "cleanWhitePrint": true
+    },
+    "secondary": {
+      "id": "safe-boy-white-front",
+      "source": "WHITE SAFE zone 4 BOY.png",
+      "crop": [
+        0,
+        0,
+        416,
+        542
+      ],
+      "fabric": "cotton-white",
+      "whiteFabric": true,
+      "fabricPoint": [
+        0.5,
+        0.7
+      ],
+      "printRegion": [
+        0.35,
+        0.18,
+        0.65,
+        0.32
+      ]
+    }
+  },
+  "blackCameleon": {
+    "primary": {
+      "id": "cameleon-black-front",
+      "source": "BLACK CAMELEON.png",
+      "fabric": "cotton-black",
+      "printRegion": [
+        0.2,
+        0.12,
+        0.8,
+        0.61
+      ]
+    }
+  },
+  "whiteCameleon": {
+    "primary": {
+      "id": "cameleon-white-front",
+      "source": "WHITE CAMELEON.png",
+      "fabric": "cotton-white",
+      "whiteFabric": true,
+      "printRegion": [
+        0.2,
+        0.12,
+        0.8,
+        0.61
+      ]
+    }
+  },
+  "safeBabiGirlBlack": {
+    "primaryView": "back",
+    "primary": {
+      "id": "safe-girl-black-back",
+      "source": "BLACK SAFE BABI GIRL.png",
+      "crop": [
+        400,
+        0,
+        400,
+        540
+      ],
+      "fabric": "cotton-back-black",
+      "fabricPoint": [
+        0.5,
+        0.76
+      ],
+      "printRegion": [
+        0.15,
+        0.05,
+        0.79,
+        1
+      ]
+    },
+    "secondary": {
+      "id": "safe-girl-black-front",
+      "source": "BLACK SAFE BABI GIRL.png",
+      "crop": [
+        0,
+        0,
+        416,
+        540
+      ],
+      "fabric": "cotton-black",
+      "fabricPoint": [
+        0.5,
+        0.7
+      ],
+      "printRegion": [
+        0.34,
+        0.18,
+        0.68,
+        0.34
+      ]
+    }
+  },
+  "safeBabiGirl": {
+    "primaryView": "back",
+    "primary": {
+      "id": "safe-girl-white-back",
+      "source": "WHITE SAFE BABI GIRL.png",
+      "crop": [
+        400,
+        0,
+        400,
+        526
+      ],
+      "fabric": "cotton-back-white",
+      "whiteFabric": true,
+      "fabricPoint": [
+        0.5,
+        0.76
+      ],
+      "printRegion": [
+        0.15,
+        0.05,
+        0.79,
+        1
+      ],
+      "cleanWhitePrint": true
+    },
+    "secondary": {
+      "id": "safe-girl-white-front",
+      "source": "WHITE SAFE BABI GIRL.png",
+      "crop": [
+        0,
+        0,
+        416,
+        526
+      ],
+      "fabric": "cotton-white",
+      "whiteFabric": true,
+      "fabricPoint": [
+        0.5,
+        0.7
+      ],
+      "printRegion": [
+        0.34,
+        0.18,
+        0.68,
+        0.34
+      ]
+    }
+  },
+  "newGbonhiOnTop": {
+    "primary": {
+      "id": "crop-cameleon-front",
+      "source": "NEW GBONHI ON TOP CAMELEON.png",
+      "crop": [
+        0,
+        103,
+        378,
+        367
+      ],
+      "fabric": "cotton-crop-front",
+      "fabricPoint": [
+        0.5,
+        0.7
+      ],
+      "printRegion": [
+        0.32,
+        0.27,
+        0.64,
+        0.51
+      ]
+    },
+    "secondary": {
+      "id": "crop-cameleon-back",
+      "source": "NEW GBONHI ON TOP CAMELEON.png",
+      "crop": [
+        421,
+        107,
+        379,
+        363
+      ],
+      "fabric": "cotton-crop-back",
+      "fabricPoint": [
+        0.5,
+        0.7
+      ],
+      "printRegion": [
+        0.26,
+        0.08,
+        0.74,
+        0.36
+      ]
+    }
+  },
+  "newGbonhiOnTopBgab": {
+    "primary": {
+      "id": "crop-bgab-front",
+      "source": "NEW GBONHI ON TOP BGAB.png",
+      "crop": [
+        0,
+        118,
+        378,
+        370
+      ],
+      "fabric": "cotton-crop-front",
+      "fabricPoint": [
+        0.5,
+        0.7
+      ],
+      "printRegion": [
+        0.24,
+        0.2,
+        0.77,
+        0.67
+      ]
+    },
+    "secondary": {
+      "id": "crop-bgab-back",
+      "source": "NEW GBONHI ON TOP BGAB.png",
+      "crop": [
+        421,
+        119,
+        379,
+        369
+      ],
+      "fabric": "cotton-crop-back",
+      "fabricPoint": [
+        0.5,
+        0.7
+      ],
+      "printRegion": [
+        0.27,
+        0.06,
+        0.75,
+        0.35
+      ]
+    }
+  }
+}

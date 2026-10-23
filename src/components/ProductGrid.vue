@@ -150,10 +150,12 @@ export default {
         .filter(Boolean);
     },
     isCutoutProduct(product) {
+      if (product?.catalogMockup) return false;
       const tags = Array.isArray(product?.tags) ? product.tags : [];
       return tags.includes("cutout");
     },
     isDualViewProduct(product) {
+      if (product?.catalogMockup) return false;
       const tags = Array.isArray(product?.tags) ? product.tags : [];
       return tags.includes("dual-view");
     },

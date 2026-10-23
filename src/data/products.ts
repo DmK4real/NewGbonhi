@@ -1,5 +1,6 @@
 import productsData from "./products.json";
 import imageMetadata from "../assets/webp/manifest.json";
+import catalogMockups from "./catalogMockups.json";
 
 type ProductVariant = {
   imageKey?: string;
@@ -75,6 +76,27 @@ const webpModules = import.meta.glob("../assets/webp/*.webp", {
 const webpMap = Object.fromEntries(
   Object.entries(webpModules).map(([path, url]) => [path.split("/").pop(), url])
 ) as Record<string, string>;
+
+const catalogModules = import.meta.glob("../assets/catalog/*.webp", { eager: true, import: "default" }) as Record<string, string>;
+const catalogImage = (id?: string, width?: number): string => id
+  ? catalogModules[`../assets/catalog/${id}${width ? `-${width}` : ""}.webp`] || ""
+  : "";
+type CatalogEntry = { primaryView?: string; primary: { id: string }; secondary?: { id: string } };
+const catalogForKey = (key?: string) => {
+  const entry = key ? (catalogMockups as Record<string, CatalogEntry>)[key] : undefined;
+  if (!entry) return {};
+  const primary = catalogImage(entry.primary.id);
+  const secondary = catalogImage(entry.secondary?.id);
+  return {
+    catalogMockup: true,
+    imagePrimary: primary,
+    imageWebp: primary,
+    imageSrcset: [400, 800, 960].map(width => `${catalogImage(entry.primary.id, width === 960 ? undefined : width)} ${width}w`).join(", "),
+    imageSecondary: secondary,
+    imagePrimaryView: entry.primaryView || "front",
+    imageSecondaryView: secondary ? (entry.primaryView === "back" ? "front" : "back") : "",
+  };
+};
 
 const slugify = (value: string | undefined) =>
   String(value || "")
@@ -155,6 +177,8 @@ export const products: ProductRecord[] = rawProducts.map((product, index) => {
         imagePrimary: resolveImageByKey(variant.imageKey),
         imageWebp: resolveWebpByKey(variant.imageKey),
         imageSrcset: resolveSrcsetByKey(variant.imageKey),
+        imageOriginal: resolveImageByKey(variant.imageKey),
+        ...catalogForKey(variant.imageKey),
       }))
     : null;
   const primaryFromVariants = variants?.[0]?.imagePrimary || "";
@@ -172,6 +196,8 @@ export const products: ProductRecord[] = rawProducts.map((product, index) => {
       "",
     imageWebp: resolveImageWebp(product),
     imageSrcset: resolveSrcsetByKey(product.variants?.[0]?.imageKey || product.imageKey),
+    imageOriginal: resolveImageByKey(product.variants?.[0]?.imageKey || product.imageKey),
+    ...catalogForKey(product.variants?.[0]?.imageKey || product.imageKey),
   };
 });
 

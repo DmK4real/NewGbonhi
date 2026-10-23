@@ -37,7 +37,7 @@
           />
           <img
             :src="activeImagePrimary"
-            :alt="product.title"
+            :alt="`${product.title} ${activePrimaryView}`"
             :style="activeImageStyle"
             loading="eager"
             fetchpriority="high"
@@ -47,8 +47,8 @@
         <div v-else class="product-placeholder">{{ $t("imageComingSoon") }}</div>
         </div>
         <figure v-if="activeImageSecondary" class="product-detail-image">
-          <img :src="activeImageSecondary" :alt="`${product.title} detail`" loading="lazy" decoding="async" />
-          <figcaption>VIEW / 02 — BACK DETAIL</figcaption>
+          <img :src="activeImageSecondary" :alt="`${product.title} ${activeSecondaryView}`" loading="lazy" decoding="async" />
+          <figcaption>VIEW / 02 — {{ activeSecondaryView.toUpperCase() }}</figcaption>
         </figure>
       </div>
 
@@ -254,7 +254,14 @@ export default {
       return this.activeVariant?.imagePrimary || this.product?.imagePrimary || "";
     },
     activeImageSecondary() {
+      if (this.activeVariant?.catalogMockup) return this.activeVariant.imageSecondary || "";
       return this.product?.imageSecondary || "";
+    },
+    activePrimaryView() {
+      return this.activeVariant?.imagePrimaryView || this.product?.imagePrimaryView || "front";
+    },
+    activeSecondaryView() {
+      return this.activeVariant?.imageSecondaryView || this.product?.imageSecondaryView || "back";
     },
     activeImageWebp() {
       return this.activeVariant?.imageWebp || this.product?.imageWebp || "";
@@ -294,6 +301,7 @@ export default {
       return labels[this.product?.category] || "Drop 02";
     },
     isCutoutProduct() {
+      if (this.product?.catalogMockup) return false;
       const tags = Array.isArray(this.product?.tags) ? this.product.tags : [];
       return tags.includes("cutout");
     },
@@ -301,6 +309,7 @@ export default {
       return Array.isArray(this.product?.tags) && this.product.tags.includes("drop04");
     },
     isDualViewProduct() {
+      if (this.product?.catalogMockup) return false;
       const tags = Array.isArray(this.product?.tags) ? this.product.tags : [];
       return tags.includes("dual-view");
     },

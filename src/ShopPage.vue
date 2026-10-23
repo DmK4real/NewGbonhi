@@ -8,50 +8,7 @@
 
     <CartPanel :open="cartOpen" @close="cartOpen = false" />
 
-    <section class="hero">
-      <div class="hero-copy">
-        <div class="editorial-index" aria-label="Drop information">
-          <span>DROP / 03</span>
-          <span>{{ $t("dropDate") }}</span>
-        </div>
-        <p class="hero-kicker">{{ $t("dropStatus") }}</p>
-        <h1>{{ $t("drop02Prep") }}</h1>
-        <p class="hero-sub">
-          {{ $t("shopHeroSub") }}
-        </p>
-        <div class="hero-actions">
-          <button class="hero-button" type="button" @click="scrollToProducts">
-            {{ $t("viewItems") }}
-          </button>
-
-        </div>
-      </div>
-      <div class="hero-panel">
-        <img
-          class="hero-sticker hero-sticker-logo"
-          :src="logoUrl"
-          alt=""
-          aria-hidden="true"
-          decoding="async"
-        />
-        <span class="hero-sticker hero-sticker-text" aria-hidden="true">
-          NewGbonhi
-        </span>
-        <span class="hero-sticker hero-sticker-drop" aria-hidden="true">
-          Drop 04
-        </span>
-        <img
-          class="hero-photo"
-          :src="heroImage"
-          :srcset="heroImageSrcset"
-          sizes="(max-width: 700px) 100vw, 600px"
-          alt="Next drop preview"
-          loading="eager"
-          fetchpriority="high"
-          decoding="async"
-        />
-      </div>
-    </section>
+    <Showroom @open-cart="cartOpen = true" />
 
     <section class="featured-drop" aria-labelledby="featured-drop-title">
       <div class="featured-drop-head">
@@ -401,6 +358,7 @@
 
 <script>
 import SiteHeader from "./components/SiteHeader.vue";
+import Showroom from "./components/Showroom.vue";
 import ProductGrid from "./components/ProductGrid.vue";
 import CartPanel from "./components/CartPanel.vue";
 import LanguageSwitch from "./components/LanguageSwitch.vue";
@@ -444,6 +402,7 @@ export default {
   name: "ShopPage",
   components: {
     SiteHeader,
+    Showroom,
     ProductGrid,
     CartPanel,
     LanguageSwitch,
@@ -836,6 +795,7 @@ export default {
 
 .shop-header { order: 1; }
 .hero { order: 2; }
+.showroom { order: 2; }
 .featured-drop { order: 3; }
 .camo-editorial { order: 4; }
 .shop-main { order: 5; }
