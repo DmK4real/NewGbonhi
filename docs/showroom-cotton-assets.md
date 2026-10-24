@@ -9,6 +9,12 @@ The catalog exports are generated reproducibly with `scripts/bake-catalog.mjs` w
 
 Additional blank assets and full prompts:
 
+Safe Boy and Safe Babi Girl use `printSizing` in the catalog manifest. The
+renderer fits their original artwork with its source width/height ratio, at
+88% height on the back and 90% on the front. This leaves fabric around the
+print and prevents the narrow archive designs stretching across the wider
+oversized cotton bases. The garment itself keeps its size and silhouette.
+
 ### cotton-back-black.webp
 
 Product mockup asset for an existing clothing catalog. Photorealistic professional apparel photograph, isolated on a genuinely transparent background. Full garment, centered straight-on view, suspended on a concealed hanger, no visible hanger or hook. Match the supplied cotton mockup's matte fabric quality, natural broad draping folds, realistic fine knit fibers, soft neutral studio light, subtle stitching and hems, clean edges without white halos. Absolutely BLANK: no logos, artwork, letters, prints, labels or background. No props, no floor, no external cast shadow. Narrow transparent margins. Preserve real wearable garment construction. Reference is the existing BLACK oversized cotton T-shirt FRONT used in this shop. Generate its matching BACK view: same black color, same cut, sleeve width, length, lighting and material. Show the rear neckline (high back neck, no front scoop, no visible inside-collar label). Entire back is blank.

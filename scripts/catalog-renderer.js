@@ -50,7 +50,14 @@ window.renderCatalogView = async id => {
   const width = 1.32, height = width / fabric.aspect;
   const geometry = new THREE.PlaneGeometry(width, height);
   const material = new THREE.MeshBasicMaterial({ map: fabric.map, transparent: true, toneMapped: false });
-  applyOriginalPrint(material, original.map, view);
+  // Archive mockups are tall and narrow. Preserve the physical proportions of
+  // their original ink instead of stretching it to the oversized cotton UVs.
+  const printSizing = view.printSizing;
+  applyOriginalPrint(material, original.map, {
+    ...view,
+    printScale: printSizing ? [printSizing.scale * original.aspect / fabric.aspect, printSizing.scale] : [1, 1],
+    printCenter: printSizing?.center,
+  });
   const mesh = new THREE.Mesh(geometry, material);
   mesh.position.y = .70 - height / 2;
   const scene = new THREE.Scene(); scene.add(mesh);
