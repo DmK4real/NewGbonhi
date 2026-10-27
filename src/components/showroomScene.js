@@ -3,11 +3,18 @@ import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { arrangeGarments, findShoulder } from './showroomLayout.js';
 import { prepareGarmentPixels } from './garmentTexture.js';
+import { addShowroomFloor } from './showroomFloor.js';
+
+const centralArtworksUrl = new URL('../assets/showroom/ng-central-artworks.webp', import.meta.url).href;
+const leftArtworkUrl = new URL('../assets/showroom/ng-cfa-portrait.webp', import.meta.url).href;
+const premiumDeckUrl = new URL('../assets/showroom/ng-skate-premium.webp', import.meta.url).href;
+const skateAtlasUrl = new URL('../assets/showroom/ng-skate-decks.webp', import.meta.url).href;
+const crewMuralUrl = new URL('../assets/showroom/ng-crew-wall-v3.webp', import.meta.url).href;
 
 // The shop stays usable through its HTML controls if WebGL is unavailable.
-export async function createShowroomScene(host, { pieces, onSelect, onHover, onReady }) {
+export async function createShowroomScene(host, { pieces, onSelect, onHover, onReady, onNavigate }) {
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color('#555960');
+  scene.background = new THREE.Color('#514c48');
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'low-power' });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
   renderer.shadowMap.enabled = true;
@@ -33,11 +40,16 @@ export async function createShowroomScene(host, { pieces, onSelect, onHover, onR
   let disposed = false;
   let active = true;
   let selectedKey = null;
+  let skateView = false;
+  let artworkView = false;
+  let inspectionAngle = 0;
+  let inspectionZoom = 0;
   let visiblePieces = pieces;
   let pan = 0;
   let mobile = false;
   let hoverKey = null;
   let frame;
+  let floorProps;
   let motion = 1;
   let lastFrame = 0;
   const groups = new Map();
@@ -68,18 +80,18 @@ export async function createShowroomScene(host, { pieces, onSelect, onHover, onR
     map.colorSpace = THREE.SRGBColorSpace; textures.push(map);
     return new THREE.MeshStandardMaterial({ map, bumpMap: map, bumpScale: .018, roughness: .96 });
   }
-  const wallMaterial = plaster('#73777d', 7);
-  const floorMaterial = plaster('#4b4f55', 10);
+  const wallMaterial = plaster('#817b72', 7);
+  const floorMaterial = plaster('#474440', 10);
   floorMaterial.roughness = .68;
   const woodMaterial = (() => {
     const canvas = document.createElement('canvas'); canvas.width = 256; canvas.height = 512;
-    const ctx = canvas.getContext('2d'); ctx.fillStyle = '#292b2f'; ctx.fillRect(0, 0, 256, 512);
+    const ctx = canvas.getContext('2d'); ctx.fillStyle = '#332b26'; ctx.fillRect(0, 0, 256, 512);
     for (let x = 0; x < 256; x++) {
       ctx.strokeStyle = `rgba(0,0,0,${.03 + .065 * Math.abs(Math.sin(x * 13.37))})`;
       ctx.beginPath(); ctx.moveTo(x, 0); ctx.bezierCurveTo(x + 3, 130, x - 4, 360, x, 512); ctx.stroke();
     }
     const map = new THREE.CanvasTexture(canvas); map.colorSpace = THREE.SRGBColorSpace; textures.push(map);
-    return new THREE.MeshStandardMaterial({ map, roughness: .55, color: '#d7d9dd' });
+    return new THREE.MeshStandardMaterial({ map, roughness: .55, color: '#d5c4ad' });
   })();
   function box(w, h, d, material, x, y, z) {
     const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), material);
@@ -94,7 +106,7 @@ export async function createShowroomScene(host, { pieces, onSelect, onHover, onR
   }
 
   // One architectural space. The garments, rail and shadows share the same coordinates.
-  box(roomWidth, 7, .22, wallMaterial, 0, 3.5, -3.05);
+  const backWall = box(roomWidth, 7, .22, wallMaterial, 0, 3.5, -3.05);
   const leftWall = box(.2, 7, 13, wallMaterial, -roomWidth / 2, 3.5, 2.9);
   const rightWall = box(.2, 7, 13, wallMaterial, roomWidth / 2, 3.5, 2.9);
   leftWall.castShadow = leftWall.receiveShadow = rightWall.castShadow = rightWall.receiveShadow = false;
@@ -107,8 +119,8 @@ export async function createShowroomScene(host, { pieces, onSelect, onHover, onR
   for (let x = -roomWidth / 2; x <= roomWidth / 2; x += 2.4) box(.008, .002, 14, seam, x, -.016, 3);
   for (let z = -2.5; z < 10; z += 2.4) box(roomWidth, .002, .008, seam, 0, -.015, z);
 
-  scene.add(new THREE.HemisphereLight('#f5f7ff', '#727782', .85));
-  const windowLight = new THREE.DirectionalLight('#ffffff', 1.8);
+  scene.add(new THREE.HemisphereLight('#fff6e8', '#77716b', .95));
+  const windowLight = new THREE.DirectionalLight('#fffaf2', 1.8);
   windowLight.position.set(-3.5, 6.4, 4); windowLight.castShadow = true;
   windowLight.target.position.set(0, 2.4, -2.2);
   scene.add(windowLight.target);
@@ -119,7 +131,7 @@ export async function createShowroomScene(host, { pieces, onSelect, onHover, onR
   windowLight.shadow.blurSamples = 8;
   scene.add(windowLight);
   for (const x of [-6, -3, 0, 3, 6]) {
-    const spot = new THREE.SpotLight('#f4f6ff', 20, 12, .62, .75, 1.5);
+    const spot = new THREE.SpotLight('#fff8ed', 20, 12, .62, .75, 1.5);
     spot.position.set(x, 6.45, .6); spot.target.position.set(x, 1.8, -2.8);
     scene.add(spot, spot.target);
     const fixture = box(.26, .08, .26, darkMetal, x, 6.65, .6);
@@ -137,14 +149,128 @@ export async function createShowroomScene(host, { pieces, onSelect, onHover, onR
   box(2, .12, .64, woodMaterial, -railHalfWidth + .5, .48, -.7);
   for (const x of [-railHalfWidth - .3, -railHalfWidth + 1.3]) box(.12, .44, .54, woodMaterial, x, .22, -.7);
 
-  const signCanvas = document.createElement('canvas'); signCanvas.width = 1536; signCanvas.height = 384;
-  const signCtx = signCanvas.getContext('2d');
-  signCtx.fillStyle = '#ef2028'; signCtx.textAlign = 'center'; signCtx.textBaseline = 'middle';
-  signCtx.font = 'italic 900 190px Arial'; signCtx.fillText('NEWGBONHI', 768, 155);
-  signCtx.font = '24px monospace'; signCtx.fillStyle = '#eef0f3'; signCtx.fillText('A B I D J A N   /   C O N C E P T   S T O R E', 768, 300);
-  const signMap = new THREE.CanvasTexture(signCanvas); signMap.colorSpace = THREE.SRGBColorSpace; textures.push(signMap);
-  const sign = new THREE.Mesh(new THREE.PlaneGeometry(3.5, .875), new THREE.MeshBasicMaterial({ map: signMap, transparent: true, depthWrite: false, toneMapped: false }));
-  sign.position.set(0, 4.95, -2.92); scene.add(sign);
+  const redLacquer = new THREE.MeshStandardMaterial({ color: '#c71c26', roughness: .48, metalness: .15 });
+  const accent = box(roomWidth - .8, .035, .018, redLacquer, 0, .23, -2.92);
+  accent.castShadow = accent.receiveShadow = false;
+
+  // Two framed illustrations above the rail, flanking the central crew.
+  try {
+    const atlas = await new THREE.TextureLoader().loadAsync(centralArtworksUrl);
+    atlas.colorSpace = THREE.SRGBColorSpace; textures.push(atlas);
+    const height = 2.5, width = height * (atlas.image.width / 2) / atlas.image.height;
+    const frameMaterial = new THREE.MeshStandardMaterial({ color: '#191817', roughness: .55, metalness: .12 });
+    for (let index = 0; index < 2; index++) {
+      const x = index === 0 ? -6.7 : 6.7;
+      const backing = box(width + .10, height + .10, .065, frameMaterial, x, 4.95, -2.87);
+      backing.castShadow = true;
+      const map = atlas.clone(); map.repeat.set(.5, 1); map.offset.set(index * .5, 0);
+      map.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy()); map.needsUpdate = true; textures.push(map);
+      const art = new THREE.Mesh(new THREE.PlaneGeometry(width, height), new THREE.MeshStandardMaterial({ map, roughness: .95, metalness: 0 }));
+      art.position.set(x, 4.95, -2.835); art.receiveShadow = true; scene.add(art);
+    }
+  } catch (error) {
+    console.warn('Showroom central artworks unavailable', error);
+  }
+
+  // A matte painted surface receives the same light and garment shadows as the wall.
+  // Failure of this decorative asset must not block the shop.
+  try {
+    const muralMap = await new THREE.TextureLoader().loadAsync(crewMuralUrl);
+    muralMap.colorSpace = THREE.SRGBColorSpace;
+    muralMap.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
+    textures.push(muralMap);
+    // Cover the actual wall face, preserving the artwork proportions.
+    const imageAspect = muralMap.image.width / muralMap.image.height;
+    const wallAspect = roomWidth / 7;
+    if (imageAspect > wallAspect) {
+      muralMap.repeat.x = wallAspect / imageAspect;
+      muralMap.offset.x = (1 - muralMap.repeat.x) / 2;
+    } else {
+      muralMap.repeat.y = imageAspect / wallAspect;
+      muralMap.offset.y = (1 - muralMap.repeat.y) / 2;
+    }
+    const paintedWall = new THREE.MeshStandardMaterial({
+      map: muralMap, bumpMap: wallMaterial.bumpMap, bumpScale: .018,
+      roughness: .98, metalness: 0, envMapIntensity: .1,
+    });
+    // BoxGeometry front (+Z) is the wall surface facing the clothes and camera.
+    backWall.material = [wallMaterial, wallMaterial, wallMaterial, wallMaterial, paintedWall, wallMaterial];
+  } catch (error) {
+    console.warn('Showroom mural unavailable', error);
+  }
+
+  // Three shaped maple decks mounted on the inside face of the right wall.
+  try {
+    const loader = new THREE.TextureLoader();
+    const [atlas, premium] = await Promise.all([
+      loader.loadAsync(skateAtlasUrl), loader.loadAsync(premiumDeckUrl),
+    ]);
+    atlas.colorSpace = premium.colorSpace = THREE.SRGBColorSpace;
+    textures.push(atlas, premium);
+    floorProps = await addShowroomFloor(scene, { roomWidth, deckMap: premium, textures });
+    const maple = new THREE.MeshStandardMaterial({ color: '#aa8051', roughness: .75 });
+    const mountMaterial = new THREE.MeshStandardMaterial({ color: '#272727', metalness: .7, roughness: .4 });
+    const width = .64, height = 2.45, radius = width / 2;
+    const shape = new THREE.Shape();
+    shape.moveTo(-radius, -height / 2 + radius);
+    shape.lineTo(-radius, height / 2 - radius);
+    shape.absarc(0, height / 2 - radius, radius, Math.PI, 0, true);
+    shape.lineTo(radius, -height / 2 + radius);
+    shape.absarc(0, -height / 2 + radius, radius, 0, -Math.PI, true);
+    shape.closePath();
+    for (let index = 0; index < 3; index++) {
+      const deck = new THREE.Group();
+      deck.position.set(roomWidth / 2 - .22, 2.75, -1.2 + index * 1.02);
+      deck.rotation.y = -Math.PI / 2;
+      const texture = (index === 2 ? premium : atlas).clone();
+      if (index !== 2) { texture.repeat.set(1 / 3, 1); texture.offset.set(index / 3, 0); }
+      texture.needsUpdate = true;
+      texture.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy()); textures.push(texture);
+      const face = new THREE.MeshStandardMaterial({ map: texture, roughness: .8, metalness: 0 });
+      const geometry = new THREE.ExtrudeGeometry(shape, { depth: .025, bevelEnabled: true, bevelSegments: 3, steps: 1, bevelSize: .009, bevelThickness: .007, curveSegments: 24 });
+      const positions = geometry.attributes.position;
+      const uv = geometry.attributes.uv;
+      for (let vertex = 0; vertex < positions.count; vertex++) {
+        const x = positions.getX(vertex), y = positions.getY(vertex);
+        uv.setXY(vertex, (x + radius) / width, (y + height / 2) / height);
+        // Nose and tail curl away from the wall, like an actual deck.
+        const kick = Math.max(0, (Math.abs(y) - height * .32) / (height * .18));
+        positions.setZ(vertex, positions.getZ(vertex) + .085 * kick * kick);
+      }
+      geometry.computeVertexNormals();
+      const mesh = new THREE.Mesh(geometry, [face, maple]); mesh.castShadow = mesh.receiveShadow = true; deck.add(mesh);
+      for (const y of [-.72, .72]) {
+        const mount = new THREE.Mesh(new THREE.CylinderGeometry(.055, .055, .10, 12), mountMaterial);
+        mount.rotation.x = Math.PI / 2; mount.position.set(0, y, -.045); mount.castShadow = true; deck.add(mount);
+        for (const dx of [-.075, .075]) for (const dy of [-.045, .045]) {
+          const screw = new THREE.Mesh(new THREE.SphereGeometry(.012, 8, 6), mountMaterial);
+          screw.position.set(dx, y + dy, .035); deck.add(screw);
+        }
+      }
+      scene.add(deck);
+    }
+  } catch (error) {
+    console.warn('Showroom skate decks unavailable', error);
+  }
+
+  // Framed portrait on the inside of the left wall.
+  try {
+    const map = await new THREE.TextureLoader().loadAsync(leftArtworkUrl);
+    map.colorSpace = THREE.SRGBColorSpace;
+    map.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy()); textures.push(map);
+    const height = 2.65, width = height * map.image.width / map.image.height;
+    const frame = new THREE.Group();
+    frame.position.set(-roomWidth / 2 + .19, 2.8, -.05);
+    frame.rotation.y = Math.PI / 2;
+    const frameMaterial = new THREE.MeshStandardMaterial({ color: '#191817', roughness: .5, metalness: .15 });
+    const backing = new THREE.Mesh(new THREE.BoxGeometry(width + .13, height + .13, .075), frameMaterial);
+    backing.castShadow = true; backing.receiveShadow = true; frame.add(backing);
+    const paper = new THREE.Mesh(new THREE.PlaneGeometry(width, height), new THREE.MeshStandardMaterial({ map, roughness: .95, metalness: 0 }));
+    paper.position.z = .039; paper.receiveShadow = true; frame.add(paper);
+    scene.add(frame);
+  } catch (error) {
+    console.warn('Showroom portrait unavailable', error);
+  }
 
   async function garmentTexture(src) {
     const img = await new Promise((resolve, reject) => { const image = new Image(); image.onload = () => resolve(image); image.onerror = reject; image.src = src; });
@@ -309,9 +435,16 @@ export async function createShowroomScene(host, { pieces, onSelect, onHover, onR
 
   function updateCamera() {
     motion = 1;
+    onNavigate?.({ canPrevious: pan > -panLimit + .001, canNext: pan < panLimit - .001 });
     const selected = groups.get(selectedKey);
-    if (selected) {
-      destination.set(selected.targetX + (mobile ? 0 : .9), 2.5, mobile ? 5.5 : 4.1);
+    if (artworkView) {
+      destination.set(-roomWidth / 2 + (mobile ? 7 : 4.8), 2.9, mobile ? 1.1 : 2.3);
+      aim.set(-roomWidth / 2 + .55, 1.95, -.05);
+    } else if (skateView) {
+      destination.set(roomWidth / 2 - (mobile ? 10 : 5.6), 2.9, mobile ? 1.8 : 3.9);
+      aim.set(roomWidth / 2 - .65, 1.95, -.18);
+    } else if (selected) {
+      destination.set(selected.targetX + (mobile ? 0 : .9), 2.5, mobile ? 5.5 - inspectionZoom * 1.8 : 4.1 - inspectionZoom * 1.5);
       aim.set(selected.targetX + (mobile ? 0 : .9), mobile ? 1.45 : 2.3, -2.18);
     } else {
       destination.set(pan + (mobile ? 0 : .4), 2.8, mobile ? 8.4 : 10.2);
@@ -340,18 +473,26 @@ export async function createShowroomScene(host, { pieces, onSelect, onHover, onR
     for (const [key, item] of groups) {
       item.group.position.x = THREE.MathUtils.lerp(item.group.position.x, item.targetX, speed);
       const focus = key === hoverKey || key === selectedKey;
-      item.group.rotation.y = THREE.MathUtils.lerp(item.group.rotation.y, item.originalRotation + (focus ? -.065 : 0), speed);
+      item.group.rotation.y = THREE.MathUtils.lerp(item.group.rotation.y, (key === selectedKey ? inspectionAngle : item.originalRotation + (focus ? -.065 : 0)), speed);
       item.group.position.z = THREE.MathUtils.lerp(item.group.position.z, focus ? -1.98 : -2.18, speed);
     }
+    floorProps?.updateFacing(camera);
     renderer.render(scene, camera);
   }
   render(); onReady?.();
 
   return {
-    select(key) { selectedKey = key; updateCamera(); },
-    move(direction) { pan = THREE.MathUtils.clamp(pan + direction * 2.8, -panLimit, panLimit); updateCamera(); },
+    showArtwork(enabled) { artworkView = enabled; skateView = false; updateCamera(); },
+    showSkates(enabled) { artworkView = false; skateView = enabled; updateCamera(); },
+    select(key) { artworkView = false; skateView = false; selectedKey = key; inspectionAngle = 0; inspectionZoom = 0; updateCamera(); },
+    inspect(angle, zoom) {
+      inspectionAngle = THREE.MathUtils.degToRad(THREE.MathUtils.clamp(angle, -45, 45));
+      inspectionZoom = THREE.MathUtils.clamp(zoom, 0, 1);
+      updateCamera();
+    },
+    move(direction) { artworkView = false; skateView = false; pan = THREE.MathUtils.clamp(pan + direction * 2.8, -panLimit, panLimit); updateCamera(); },
     filter(items) {
-      selectedKey = null; visiblePieces = items;
+      artworkView = false; skateView = false; selectedKey = null; visiblePieces = items;
       arrange(items);
       pan = mobile ? groups.get(items[0]?.key)?.targetX || 0 : 0;
       updateCamera();

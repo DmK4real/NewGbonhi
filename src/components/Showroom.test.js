@@ -35,6 +35,71 @@ describe('showroom purchase flow', () => {
     expect(page.$refs.detail.showModal).toHaveBeenCalledOnce();
   });
 
+  it('resets inspection when changing pieces or colors', () => {
+    const page = room();
+    page.scene = { select: vi.fn(), inspect: vi.fn() };
+    const piece = Showroom.computed.pieces.call({ collection: 'drop04' })[0];
+    page.openPiece(piece);
+    page.inspectAngle('30');
+    page.inspectZoom('0.75');
+    page.imageZoomed = true;
+    expect(page.scene.inspect).toHaveBeenLastCalledWith(30, 0.75);
+    page.selectVariant(piece.product.variants[1]);
+    expect(page.viewAngle).toBe(0);
+    expect(page.viewZoom).toBe(0);
+    expect(page.imageZoomed).toBe(false);
+    expect(page.scene.select).toHaveBeenLastCalledWith(page.selected.key);
+  });
+
+  it('tracks navigation boundaries in the image fallback', () => {
+    const page = room();
+    page.sceneFailed = true;
+    Object.assign(page.$refs.rack, { scrollLeft: 0, clientWidth: 300, scrollWidth: 800 });
+    page.syncFallbackNavigation();
+    expect(page.navigation).toEqual({ canPrevious: false, canNext: true });
+    page.$refs.rack.scrollLeft = 250;
+    page.syncFallbackNavigation();
+    expect(page.navigation).toEqual({ canPrevious: true, canNext: true });
+    page.$refs.rack.scrollLeft = 500;
+    page.syncFallbackNavigation();
+    expect(page.navigation).toEqual({ canPrevious: true, canNext: false });
+    page.$refs.rack.scrollWidth = 300;
+    page.$refs.rack.scrollLeft = 0;
+    page.syncFallbackNavigation();
+    expect(page.navigation).toEqual({ canPrevious: false, canNext: false });
+  });
+
+  it('opens the skate wall and returns to browsing when choosing a collection', () => {
+    const page = room();
+    page.scene = { showSkates: vi.fn(), filter: vi.fn() };
+    page.toggleSkates();
+    expect(page.skateView).toBe(true);
+    expect(page.scene.showSkates).toHaveBeenLastCalledWith(true);
+    page.toggleSkates();
+    expect(page.skateView).toBe(false);
+    expect(page.scene.showSkates).toHaveBeenLastCalledWith(false);
+    page.toggleSkates();
+    page.changeCollection('drop04');
+    expect(page.skateView).toBe(false);
+    expect(page.scene.filter).toHaveBeenCalled();
+  });
+
+  it('switches between artwork and skate views without keeping both active', () => {
+    const page = room();
+    page.scene = { showArtwork: vi.fn(), showSkates: vi.fn() };
+    page.toggleArtwork();
+    expect(page.artworkView).toBe(true);
+    expect(page.scene.showArtwork).toHaveBeenLastCalledWith(true);
+    page.toggleSkates();
+    expect(page.artworkView).toBe(false);
+    expect(page.skateView).toBe(true);
+    page.toggleArtwork();
+    expect(page.skateView).toBe(false);
+    expect(page.artworkView).toBe(true);
+    page.toggleArtwork();
+    expect(page.scene.showArtwork).toHaveBeenLastCalledWith(false);
+  });
+
   it('requires an available size before preordering', () => {
     const page = room();
     page.openPiece(Showroom.computed.pieces.call({ collection: 'drop04' })[0]);

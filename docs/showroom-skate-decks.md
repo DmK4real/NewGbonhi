@@ -1,0 +1,17 @@
+# Decks NG du showroom
+
+Asset : `src/assets/showroom/ng-skate-decks.webp`.
+Outil : image_gen intégré. Les deux photos fournies par l’utilisateur servent de références stylistiques.
+Les trois colonnes de l’atlas sont appliquées séparément à trois meshes de decks, avec épaisseur, nez et tail relevés, chants bois et fixations. Le bouton « Le mur skate » cadre ce mur.
+
+## Prompt
+
+Use case: stylized-concept. Asset: one texture atlas for THREE original New Gbonhi skateboard deck graphics. User's two latest attached photos are style references only for handpainted skateboard graphics. Create a flat square 1536x1536 image, divided into EXACTLY THREE equal width vertical rectangular columns, each column filled edge to edge with its own painted artwork. No visible boards, deck outlines, rounded edges, perspective, wall, room, shadows, wheels, trucks or photography; these are flat print-ready graphic textures to apply to curved wooden deck meshes. Column 1: charcoal black painted surface, large aggressive ivory handpainted vertical graffiti lettering 'NEW GBONHI', small red NG crown and fine white splatter, raw energetic brush calligraphy. Column 2: warm ivory painted surface, one original bold cartoon face of the NG curly-haired crew mascot with sleepy red heart eyes, black ink contours, small NG tag, small purple accent, scuffed paint and tiny crowns, graphic aesthetic. Column 3: near black painted surface, expressive abstract silver/ivory calligraphic NG monogram sweeping vertically, subtle scarlet spray haze, little 'ABIDJAN' handwritten near the lower end, deliberate elegant negative space. Palette coordinated black ivory red with tiny purple. Paint marker strokes, brush grain, drips, slightly worn handmade finish, striking underground skate aesthetic. All important designs within center 75% width of each column and middle 85% height so rounded deck silhouettes will not crop important features. No borrowed brand names, no watermark.
+
+## Troisième deck — version premium
+
+Asset : `src/assets/showroom/ng-skate-premium.webp`. Édition via image_gen intégré, puis extraction de la troisième colonne pour garder les deux premières textures intactes.
+
+Prompt :
+
+Edit ONLY the RIGHTMOST THIRD of this square three-column skateboard graphic atlas. Preserve the first and second columns exactly unchanged. Replace the entire third column with a more premium, fresh original NEWGBONHI skate graphic: deep clean charcoal black base with very subtle tactile paint grain, a single strong interlocked N G monogram in polished liquid silver chrome, crisp sculptural fluid lettering, legible NG, placed vertically in the central 60% of the column. Small precise red handwritten NEWGBONHI signature beneath the monogram, tiny ivory ABIDJAN / NG. at the bottom. One tiny red crown near the upper end, restrained. Sophisticated underground Abidjan streetwear aesthetic, bold recognizable graphic identity, excellent negative space, deliberate refined composition. No large splatters, no scattered decorative marks, no messy ivory calligraphy, no generic luxury symbols or borrowed brands. It must feel like an exclusive NewGbonhi art deck. Keep image square and exactly three equal vertical columns, flat edge-to-edge print textures with no skateboard outlines, room, perspective, shadows or frames. Important design stays within center 70% width and center 80% height of right third. Only rightmost column changes.
