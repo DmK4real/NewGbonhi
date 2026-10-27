@@ -9,7 +9,7 @@ const centralArtworksUrl = new URL('../assets/showroom/ng-central-artworks.webp'
 const leftArtworkUrl = new URL('../assets/showroom/ng-cfa-portrait.webp', import.meta.url).href;
 const premiumDeckUrl = new URL('../assets/showroom/ng-skate-premium.webp', import.meta.url).href;
 const skateAtlasUrl = new URL('../assets/showroom/ng-skate-decks.webp', import.meta.url).href;
-const crewMuralUrl = new URL('../assets/showroom/ng-crew-wall-v3.webp', import.meta.url).href;
+const crewMuralUrl = new URL('../assets/showroom/ng-crew-wall-minimal.webp', import.meta.url).href;
 
 // The shop stays usable through its HTML controls if WebGL is unavailable.
 export async function createShowroomScene(host, { pieces, onSelect, onHover, onReady, onNavigate }) {
@@ -153,11 +153,11 @@ export async function createShowroomScene(host, { pieces, onSelect, onHover, onR
   const accent = box(roomWidth - .8, .035, .018, redLacquer, 0, .23, -2.92);
   accent.castShadow = accent.receiveShadow = false;
 
-  // Two framed illustrations above the rail, flanking the central crew.
+  // Smaller peripheral artworks leave the garments as the main visual focus.
   try {
     const atlas = await new THREE.TextureLoader().loadAsync(centralArtworksUrl);
     atlas.colorSpace = THREE.SRGBColorSpace; textures.push(atlas);
-    const height = 2.5, width = height * (atlas.image.width / 2) / atlas.image.height;
+    const height = 1.6, width = height * (atlas.image.width / 2) / atlas.image.height;
     const frameMaterial = new THREE.MeshStandardMaterial({ color: '#191817', roughness: .55, metalness: .12 });
     for (let index = 0; index < 2; index++) {
       const x = index === 0 ? -6.7 : 6.7;
