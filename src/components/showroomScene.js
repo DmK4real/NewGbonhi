@@ -42,6 +42,7 @@ export async function createShowroomScene(host, { pieces, onSelect, onHover, onR
   let selectedKey = null;
   let skateView = false;
   let artworkView = false;
+  let overview = true;
   let inspectionAngle = 0;
   let inspectionZoom = 0;
   let visiblePieces = pieces;
@@ -430,6 +431,7 @@ export async function createShowroomScene(host, { pieces, onSelect, onHover, onR
   function pointerMove(event) {
     if (pointerDown && Math.abs(event.clientX - pointerDown.x) > 8) {
       pointerDown.dragged = true;
+      overview = false;
       pan = THREE.MathUtils.clamp(pointerDown.pan - (event.clientX - pointerDown.x) * .009, -panLimit, panLimit);
       updateCamera(); return;
     }
@@ -463,6 +465,12 @@ export async function createShowroomScene(host, { pieces, onSelect, onHover, onR
     } else if (selected) {
       destination.set(selected.targetX + (mobile ? 0 : .9), 2.5, mobile ? 5.5 - inspectionZoom * 1.8 : 4.1 - inspectionZoom * 1.5);
       aim.set(selected.targetX + (mobile ? 0 : .9), mobile ? 1.45 : 2.3, -2.18);
+    } else if (mobile && overview) {
+      const items = visiblePieces.map(piece => groups.get(piece.key)).filter(Boolean);
+      const span = items.length ? items.at(-1).targetX - items[0].targetX + Math.max(...items.map(item => item.width)) : 10;
+      const distance = Math.max(12.5, Math.min(45, (span + 1.8) * 1.25 / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect)));
+      destination.set(0, 3.15, distance - 2.18);
+      aim.set(0, 2.65, -2.18);
     } else {
       destination.set(pan + (mobile ? 0 : .4), 2.8, mobile ? 8.4 : 10.2);
       aim.set(pan * .98, 2.65, -2.18);
@@ -473,7 +481,7 @@ export async function createShowroomScene(host, { pieces, onSelect, onHover, onR
     if (!width || !height) return;
     const wasMobile = mobile;
     mobile = width < 700;
-    if (mobile !== wasMobile && !selectedKey) pan = mobile ? groups.get(visiblePieces[0]?.key)?.targetX || 0 : 0;
+    if (mobile !== wasMobile && !selectedKey) { overview = true; pan = 0; }
     renderer.setSize(width, height, false); camera.aspect = width / height; camera.updateProjectionMatrix();
     updateCamera();
     if (reducedMotion.matches) { camera.position.copy(destination); currentAim.copy(aim); }
@@ -504,10 +512,12 @@ export async function createShowroomScene(host, { pieces, onSelect, onHover, onR
   });
 
   return {
+    overview() { overview = true; selectedKey = null; artworkView = false; skateView = false; pan = 0; updateCamera(); },
     focus(key) {
       const item = groups.get(key);
       if (!item?.group.visible) return;
       artworkView = false; skateView = false;
+      overview = false;
       pan = THREE.MathUtils.clamp(item.targetX, -panLimit, panLimit);
       updateCamera();
     },
@@ -519,11 +529,11 @@ export async function createShowroomScene(host, { pieces, onSelect, onHover, onR
       inspectionZoom = THREE.MathUtils.clamp(zoom, 0, 1);
       updateCamera();
     },
-    move(direction) { artworkView = false; skateView = false; pan = THREE.MathUtils.clamp(pan + direction * 2.8, -panLimit, panLimit); updateCamera(); },
+    move(direction) { overview = false; artworkView = false; skateView = false; pan = THREE.MathUtils.clamp(pan + direction * 2.8, -panLimit, panLimit); updateCamera(); },
     filter(items) {
       artworkView = false; skateView = false; selectedKey = null; visiblePieces = items;
       arrange(items);
-      pan = mobile ? groups.get(items[0]?.key)?.targetX || 0 : 0;
+      overview = true; pan = 0;
       updateCamera();
     },
     dispose() {

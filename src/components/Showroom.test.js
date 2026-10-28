@@ -178,6 +178,17 @@ describe('showroom purchase flow', () => {
     expect(page.scene.focus).toHaveBeenCalledTimes(1);
   });
 
+  it('returns to the overview and clears decorative wall focus', () => {
+    const page = room();
+    page.scene = { overview: vi.fn() };
+    page.artworkView = true; page.skateView = true; page.hovered = { key: 'piece' };
+    page.showOverview();
+    expect(page.scene.overview).toHaveBeenCalledOnce();
+    expect(page.artworkView).toBe(false);
+    expect(page.skateView).toBe(false);
+    expect(page.hovered).toBeNull();
+  });
+
   it('requires an available size before preordering', () => {
     const page = room();
     page.openPiece(Showroom.computed.pieces.call({ collection: 'drop04' })[0]);
