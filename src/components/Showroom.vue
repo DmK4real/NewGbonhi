@@ -147,7 +147,7 @@ export default {
       if (this.sceneUnmounted) return;
       const scene = await createShowroomScene(this.$refs.sceneHost, {
         pieces: inventory,
-        onNavigate: state => { this.navigation = state; },
+        onNavigate: state => { this.navigation = state; this.artworkView = state.artworkView; this.skateView = state.skateView; },
         onSelect: piece => this.openPiece(piece),
         onHover: (piece, x, y) => {
           this.hovered = piece;

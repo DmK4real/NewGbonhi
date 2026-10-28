@@ -4,6 +4,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { arrangeGarments, findShoulder } from './showroomLayout.js';
 import { prepareGarmentPixels } from './garmentTexture.js';
 import { addShowroomFloor } from './showroomFloor.js';
+import { panScale, coastPan } from './showroomGesture.js';
 
 const centralArtworksUrl = new URL('../assets/showroom/ng-central-artworks.webp', import.meta.url).href;
 const leftArtworkUrl = new URL('../assets/showroom/ng-cfa-portrait.webp', import.meta.url).href;
@@ -416,6 +417,7 @@ export async function createShowroomScene(host, { pieces, onSelect, onHover, onR
   const raycaster = new THREE.Raycaster();
   const pointer = new THREE.Vector2();
   let pointerDown = null;
+  let panVelocity = 0;
   function hit(event) {
     const r = renderer.domElement.getBoundingClientRect();
     pointer.set((event.clientX - r.left) / r.width * 2 - 1, -(event.clientY - r.top) / r.height * 2 + 1);
@@ -428,10 +430,23 @@ export async function createShowroomScene(host, { pieces, onSelect, onHover, onR
     });
   }
   function pointerMove(event) {
-    if (pointerDown && Math.abs(event.clientX - pointerDown.x) > 8) {
-      pointerDown.dragged = true;
-      pan = THREE.MathUtils.clamp(pointerDown.pan - (event.clientX - pointerDown.x) * .009, -panLimit, panLimit);
-      updateCamera(); return;
+    if (pointerDown) {
+      const dx = event.clientX - pointerDown.x, dy = event.clientY - pointerDown.y;
+      if (!pointerDown.dragged && Math.abs(dx) > 5 && Math.abs(dx) > Math.abs(dy)) {
+        pointerDown.dragged = true;
+        artworkView = false; skateView = false;
+        hoverKey = null; onHover?.(null);
+      }
+      if (pointerDown.dragged) {
+        const rawPan = pointerDown.pan - dx * pointerDown.scale;
+        const next = THREE.MathUtils.clamp(rawPan, -panLimit, panLimit);
+        const elapsed = Math.max(1, event.timeStamp - pointerDown.lastTime);
+        panVelocity = THREE.MathUtils.clamp(.4 * panVelocity + .6 * (next - pan) / elapsed, -.035, .035);
+        pointerDown.rawPan = rawPan;
+        pointerDown.lastTime = event.timeStamp;
+        pan = next;
+        updateCamera(); return;
+      }
     }
     const found = hit(event);
     const piece = found?.object.userData.piece;
@@ -441,18 +456,42 @@ export async function createShowroomScene(host, { pieces, onSelect, onHover, onR
     renderer.domElement.style.cursor = piece ? 'pointer' : 'grab';
     onHover?.(piece || null, event.clientX, event.clientY);
   }
-  const down = event => { pointerDown = { x: event.clientX, pan, dragged: false }; renderer.domElement.setPointerCapture(event.pointerId); };
-  const up = event => { if (pointerDown && !pointerDown.dragged) { const found = hit(event); if (found) onSelect(found.object.userData.piece); } pointerDown = null; };
+  const down = event => {
+    if (!event.isPrimary || (event.pointerType === 'mouse' && event.button !== 0)) return;
+    panVelocity = 0;
+    if (artworkView) pan = -panLimit;
+    if (skateView) pan = panLimit;
+    pointerDown = {
+      x: event.clientX, y: event.clientY, pan, rawPan: pan, dragged: false, lastTime: event.timeStamp,
+      scale: panScale(renderer.domElement.clientWidth, camera.aspect, camera.fov, Math.max(5, camera.position.z + 2.18)),
+    };
+    renderer.domElement.setPointerCapture(event.pointerId);
+  };
+  const up = event => {
+    if (!pointerDown) return;
+    if (!pointerDown.dragged) {
+      panVelocity = 0;
+      const found = hit(event); if (found) onSelect(found.object.userData.piece);
+    } else {
+      if (event.timeStamp - pointerDown.lastTime > 100 || reducedMotion.matches) panVelocity = 0;
+      if (pointerDown.rawPan < -panLimit - .8) { artworkView = true; panVelocity = 0; }
+      if (pointerDown.rawPan > panLimit + .8) { skateView = true; panVelocity = 0; }
+      updateCamera();
+    }
+    pointerDown = null;
+    if (renderer.domElement.hasPointerCapture(event.pointerId)) renderer.domElement.releasePointerCapture(event.pointerId);
+  };
+  const cancel = () => { pointerDown = null; panVelocity = 0; };
   const leave = () => { hoverKey = null; motion = 1; onHover?.(null); };
   renderer.domElement.addEventListener('pointermove', pointerMove);
   renderer.domElement.addEventListener('pointerdown', down);
   renderer.domElement.addEventListener('pointerup', up);
-  renderer.domElement.addEventListener('pointercancel', () => { pointerDown = null; });
+  renderer.domElement.addEventListener('pointercancel', cancel);
   renderer.domElement.addEventListener('pointerleave', leave);
 
   function updateCamera() {
     motion = 1;
-    onNavigate?.({ canPrevious: pan > -panLimit + .001, canNext: pan < panLimit - .001 });
+    onNavigate?.({ canPrevious: pan > -panLimit + .001, canNext: pan < panLimit - .001, artworkView, skateView });
     const selected = groups.get(selectedKey);
     if (artworkView) {
       destination.set(-roomWidth / 2 + (mobile ? 7 : 4.8), 2.9, mobile ? 1.1 : 2.3);
@@ -483,10 +522,17 @@ export async function createShowroomScene(host, { pieces, onSelect, onHover, onR
   function render(time = 0) {
     if (disposed) return;
     frame = requestAnimationFrame(render);
-    if (!active || document.hidden || motion < .001 || time - lastFrame < 33) return;
+    if (!active || document.hidden) { panVelocity = 0; return; }
+    const interacting = pointerDown?.dragged || panVelocity !== 0;
+    if ((!interacting && motion < .001) || time - lastFrame < (interacting ? 15 : 33)) return;
+    const elapsed = Math.min(64, lastFrame ? time - lastFrame : 33);
     lastFrame = time;
-    motion = reducedMotion.matches ? 0 : motion * .88;
-    const speed = reducedMotion.matches ? 1 : .085;
+    if (!pointerDown && panVelocity) {
+      const coast = coastPan(pan, panVelocity, elapsed, panLimit);
+      pan = coast.pan; panVelocity = coast.velocity; updateCamera();
+    }
+    motion = reducedMotion.matches ? 0 : motion * Math.pow(.88, elapsed / 33);
+    const speed = reducedMotion.matches ? 1 : 1 - Math.exp(-elapsed / (interacting ? 55 : 240));
     camera.position.lerp(destination, speed); currentAim.lerp(aim, speed); camera.lookAt(currentAim);
     for (const [key, item] of groups) {
       item.group.position.x = THREE.MathUtils.lerp(item.group.position.x, item.targetX, speed);
@@ -505,22 +551,24 @@ export async function createShowroomScene(host, { pieces, onSelect, onHover, onR
 
   return {
     focus(key) {
+      panVelocity = 0;
       const item = groups.get(key);
       if (!item?.group.visible) return;
       artworkView = false; skateView = false;
       pan = THREE.MathUtils.clamp(item.targetX, -panLimit, panLimit);
       updateCamera();
     },
-    showArtwork(enabled) { artworkView = enabled; skateView = false; updateCamera(); },
-    showSkates(enabled) { artworkView = false; skateView = enabled; updateCamera(); },
-    select(key) { artworkView = false; skateView = false; selectedKey = key; inspectionAngle = 0; inspectionZoom = 0; updateCamera(); },
+    showArtwork(enabled) { panVelocity = 0; artworkView = enabled; skateView = false; updateCamera(); },
+    showSkates(enabled) { panVelocity = 0; artworkView = false; skateView = enabled; updateCamera(); },
+    select(key) { panVelocity = 0; artworkView = false; skateView = false; selectedKey = key; inspectionAngle = 0; inspectionZoom = 0; updateCamera(); },
     inspect(angle, zoom) {
       inspectionAngle = THREE.MathUtils.degToRad(THREE.MathUtils.clamp(angle, -45, 45));
       inspectionZoom = THREE.MathUtils.clamp(zoom, 0, 1);
       updateCamera();
     },
-    move(direction) { artworkView = false; skateView = false; pan = THREE.MathUtils.clamp(pan + direction * 2.8, -panLimit, panLimit); updateCamera(); },
+    move(direction) { panVelocity = 0; artworkView = false; skateView = false; pan = THREE.MathUtils.clamp(pan + direction * 2.8, -panLimit, panLimit); updateCamera(); },
     filter(items) {
+      panVelocity = 0;
       artworkView = false; skateView = false; selectedKey = null; visiblePieces = items;
       arrange(items);
       pan = 0;
@@ -531,6 +579,7 @@ export async function createShowroomScene(host, { pieces, onSelect, onHover, onR
       renderer.domElement.removeEventListener('pointermove', pointerMove);
       renderer.domElement.removeEventListener('pointerdown', down);
       renderer.domElement.removeEventListener('pointerup', up);
+      renderer.domElement.removeEventListener('pointercancel', cancel);
       renderer.domElement.removeEventListener('pointerleave', leave);
       scene.traverse(object => { object.geometry?.dispose(); if (object.material) disposableMaterials.push(...(Array.isArray(object.material) ? object.material : [object.material])); });
       new Set(disposableMaterials).forEach(material => material.dispose());
