@@ -153,9 +153,18 @@ export async function createShowroomScene(host, { pieces, onSelect, onHover, onR
   const accent = box(roomWidth - .8, .035, .018, redLacquer, 0, .23, -2.92);
   accent.castShadow = accent.receiveShadow = false;
 
+  async function loadDecorTexture(url) {
+    const map = await new THREE.TextureLoader().loadAsync(url);
+    if (disposed) { map.dispose(); throw new Error('Showroom disposed'); }
+    textures.push(map);
+    motion = 1;
+    return map;
+  }
+
+  async function loadDecorations() {
   // Smaller peripheral artworks leave the garments as the main visual focus.
   try {
-    const atlas = await new THREE.TextureLoader().loadAsync(centralArtworksUrl);
+    const atlas = await loadDecorTexture(centralArtworksUrl);
     atlas.colorSpace = THREE.SRGBColorSpace; textures.push(atlas);
     const height = 1.6, width = height * (atlas.image.width / 2) / atlas.image.height;
     const frameMaterial = new THREE.MeshStandardMaterial({ color: '#191817', roughness: .55, metalness: .12 });
@@ -169,13 +178,13 @@ export async function createShowroomScene(host, { pieces, onSelect, onHover, onR
       art.position.set(x, 4.95, -2.835); art.receiveShadow = true; scene.add(art);
     }
   } catch (error) {
-    console.warn('Showroom central artworks unavailable', error);
+    if (!disposed) console.warn('Showroom central artworks unavailable', error);
   }
 
   // A matte painted surface receives the same light and garment shadows as the wall.
   // Failure of this decorative asset must not block the shop.
   try {
-    const muralMap = await new THREE.TextureLoader().loadAsync(crewMuralUrl);
+    const muralMap = await loadDecorTexture(crewMuralUrl);
     muralMap.colorSpace = THREE.SRGBColorSpace;
     muralMap.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
     textures.push(muralMap);
@@ -196,18 +205,18 @@ export async function createShowroomScene(host, { pieces, onSelect, onHover, onR
     // BoxGeometry front (+Z) is the wall surface facing the clothes and camera.
     backWall.material = [wallMaterial, wallMaterial, wallMaterial, wallMaterial, paintedWall, wallMaterial];
   } catch (error) {
-    console.warn('Showroom mural unavailable', error);
+    if (!disposed) console.warn('Showroom mural unavailable', error);
   }
 
   // Three shaped maple decks mounted on the inside face of the right wall.
   try {
-    const loader = new THREE.TextureLoader();
     const [atlas, premium] = await Promise.all([
-      loader.loadAsync(skateAtlasUrl), loader.loadAsync(premiumDeckUrl),
+      loadDecorTexture(skateAtlasUrl), loadDecorTexture(premiumDeckUrl),
     ]);
     atlas.colorSpace = premium.colorSpace = THREE.SRGBColorSpace;
     textures.push(atlas, premium);
-    floorProps = await addShowroomFloor(scene, { roomWidth, deckMap: premium, textures });
+    floorProps = await addShowroomFloor(scene, { roomWidth, deckMap: premium, textures, isDisposed: () => disposed });
+    if (disposed) return;
     const maple = new THREE.MeshStandardMaterial({ color: '#aa8051', roughness: .75 });
     const mountMaterial = new THREE.MeshStandardMaterial({ color: '#272727', metalness: .7, roughness: .4 });
     const width = .64, height = 2.45, radius = width / 2;
@@ -250,12 +259,12 @@ export async function createShowroomScene(host, { pieces, onSelect, onHover, onR
       scene.add(deck);
     }
   } catch (error) {
-    console.warn('Showroom skate decks unavailable', error);
+    if (!disposed) console.warn('Showroom skate decks unavailable', error);
   }
 
   // Framed portrait on the inside of the left wall.
   try {
-    const map = await new THREE.TextureLoader().loadAsync(leftArtworkUrl);
+    const map = await loadDecorTexture(leftArtworkUrl);
     map.colorSpace = THREE.SRGBColorSpace;
     map.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy()); textures.push(map);
     const height = 2.65, width = height * map.image.width / map.image.height;
@@ -269,21 +278,29 @@ export async function createShowroomScene(host, { pieces, onSelect, onHover, onR
     paper.position.z = .039; paper.receiveShadow = true; frame.add(paper);
     scene.add(frame);
   } catch (error) {
-    console.warn('Showroom portrait unavailable', error);
+    if (!disposed) console.warn('Showroom portrait unavailable', error);
+  }
+
   }
 
   async function garmentTexture(src) {
     const img = await new Promise((resolve, reject) => { const image = new Image(); image.onload = () => resolve(image); image.onerror = reject; image.src = src; });
-    const canvas = document.createElement('canvas'); canvas.width = img.width; canvas.height = img.height;
-    const ctx = canvas.getContext('2d', { willReadFrequently: true }); ctx.drawImage(img, 0, 0);
+    // Process only the resolution the display can use, particularly on phones.
+    const maxEdge = host.getBoundingClientRect().width < 700 ? 768 : 1536;
+    const scale = Math.min(1, maxEdge / Math.max(img.width, img.height));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.round(img.width * scale));
+    canvas.height = Math.max(1, Math.round(img.height * scale));
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
     const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    let minX = img.width, maxX = 0, minY = img.height, maxY = 0;
-    for (let y = 0; y < img.height; y++) for (let x = 0; x < img.width; x++) {
-      if (data[(y * img.width + x) * 4 + 3] > 80) { minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y); }
+    let minX = canvas.width, maxX = 0, minY = canvas.height, maxY = 0;
+    for (let y = 0; y < canvas.height; y++) for (let x = 0; x < canvas.width; x++) {
+      if (data[(y * canvas.width + x) * 4 + 3] > 80) { minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y); }
     }
     const cropped = document.createElement('canvas'); cropped.width = maxX - minX + 1; cropped.height = maxY - minY + 1;
     const croppedContext = cropped.getContext('2d');
-    croppedContext.drawImage(img, minX, minY, cropped.width, cropped.height, 0, 0, cropped.width, cropped.height);
+    croppedContext.drawImage(canvas, minX, minY, cropped.width, cropped.height, 0, 0, cropped.width, cropped.height);
     const mask = croppedContext.getImageData(0, 0, cropped.width, cropped.height);
     mask.data.set(prepareGarmentPixels(mask.data, cropped.width, cropped.height));
     croppedContext.putImageData(mask, 0, 0);
@@ -453,6 +470,7 @@ export async function createShowroomScene(host, { pieces, onSelect, onHover, onR
   }
   function resize() {
     const { width, height } = host.getBoundingClientRect();
+    if (!width || !height) return;
     const wasMobile = mobile;
     mobile = width < 700;
     if (mobile !== wasMobile && !selectedKey) pan = mobile ? groups.get(visiblePieces[0]?.key)?.targetX || 0 : 0;
@@ -480,8 +498,19 @@ export async function createShowroomScene(host, { pieces, onSelect, onHover, onR
     renderer.render(scene, camera);
   }
   render(); onReady?.();
+  // Let the ready state and first garment frame paint before fetching decoration.
+  const decorFrame = requestAnimationFrame(() => {
+    if (!disposed) void loadDecorations().then(() => { if (!disposed) motion = 1; });
+  });
 
   return {
+    focus(key) {
+      const item = groups.get(key);
+      if (!item?.group.visible) return;
+      artworkView = false; skateView = false;
+      pan = THREE.MathUtils.clamp(item.targetX, -panLimit, panLimit);
+      updateCamera();
+    },
     showArtwork(enabled) { artworkView = enabled; skateView = false; updateCamera(); },
     showSkates(enabled) { artworkView = false; skateView = enabled; updateCamera(); },
     select(key) { artworkView = false; skateView = false; selectedKey = key; inspectionAngle = 0; inspectionZoom = 0; updateCamera(); },
@@ -498,14 +527,14 @@ export async function createShowroomScene(host, { pieces, onSelect, onHover, onR
       updateCamera();
     },
     dispose() {
-      disposed = true; cancelAnimationFrame(frame); resizeObserver.disconnect(); intersection.disconnect();
+      disposed = true; cancelAnimationFrame(decorFrame); cancelAnimationFrame(frame); resizeObserver.disconnect(); intersection.disconnect();
       renderer.domElement.removeEventListener('pointermove', pointerMove);
       renderer.domElement.removeEventListener('pointerdown', down);
       renderer.domElement.removeEventListener('pointerup', up);
       renderer.domElement.removeEventListener('pointerleave', leave);
       scene.traverse(object => { object.geometry?.dispose(); if (object.material) disposableMaterials.push(...(Array.isArray(object.material) ? object.material : [object.material])); });
       new Set(disposableMaterials).forEach(material => material.dispose());
-      textures.forEach(texture => texture.dispose()); env.dispose(); renderer.dispose(); renderer.domElement.remove();
+      new Set(textures).forEach(texture => texture.dispose()); env.dispose(); renderer.dispose(); renderer.domElement.remove();
     },
   };
 }

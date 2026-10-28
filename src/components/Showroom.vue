@@ -1,26 +1,32 @@
 <template>
-  <section class="showroom" aria-labelledby="showroom-title">
+  <section class="showroom" :class="{ 'is-catalog-view': catalogView }" aria-labelledby="showroom-title">
     <h1 id="showroom-title" class="sr-only">NewGbonhi — Le showroom</h1>
-    <div ref="sceneHost" class="room-scene" :class="{ 'is-loading': loading }"></div>
-    <div v-if="loading" class="room-loading" role="status"><span>NG.</span><p>{{ copy.loading }}</p></div>
+    <div v-show="!catalogView" ref="sceneHost" class="room-scene" :class="{ 'is-loading': loading }"></div>
+    <div v-if="loading && !catalogView" class="room-loading" role="status"><span>NG.</span><p>{{ copy.loading }}</p></div>
     <div class="room-topline"><span>ABIDJAN / CÔTE D’IVOIRE</span><span>NEWGBONHI · ART / CULTURE / COLLECTIF</span></div>
-    <p class="room-invitation"><span class="room-hint-desktop">{{ copy.explore }}</span><span class="room-hint-touch">{{ copy.exploreTouch }}</span><span class="room-count" role="status">{{ pieces.length }} {{ copy.pieces }}</span></p>
-    <div v-if="hovered && !selected" class="room-hover" :style="hoverStyle"><strong>{{ hovered.label }}</strong><span>{{ price(hovered.product.price) }} · ↗</span></div>
-    <div ref="rack" class="room-accessible" :class="{ 'is-fallback': sceneFailed }" :aria-label="copy.rack" @scroll="syncFallbackNavigation">
-      <button v-for="piece in pieces" :key="piece.key" type="button" class="room-piece" @click="openPiece(piece)">
-        <img v-if="sceneFailed" :src="piece.catalogImage" :alt="piece.product.title" />
-        {{ piece.product.title }} {{ piece.variant?.label }} — {{ price(piece.product.price) }}
+    <div class="room-view-switch" role="group" :aria-label="copy.displayMode">
+      <button type="button" :aria-pressed="!catalogView" :disabled="sceneFailed" @click="setView('3d')">{{ copy.view3d }}</button>
+      <button type="button" :aria-pressed="catalogView" @click="setView('catalog')">{{ copy.viewCatalog }}</button>
+    </div>
+    <p v-if="sceneFailed" class="room-fallback-note" role="status">{{ copy.fallback }}</p>
+    <p class="room-invitation"><span v-if="catalogView">{{ copy.catalogHint }}</span><template v-else><span class="room-hint-desktop">{{ copy.explore }}</span><span class="room-hint-touch">{{ copy.exploreTouch }}</span></template><span class="room-count" role="status">{{ pieces.length }} {{ copy.pieces }}</span></p>
+    <div v-if="hovered && !selected && !catalogView" class="room-hover" :style="hoverStyle"><strong>{{ hovered.label }}</strong><span>{{ price(hovered.product.price) }} · ↗</span></div>
+    <p id="room-keyboard-help" class="sr-only">{{ copy.keyboardHelp }}</p>
+    <div ref="rack" class="room-accessible" :class="{ 'is-fallback': sceneFailed && !catalogView, 'is-catalog': catalogView }" :aria-label="copy.rack" aria-describedby="room-keyboard-help" @keydown="navigatePieces" @scroll="syncFallbackNavigation">
+      <button v-for="piece in pieces" :key="piece.key" type="button" class="room-piece" @focus="focusPiece(piece)" @click="openPiece(piece)">
+        <img v-if="catalogView || sceneFailed" loading="lazy" decoding="async" :src="piece.catalogImage" :alt="piece.product.title" />
+        <span class="room-piece-name">{{ piece.product.title }} {{ piece.variant?.label }}</span><span class="room-piece-price">{{ price(piece.product.price) }}</span>
       </button>
     </div>
     <div class="room-bottom">
-      <button class="room-arrow" type="button" :disabled="loading || !navigation.canPrevious" :aria-label="copy.previous" @click="move(-1)">←</button>
+      <button v-if="!catalogView" class="room-arrow" type="button" :disabled="loading || !navigation.canPrevious" :aria-label="copy.previous" @click="move(-1)">←</button>
       <nav class="room-tabs" :aria-label="copy.collections">
         <button v-for="tab in tabs" :key="tab.id" type="button" :class="{ active: collection === tab.id }" :aria-pressed="collection === tab.id" @click="changeCollection(tab.id)">{{ tab.label }}</button>
       </nav>
-      <button class="room-arrow" type="button" :disabled="loading || !navigation.canNext" :aria-label="copy.next" @click="move(1)">→</button>
+      <button v-if="!catalogView" class="room-arrow" type="button" :disabled="loading || !navigation.canNext" :aria-label="copy.next" @click="move(1)">→</button>
     </div>
-    <button v-if="!loading && !sceneFailed" type="button" class="room-artwork room-skates" :aria-pressed="artworkView" @click="toggleArtwork">{{ artworkView ? copy.backToRack : copy.artworkWall }} ↗</button>
-    <button v-if="!loading && !sceneFailed" type="button" class="room-skates" :aria-pressed="skateView" @click="toggleSkates">{{ skateView ? copy.backToRack : copy.skateWall }} ↗</button>
+    <button v-if="!loading && !sceneFailed && !catalogView" type="button" class="room-artwork room-skates" :aria-pressed="artworkView" @click="toggleArtwork">{{ artworkView ? copy.backToRack : copy.artworkWall }} ↗</button>
+    <button v-if="!loading && !sceneFailed && !catalogView" type="button" class="room-skates" :aria-pressed="skateView" @click="toggleSkates">{{ skateView ? copy.backToRack : copy.skateWall }} ↗</button>
     <RouterLink to="/collections" class="room-catalog">{{ copy.catalog }} ↗</RouterLink>
     <span class="room-edition" aria-hidden="true">ABIDJAN · NG. / CONCEPT STORE</span>
     <dialog ref="detail" class="room-detail" aria-labelledby="room-product-title" @click="closeOnBackdrop" @close="closeDetail">
@@ -28,10 +34,15 @@
         <button type="button" class="room-close" :aria-label="$t('close')" @click="$refs.detail.close()">×</button>
         <div class="room-detail-image" :class="{ 'is-zoomed': imageZoomed }">
           <button type="button" class="room-image-toggle" :aria-label="imageZoomed ? copy.zoomOut : copy.zoomIn" :aria-pressed="imageZoomed" @click="imageZoomed = !imageZoomed">
-            <img :src="selected.catalogImage" :alt="selected.product.title" /><span>{{ imageZoomed ? '−' : '+' }}</span>
+            <img :src="activePhoto.src" :alt="`${selected.product.title} — ${activePhoto.label}`" :class="{ 'is-worn': activePhoto.worn }" /><span>{{ imageZoomed ? '−' : '+' }}</span>
           </button>
         </div>
-        <div v-if="!sceneFailed" class="room-inspect">
+        <div v-if="productPhotos.length > 1" class="room-photo-list" role="group" :aria-label="copy.productViews">
+          <button v-for="(photo, index) in productPhotos" :key="photo.src" type="button" :aria-pressed="photoIndex === index" @click="selectPhoto(index)">
+            <img :src="photo.src" :alt="photo.label" loading="lazy" decoding="async" /><span>{{ photo.label }}</span>
+          </button>
+        </div>
+        <div v-if="!sceneFailed && !catalogView" class="room-inspect">
           <label>{{ copy.angle }}<input type="range" min="-45" max="45" step="1" :value="viewAngle" @input="inspectAngle($event.target.value)" /></label>
           <label>{{ copy.zoom }}<input type="range" min="0" max="1" step="0.05" :value="viewZoom" @input="inspectZoom($event.target.value)" /></label>
           <button type="button" @click="resetInspection">{{ copy.reset }}</button>
@@ -68,6 +79,12 @@ import { products } from '../data/products.ts';
 import { cartStore } from '../data/cart.ts';
 import { i18nState } from '../i18n.js';
 
+const campaignPhotos = [
+  new URL('../assets/webp/editorial/cameleon-worn-01-800.webp', import.meta.url).href,
+  new URL('../assets/webp/editorial/cameleon-worn-02-800.webp', import.meta.url).href,
+  new URL('../assets/webp/editorial/cameleon-worn-03-800.webp', import.meta.url).href,
+  new URL('../assets/webp/editorial/cameleon-worn-04-800.webp', import.meta.url).href,
+];
 const camoWhite = new URL('../assets/webp/NEW GBONHI CAMO TEE WHITE CUTOUT.webp', import.meta.url).href;
 const cottonPhotos = {
   black: new URL('../assets/showroom/cotton-black.webp', import.meta.url).href,
@@ -98,13 +115,27 @@ const inventory = capsule.flatMap(product => (product.variants?.length ? product
 export default {
   name: 'Showroom',
   emits: ['open-cart'],
-  data: () => ({ collection: 'all', selected: null, selectedSize: null, loading: true, sceneFailed: false, hovered: null, hoverStyle: {}, imageZoomed: false, viewAngle: 0, viewZoom: 0, skateView: false, artworkView: false, navigation: { canPrevious: false, canNext: false } }),
+  data: () => ({ photoIndex: 0, view: '3d', collection: 'all', selected: null, selectedSize: null, loading: true, sceneFailed: false, hovered: null, hoverStyle: {}, imageZoomed: false, viewAngle: 0, viewZoom: 0, skateView: false, artworkView: false, navigation: { canPrevious: false, canNext: false } }),
   computed: {
+    productPhotos() {
+      if (!this.selected) return [];
+      const { product, variant, catalogImage } = this.selected;
+      const primaryView = variant?.imagePrimaryView || product.imagePrimaryView || 'front';
+      const photos = [{ src: catalogImage, label: primaryView === 'back' ? this.copy.back : this.copy.front }];
+      const secondary = variant?.imageSecondary || product.imageSecondary;
+      if (secondary && secondary !== catalogImage) photos.push({ src: secondary, label: primaryView === 'back' ? this.copy.front : this.copy.back });
+      if (product.slug === 't-shirt-newgbonhi-camo' && variant?.id === 'white') {
+        photos.push(...campaignPhotos.map((src, index) => ({ src, label: `${this.copy.worn} ${index + 1}`, worn: true })));
+      }
+      return photos;
+    },
+    activePhoto() { return this.productPhotos[this.photoIndex] || this.productPhotos[0]; },
+    catalogView() { return this.view === 'catalog' || this.sceneFailed; },
     copy() {
       return i18nState.language === 'fr' ? {
-        artworkWall: 'Le tableau NG', skateWall: 'Le mur skate', backToRack: 'Retour au portant', fullGuide: 'Voir le guide complet', pieces: 'pièces à découvrir', exploreTouch: 'Glisse pour explorer · Touche une pièce.', angle: 'Angle de vue', zoom: 'Rapprocher', reset: 'Réinitialiser', zoomIn: 'Agrandir la photo', zoomOut: 'Réduire la photo', loading: 'Ouverture du showroom…', rack: 'Pièces du showroom', previous: 'Pièces précédentes', next: 'Pièces suivantes', explore: 'Explore le portant. Clique sur ta pièce.', collections: 'Collections du showroom', catalog: 'Tout le catalogue', details: 'Voir la fiche complète', all: 'Le showroom',
+        keyboardHelp: 'Flèches gauche et droite pour parcourir les pièces, Début et Fin pour rejoindre les extrémités, Entrée pour ouvrir une pièce.', front: 'Avant', back: 'Arrière', worn: 'Porté', productViews: 'Vues du produit', displayMode: 'Affichage des pièces', view3d: 'Vue 3D', viewCatalog: 'Vue catalogue', catalogHint: 'Choisis une pièce pour voir les détails.', fallback: 'La 3D est indisponible. Explore les pièces en catalogue.', artworkWall: 'Le tableau NG', skateWall: 'Le mur skate', backToRack: 'Retour au portant', fullGuide: 'Voir le guide complet', pieces: 'pièces à découvrir', exploreTouch: 'Glisse pour explorer · Touche une pièce.', angle: 'Angle de vue', zoom: 'Rapprocher', reset: 'Réinitialiser', zoomIn: 'Agrandir la photo', zoomOut: 'Réduire la photo', loading: 'Ouverture du showroom…', rack: 'Pièces du showroom', previous: 'Pièces précédentes', next: 'Pièces suivantes', explore: 'Explore le portant. Clique sur ta pièce.', collections: 'Collections du showroom', catalog: 'Tout le catalogue', details: 'Voir la fiche complète', all: 'Le showroom',
       } : {
-        artworkWall: 'The NG artwork', skateWall: 'The skate wall', backToRack: 'Back to the rail', fullGuide: 'View the full guide', pieces: 'pieces to explore', exploreTouch: 'Swipe to explore · Tap a piece.', angle: 'Viewing angle', zoom: 'Zoom in', reset: 'Reset', zoomIn: 'Enlarge photo', zoomOut: 'Reduce photo', loading: 'Opening the showroom…', rack: 'Showroom pieces', previous: 'Previous pieces', next: 'Next pieces', explore: 'Explore the rail. Select your piece.', collections: 'Showroom collections', catalog: 'Full collection', details: 'View full details', all: 'The showroom',
+        keyboardHelp: 'Use left and right arrows to browse, Home and End to reach the first or last piece, and Enter to open a piece.', front: 'Front', back: 'Back', worn: 'Worn', productViews: 'Product views', displayMode: 'Product display', view3d: '3D view', viewCatalog: 'Catalog view', catalogHint: 'Select a piece to see the details.', fallback: '3D is unavailable. Explore the catalog instead.', artworkWall: 'The NG artwork', skateWall: 'The skate wall', backToRack: 'Back to the rail', fullGuide: 'View the full guide', pieces: 'pieces to explore', exploreTouch: 'Swipe to explore · Tap a piece.', angle: 'Viewing angle', zoom: 'Zoom in', reset: 'Reset', zoomIn: 'Enlarge photo', zoomOut: 'Reduce photo', loading: 'Opening the showroom…', rack: 'Showroom pieces', previous: 'Previous pieces', next: 'Next pieces', explore: 'Explore the rail. Select your piece.', collections: 'Showroom collections', catalog: 'Full collection', details: 'View full details', all: 'The showroom',
       };
     },
     tabs() { return [{ id: 'all', label: this.copy.all, count: inventory.length }, { id: 'drop04', label: 'Caméléon', count: inventory.filter(p => p.product.tags.includes('drop04')).length }, { id: 'drop03', label: 'ARW Film', count: inventory.filter(p => p.product.tags.includes('drop03')).length }]; },
@@ -140,11 +171,37 @@ export default {
   },
   beforeUnmount() { this.sceneUnmounted = true; this.$refs.detail?.close(); this.scene?.dispose(); },
   methods: {
+    focusPiece(piece) {
+      if (this.catalogView) return;
+      this.artworkView = false; this.skateView = false;
+      this.scene?.focus?.(piece.key);
+    },
+    navigatePieces(event) {
+      if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+      const buttons = Array.from(event.currentTarget.querySelectorAll('.room-piece'));
+      const index = buttons.indexOf(event.target);
+      if (index < 0) return;
+      const next = event.key === 'Home' ? 0 : event.key === 'End' ? buttons.length - 1 : Math.max(0, Math.min(buttons.length - 1, index + (event.key === 'ArrowRight' ? 1 : -1)));
+      event.preventDefault(); buttons[next].focus();
+    },
+    selectPhoto(index) {
+      if (!Number.isInteger(index) || index < 0 || index >= this.productPhotos.length) return;
+      this.photoIndex = index; this.imageZoomed = false;
+    },
+    setView(view) {
+      if (!['3d', 'catalog'].includes(view) || (view === '3d' && this.sceneFailed)) return;
+      this.view = view; this.hovered = null;
+      this.artworkView = false; this.skateView = false;
+      this.scene?.showArtwork?.(false);
+      this.scene?.showSkates?.(false);
+      if (this.$refs.rack) this.$refs.rack.scrollTop = 0;
+    },
     toggleArtwork() { this.skateView = false; this.artworkView = !this.artworkView; this.scene?.showArtwork(this.artworkView); },
     toggleSkates() { this.artworkView = false; this.skateView = !this.skateView; this.scene?.showSkates(this.skateView); },
     inspectAngle(value) { this.viewAngle = Number(value); this.scene?.inspect?.(this.viewAngle, this.viewZoom); },
     inspectZoom(value) { this.viewZoom = Number(value); this.scene?.inspect?.(this.viewAngle, this.viewZoom); },
-    resetInspection() { this.imageZoomed = false; this.viewAngle = 0; this.viewZoom = 0; this.scene?.inspect?.(0, 0); },
+    resetInspection() { this.photoIndex = 0; this.imageZoomed = false; this.viewAngle = 0; this.viewZoom = 0; this.scene?.inspect?.(0, 0); },
     price(value) { return `${new Intl.NumberFormat('fr-CI').format(value)} FCFA`; },
     syncFallbackNavigation() {
       if (!this.sceneFailed) return;
@@ -226,4 +283,25 @@ export default {
 @media(max-width:600px){.room-skates{top:55px;right:22px;min-height:44px}}
 .room-artwork{left:36px;right:auto}
 @media(max-width:600px){.room-artwork{left:22px;right:auto}}
+.room-view-switch{position:absolute;top:66px;left:50%;transform:translateX(-50%);z-index:7;display:flex;gap:3px;padding:4px;border:1px solid #ffffff35;border-radius:26px;background:#17191de8}
+.room-view-switch button{border:0;border-radius:22px;background:transparent;color:#ddd;padding:10px 15px;font-size:11px;min-height:40px}.room-view-switch button[aria-pressed=true]{background:#f2eee5;color:#222}.room-view-switch button:disabled{opacity:.35;cursor:default}
+.room-accessible.is-catalog{position:absolute;inset:135px 36px 155px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));align-content:start;gap:20px;overflow:auto;padding:8px;scrollbar-width:thin}
+.room-accessible.is-catalog .room-piece:not(:focus),.room-accessible.is-catalog .room-piece{position:relative;left:auto;top:auto;width:auto;height:auto;overflow:visible;clip-path:none;white-space:normal;max-width:none;padding:16px;border:1px solid #ffffff24;border-radius:12px;background:#f3f0e9;color:#242424;text-align:left}
+.is-catalog .room-piece img{display:block;width:100%;height:210px;object-fit:contain;margin-bottom:14px}.room-piece-name{display:block;font-size:11px;line-height:1.5}.room-piece-price{display:block;font-size:11px;margin-top:7px;opacity:.7}
+.room-fallback-note{position:absolute;top:110px;left:20px;right:20px;text-align:center;font-size:11px}.is-catalog-view .room-invitation{bottom:100px}.is-catalog-view .room-edition{display:none}
+@media(max-width:600px){.room-skates{top:110px}.room-view-switch{top:55px;white-space:nowrap}.room-accessible.is-catalog{inset:125px 12px 150px;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:4px}.is-catalog .room-piece img{height:150px}.room-accessible.is-catalog .room-piece{padding:12px}.room-fallback-note{top:100px;font-size:10px}}
+.room-photo-list{display:flex;gap:8px;overflow-x:auto;padding:12px 18px;scrollbar-width:thin;background:#eceef0}
+.room-photo-list button{flex:0 0 64px;padding:3px;border:1px solid transparent;border-radius:6px;background:#fafbfd;color:#34373d;font-size:9px}.room-photo-list button[aria-pressed=true]{border-color:#d71920}.room-photo-list img{display:block;width:58px;height:58px;object-fit:contain}.room-photo-list span{display:block;margin:4px 0}.room-image-toggle img.is-worn{object-fit:cover;border-radius:4px}
+.room-piece:focus-visible{outline:2px solid #ed2027;outline-offset:3px}.room-accessible.is-catalog .room-piece:focus-visible{border-color:#d71920;box-shadow:0 0 0 3px #d7192030}
+@media(max-width:600px){
+  .room-detail{max-height:82dvh}
+  .room-detail-image{padding:10px 38px 6px}
+  .room-image-toggle img{height:115px}
+  .room-photo-list{padding:8px 16px;gap:7px}
+  .room-photo-list button{flex-basis:54px;min-height:64px}
+  .room-photo-list img{width:48px;height:42px}
+  .room-detail-copy{padding-top:14px}
+  .room-detail h2{margin:8px 0;font-size:20px}
+  .room-invitation{padding:0 20px}
+}
 </style>

@@ -100,6 +100,84 @@ describe('showroom purchase flow', () => {
     expect(page.scene.showArtwork).toHaveBeenLastCalledWith(false);
   });
 
+  it('switches display while preserving the collection and purchase selection', () => {
+    const page = room();
+    page.collection = 'drop04';
+    page.selectedSize = 'L';
+    page.hovered = { key: 'old-hover' };
+    page.setView('catalog');
+    expect(Showroom.computed.catalogView.call(page)).toBe(true);
+    expect(page.collection).toBe('drop04');
+    expect(page.selectedSize).toBe('L');
+    expect(page.hovered).toBeNull();
+    page.setView('3d');
+    expect(Showroom.computed.catalogView.call(page)).toBe(false);
+  });
+
+  it('keeps the catalog available when WebGL fails', () => {
+    const page = room();
+    page.sceneFailed = true;
+    page.setView('catalog');
+    page.setView('3d');
+    expect(page.view).toBe('catalog');
+    expect(Showroom.computed.catalogView.call(page)).toBe(true);
+    page.setView('invalid');
+    expect(page.view).toBe('catalog');
+  });
+
+  it('shows worn photos only for the matching white Camo variant', () => {
+    const page = room();
+    page.copy = { front: 'Avant', back: 'Arrière', worn: 'Porté' };
+    const pieces = Showroom.computed.pieces.call({ collection: 'drop04' });
+    page.selected = pieces.find(piece => piece.variant.id === 'white');
+    page.productPhotos = Showroom.computed.productPhotos.call(page);
+    expect(page.productPhotos.filter(photo => photo.worn)).toHaveLength(4);
+    page.selectPhoto(2);
+    expect(page.photoIndex).toBe(2);
+    page.imageZoomed = true;
+    page.selectVariant(page.selected.product.variants.find(variant => variant.id === 'black'));
+    expect(page.photoIndex).toBe(0);
+    expect(page.imageZoomed).toBe(false);
+    expect(Showroom.computed.productPhotos.call(page).some(photo => photo.worn)).toBe(false);
+  });
+
+  it('provides front and back images for City tees and rejects invalid photo indices', () => {
+    const page = room();
+    page.copy = { front: 'Avant', back: 'Arrière' };
+    page.selected = Showroom.computed.pieces.call({ collection: 'drop03' }).find(piece => piece.product.slug === 'arw-film-city-tee-black');
+    page.productPhotos = Showroom.computed.productPhotos.call(page);
+    expect(page.productPhotos.map(photo => photo.label)).toEqual(['Avant', 'Arrière']);
+    expect(new Set(page.productPhotos.map(photo => photo.src)).size).toBe(2);
+    page.selectPhoto(1);
+    page.selectPhoto(100);
+    expect(page.photoIndex).toBe(1);
+  });
+
+  it('navigates product buttons with arrows and Home/End without wrapping', () => {
+    const page = room();
+    const buttons = Array.from({ length: 3 }, () => ({ focus: vi.fn() }));
+    const event = { key: 'ArrowRight', target: buttons[0], currentTarget: { querySelectorAll: () => buttons }, preventDefault: vi.fn() };
+    page.navigatePieces(event);
+    expect(buttons[1].focus).toHaveBeenCalledOnce();
+    event.key = 'End'; page.navigatePieces(event);
+    expect(buttons[2].focus).toHaveBeenCalledOnce();
+    event.key = 'ArrowLeft'; page.navigatePieces(event);
+    expect(buttons[0].focus).toHaveBeenCalledOnce();
+    event.key = 'Home'; event.ctrlKey = true; page.navigatePieces(event);
+    expect(event.preventDefault).toHaveBeenCalledTimes(3);
+  });
+
+  it('centers keyboard focus in 3D without opening the purchase dialog', () => {
+    const page = room();
+    page.scene = { focus: vi.fn() };
+    page.focusPiece({ key: 'piece-1' });
+    expect(page.scene.focus).toHaveBeenCalledWith('piece-1');
+    expect(page.$refs.detail.showModal).not.toHaveBeenCalled();
+    page.catalogView = true;
+    page.focusPiece({ key: 'piece-2' });
+    expect(page.scene.focus).toHaveBeenCalledTimes(1);
+  });
+
   it('requires an available size before preordering', () => {
     const page = room();
     page.openPiece(Showroom.computed.pieces.call({ collection: 'drop04' })[0]);

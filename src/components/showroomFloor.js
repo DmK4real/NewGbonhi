@@ -4,7 +4,7 @@ const af1PhotoUrl = new URL('../assets/showroom/air-force-1-white-photo.webp', i
 const jordanPhotoUrl = new URL('../assets/showroom/jordan-1-chicago-photo.webp', import.meta.url).href;
 
 // Skateboards use geometry; sneakers use original transparent product photographs.
-export async function addShowroomFloor(scene, { roomWidth, deckMap, textures }) {
+export async function addShowroomFloor(scene, { roomWidth, deckMap, textures, isDisposed = () => false }) {
   const material = (color, roughness = .8, metalness = 0) => new THREE.MeshStandardMaterial({ color, roughness, metalness });
   const white = material('#eeeae2');
   const rubber = material('#d9d6cf');
@@ -85,6 +85,7 @@ export async function addShowroomFloor(scene, { roomWidth, deckMap, textures }) 
   await Promise.all(sources.map(async source => {
     try {
       const map = await loader.loadAsync(source.url);
+      if (isDisposed()) { map.dispose(); return; }
       map.colorSpace = THREE.SRGBColorSpace; textures.push(map);
       const width = .88, height = width * map.image.height / map.image.width;
       const photoMaterial = new THREE.MeshBasicMaterial({ map, transparent: true, alphaTest: .03, side: THREE.DoubleSide, toneMapped: false });
