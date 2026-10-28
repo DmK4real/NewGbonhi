@@ -27,7 +27,6 @@
     </div>
     <button v-if="!loading && !sceneFailed && !catalogView" type="button" class="room-artwork room-skates" :aria-pressed="artworkView" @click="toggleArtwork">{{ artworkView ? copy.backToRack : copy.artworkWall }} ↗</button>
     <button v-if="!loading && !sceneFailed && !catalogView" type="button" class="room-skates" :aria-pressed="skateView" @click="toggleSkates">{{ skateView ? copy.backToRack : copy.skateWall }} ↗</button>
-    <button v-if="!loading && !sceneFailed && !catalogView" class="room-overview" type="button" @click="showOverview">{{ copy.overview }} ↗</button>
     <RouterLink to="/collections" class="room-catalog">{{ copy.catalog }} ↗</RouterLink>
     <span class="room-edition" aria-hidden="true">ABIDJAN · NG. / CONCEPT STORE</span>
     <dialog ref="detail" class="room-detail" aria-labelledby="room-product-title" @click="closeOnBackdrop" @close="closeDetail">
@@ -134,9 +133,9 @@ export default {
     catalogView() { return this.view === 'catalog' || this.sceneFailed; },
     copy() {
       return i18nState.language === 'fr' ? {
-        overview: 'Vue d’ensemble', keyboardHelp: 'Flèches gauche et droite pour parcourir les pièces, Début et Fin pour rejoindre les extrémités, Entrée pour ouvrir une pièce.', front: 'Avant', back: 'Arrière', worn: 'Porté', productViews: 'Vues du produit', displayMode: 'Affichage des pièces', view3d: 'Vue 3D', viewCatalog: 'Vue catalogue', catalogHint: 'Choisis une pièce pour voir les détails.', fallback: 'La 3D est indisponible. Explore les pièces en catalogue.', artworkWall: 'Le tableau NG', skateWall: 'Le mur skate', backToRack: 'Retour au portant', fullGuide: 'Voir le guide complet', pieces: 'pièces à découvrir', exploreTouch: 'Glisse pour explorer · Touche une pièce.', angle: 'Angle de vue', zoom: 'Rapprocher', reset: 'Réinitialiser', zoomIn: 'Agrandir la photo', zoomOut: 'Réduire la photo', loading: 'Ouverture du showroom…', rack: 'Pièces du showroom', previous: 'Pièces précédentes', next: 'Pièces suivantes', explore: 'Explore le portant. Clique sur ta pièce.', collections: 'Collections du showroom', catalog: 'Tout le catalogue', details: 'Voir la fiche complète', all: 'Le showroom',
+        keyboardHelp: 'Flèches gauche et droite pour parcourir les pièces, Début et Fin pour rejoindre les extrémités, Entrée pour ouvrir une pièce.', front: 'Avant', back: 'Arrière', worn: 'Porté', productViews: 'Vues du produit', displayMode: 'Affichage des pièces', view3d: 'Vue 3D', viewCatalog: 'Vue catalogue', catalogHint: 'Choisis une pièce pour voir les détails.', fallback: 'La 3D est indisponible. Explore les pièces en catalogue.', artworkWall: 'Le tableau NG', skateWall: 'Le mur skate', backToRack: 'Retour au portant', fullGuide: 'Voir le guide complet', pieces: 'pièces à découvrir', exploreTouch: 'Glisse pour explorer · Touche une pièce.', angle: 'Angle de vue', zoom: 'Rapprocher', reset: 'Réinitialiser', zoomIn: 'Agrandir la photo', zoomOut: 'Réduire la photo', loading: 'Ouverture du showroom…', rack: 'Pièces du showroom', previous: 'Pièces précédentes', next: 'Pièces suivantes', explore: 'Explore le portant. Clique sur ta pièce.', collections: 'Collections du showroom', catalog: 'Tout le catalogue', details: 'Voir la fiche complète', all: 'Le showroom',
       } : {
-        overview: 'Overview', keyboardHelp: 'Use left and right arrows to browse, Home and End to reach the first or last piece, and Enter to open a piece.', front: 'Front', back: 'Back', worn: 'Worn', productViews: 'Product views', displayMode: 'Product display', view3d: '3D view', viewCatalog: 'Catalog view', catalogHint: 'Select a piece to see the details.', fallback: '3D is unavailable. Explore the catalog instead.', artworkWall: 'The NG artwork', skateWall: 'The skate wall', backToRack: 'Back to the rail', fullGuide: 'View the full guide', pieces: 'pieces to explore', exploreTouch: 'Swipe to explore · Tap a piece.', angle: 'Viewing angle', zoom: 'Zoom in', reset: 'Reset', zoomIn: 'Enlarge photo', zoomOut: 'Reduce photo', loading: 'Opening the showroom…', rack: 'Showroom pieces', previous: 'Previous pieces', next: 'Next pieces', explore: 'Explore the rail. Select your piece.', collections: 'Showroom collections', catalog: 'Full collection', details: 'View full details', all: 'The showroom',
+        keyboardHelp: 'Use left and right arrows to browse, Home and End to reach the first or last piece, and Enter to open a piece.', front: 'Front', back: 'Back', worn: 'Worn', productViews: 'Product views', displayMode: 'Product display', view3d: '3D view', viewCatalog: 'Catalog view', catalogHint: 'Select a piece to see the details.', fallback: '3D is unavailable. Explore the catalog instead.', artworkWall: 'The NG artwork', skateWall: 'The skate wall', backToRack: 'Back to the rail', fullGuide: 'View the full guide', pieces: 'pieces to explore', exploreTouch: 'Swipe to explore · Tap a piece.', angle: 'Viewing angle', zoom: 'Zoom in', reset: 'Reset', zoomIn: 'Enlarge photo', zoomOut: 'Reduce photo', loading: 'Opening the showroom…', rack: 'Showroom pieces', previous: 'Previous pieces', next: 'Next pieces', explore: 'Explore the rail. Select your piece.', collections: 'Showroom collections', catalog: 'Full collection', details: 'View full details', all: 'The showroom',
       };
     },
     tabs() { return [{ id: 'all', label: this.copy.all, count: inventory.length }, { id: 'drop04', label: 'Caméléon', count: inventory.filter(p => p.product.tags.includes('drop04')).length }, { id: 'drop03', label: 'ARW Film', count: inventory.filter(p => p.product.tags.includes('drop03')).length }]; },
@@ -172,10 +171,6 @@ export default {
   },
   beforeUnmount() { this.sceneUnmounted = true; this.$refs.detail?.close(); this.scene?.dispose(); },
   methods: {
-    showOverview() {
-      this.artworkView = false; this.skateView = false; this.hovered = null;
-      this.scene?.overview?.();
-    },
     focusPiece(piece) {
       if (this.catalogView) return;
       this.artworkView = false; this.skateView = false;
@@ -309,12 +304,10 @@ export default {
   .room-detail h2{margin:8px 0;font-size:20px}
   .room-invitation{padding:0 20px}
 }
-.room-overview{display:none}
 @media(max-width:700px){
   .showroom:not(.is-catalog-view){height:clamp(460px,calc(100vw + 110px),600px);min-height:0;max-height:none}
   .showroom:not(.is-catalog-view) .room-scene{top:105px;bottom:110px}
   .showroom:not(.is-catalog-view) .room-topline{top:18px}
-  .room-overview{display:block;position:absolute;right:20px;bottom:13px;border:0;background:transparent;color:#f5f6f8;font-size:10px!important;min-height:32px;padding:5px 0}
   .showroom:not(.is-catalog-view) .room-catalog{left:20px;right:auto;bottom:23px}
   .showroom:not(.is-catalog-view) .room-invitation{bottom:98px;font-size:10px;margin:0}
   .showroom:not(.is-catalog-view) .room-count{margin-top:3px}
