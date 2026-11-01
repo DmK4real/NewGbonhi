@@ -15,3 +15,37 @@ Asset : `src/assets/showroom/ng-skate-premium.webp`. Édition via image_gen int�
 Prompt :
 
 Edit ONLY the RIGHTMOST THIRD of this square three-column skateboard graphic atlas. Preserve the first and second columns exactly unchanged. Replace the entire third column with a more premium, fresh original NEWGBONHI skate graphic: deep clean charcoal black base with very subtle tactile paint grain, a single strong interlocked N G monogram in polished liquid silver chrome, crisp sculptural fluid lettering, legible NG, placed vertically in the central 60% of the column. Small precise red handwritten NEWGBONHI signature beneath the monogram, tiny ivory ABIDJAN / NG. at the bottom. One tiny red crown near the upper end, restrained. Sophisticated underground Abidjan streetwear aesthetic, bold recognizable graphic identity, excellent negative space, deliberate refined composition. No large splatters, no scattered decorative marks, no messy ivory calligraphy, no generic luxury symbols or borrowed brands. It must feel like an exclusive NewGbonhi art deck. Keep image square and exactly three equal vertical columns, flat edge-to-edge print textures with no skateboard outlines, room, perspective, shadows or frames. Important design stays within center 70% width and center 80% height of right third. Only rightmost column changes.
+
+## Détourages et présentoir du Lab
+
+Les volumes des decks, roues, trucks et fixations ont été remplacés par des images à fond transparent. Le mur droit affiche Underground, Renaissance et Lilies. Les deux skates au sol utilisent des photomontages ; ils se tournent vers la caméra comme les sneakers et conservent un angle photographique fixe.
+
+Le composant `src/components/SkateArchive.vue` est inséré après le héros du Lab. Il fait tourner six visuels suspendus autour d’un axe central, avec sélection de design, glissement horizontal, flèches du clavier et rotation automatique à la demande. Celle-ci s’interrompt quand le présentoir n’est plus visible, au survol, au focus dans la scène ou si l’onglet est masqué. La préférence de réduction des animations désactive l’automatisme et la transition.
+
+### Assets actifs
+
+- `src/assets/skate/deck-underground.webp`
+- `src/assets/skate/deck-grillz.webp`
+- `src/assets/skate/deck-handstyle.webp`
+- `src/assets/skate/deck-renaissance.webp`
+- `src/assets/skate/deck-eight-ball.webp`
+- `src/assets/skate/deck-lilies.webp`
+- `src/assets/skate/complete-wheels.webp`
+- `src/assets/skate/complete-inverted.webp`
+
+### Sources et traitement
+
+Les six designs proviennent de l’image « Six Gritty Designer Skateboard Decks(1).png » fournie par l’utilisateur. Le fond est retiré avec image_gen intégré. Les silhouettes sont ensuite exportées en fichiers WebP individuels, sans modifier leurs graphismes. Les deux autres images fournies (« New Gbonhi Skateboard Art Wall.png » et « Ten Gritty Skateboard Decks Display.png ») servent de références d’ensemble.
+
+Les skates complets sont des photomontages personnalisés NG via image_gen à partir de photographies produit CCS, pas des photographies de skates NG physiques existants :
+- https://shop.ccs.com/products/ccs-logo-skateboard-complete-black
+- https://cdn.shopify.com/s/files/1/0519/1388/3831/products/ccs-logo-skateboard-complete-black1_ed921c17-0667-4506-8922-f2accd16e9ad.jpg?v=1631139270
+- https://cdn.shopify.com/s/files/1/0519/1388/3831/files/LogoBlack3.jpg?v=1743714113
+
+### Prompt de détourage des six decks
+
+Precisely extract the SIX skateboard decks from the supplied image into a transparent sprite atlas. Preserve their existing photographic appearance and ALL original designs EXACTLY, with no redesign or changes to lettering, textures, faces, flowers, ball, hardware holes or wooden contours. Remove ONLY the concrete wall and ALL cast shadows around the decks; make the exterior truly transparent, not gray. Keep all SIX decks in the SAME left-to-right order: black NEW GBONHI typography; black photographic face with grillz; ivory graffiti NEW GBONHI; black classical bust collage; ivory 8-ball; black white lilies with red NG. Each deck must be placed vertically centered within its own equal-width column (six equal columns), fully visible from nose to tail, all with equal height, with a small transparent margin around its curved wooden edges. Output a WIDE 3:2 transparent PNG atlas with six evenly spaced decks in a single horizontal row, flat front view as supplied. No new boards, no scene, no floor, no frames or backdrop. This image is for transparent photographic cutouts used directly in a website; do not turn decks into flat rectangular poster textures or CGI renders.
+
+### Prompt des deux skates au sol
+
+Photographic compositing/edit of the REAL skateboard product photographs in references1 and2. Output one transparent PNG atlas, WIDE LANDSCAPE 2:1, split into exactly TWO equal width square cells, each showing a complete REAL skateboard lying horizontally left-to-right, isolated on truly transparent background with empty margins. LEFT CELL: the actual photographed complete skateboard resting normally ON ITS FOUR WHEELS, black textured grip tape visible on top, natural maple rim, real aluminum trucks and off-white urethane wheels. Camera sees side and top from a modest 25 degree elevation, long axis horizontal, full board entirely visible, realistic product photograph not CGI. A small red handwritten NG on grip is sufficient. RIGHT CELL: same real complete skateboard turned UPSIDE DOWN resting on its deck so the metal trucks and four wheels point upward, underside graphics facing camera, matching reference2's upside-down real skateboard orientation, camera 25 degrees above floor. Replace only original CCS underside logo with the existing premium NEWGBONHI graphic from reference3, chrome NG monogram and red handwritten NEWGBONHI on black. Preserve authentic skateboard hardware, realistic shapes and original photograph finish; no modeled wheels or simplified fake forms. NO walls, NO visible floor, no baked ground shadows, no room mockup, no text outside boards. Two cutout photos should face same camera and have matching scale, full widths within own square cell, no overlap.

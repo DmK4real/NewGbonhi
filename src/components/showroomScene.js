@@ -5,11 +5,10 @@ import { arrangeGarments, findShoulder } from './showroomLayout.js';
 import { prepareGarmentPixels } from './garmentTexture.js';
 import { addShowroomFloor } from './showroomFloor.js';
 import { panScale, coastPan } from './showroomGesture.js';
+import { showroomDecks } from '../data/skateDecks.js';
 
 const centralArtworksUrl = new URL('../assets/showroom/ng-central-artworks.webp', import.meta.url).href;
 const leftArtworkUrl = new URL('../assets/showroom/ng-cfa-portrait.webp', import.meta.url).href;
-const premiumDeckUrl = new URL('../assets/showroom/ng-skate-premium.webp', import.meta.url).href;
-const skateAtlasUrl = new URL('../assets/showroom/ng-skate-decks.webp', import.meta.url).href;
 const crewMuralUrl = new URL('../assets/showroom/ng-crew-wall-minimal.webp', import.meta.url).href;
 
 // The shop stays usable through its HTML controls if WebGL is unavailable.
@@ -209,58 +208,28 @@ export async function createShowroomScene(host, { pieces, onSelect, onHover, onR
     if (!disposed) console.warn('Showroom mural unavailable', error);
   }
 
-  // Three shaped maple decks mounted on the inside face of the right wall.
-  try {
-    const [atlas, premium] = await Promise.all([
-      loadDecorTexture(skateAtlasUrl), loadDecorTexture(premiumDeckUrl),
-    ]);
-    atlas.colorSpace = premium.colorSpace = THREE.SRGBColorSpace;
-    textures.push(atlas, premium);
-    floorProps = await addShowroomFloor(scene, { roomWidth, deckMap: premium, textures, isDisposed: () => disposed });
-    if (disposed) return;
-    const maple = new THREE.MeshStandardMaterial({ color: '#aa8051', roughness: .75 });
-    const mountMaterial = new THREE.MeshStandardMaterial({ color: '#272727', metalness: .7, roughness: .4 });
-    const width = .64, height = 2.45, radius = width / 2;
-    const shape = new THREE.Shape();
-    shape.moveTo(-radius, -height / 2 + radius);
-    shape.lineTo(-radius, height / 2 - radius);
-    shape.absarc(0, height / 2 - radius, radius, Math.PI, 0, true);
-    shape.lineTo(radius, -height / 2 + radius);
-    shape.absarc(0, -height / 2 + radius, radius, 0, -Math.PI, true);
-    shape.closePath();
-    for (let index = 0; index < 3; index++) {
-      const deck = new THREE.Group();
-      deck.position.set(roomWidth / 2 - .22, 2.75, -1.2 + index * 1.02);
-      deck.rotation.y = -Math.PI / 2;
-      const texture = (index === 2 ? premium : atlas).clone();
-      if (index !== 2) { texture.repeat.set(1 / 3, 1); texture.offset.set(index / 3, 0); }
-      texture.needsUpdate = true;
-      texture.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy()); textures.push(texture);
-      const face = new THREE.MeshStandardMaterial({ map: texture, roughness: .8, metalness: 0 });
-      const geometry = new THREE.ExtrudeGeometry(shape, { depth: .025, bevelEnabled: true, bevelSegments: 3, steps: 1, bevelSize: .009, bevelThickness: .007, curveSegments: 24 });
-      const positions = geometry.attributes.position;
-      const uv = geometry.attributes.uv;
-      for (let vertex = 0; vertex < positions.count; vertex++) {
-        const x = positions.getX(vertex), y = positions.getY(vertex);
-        uv.setXY(vertex, (x + radius) / width, (y + height / 2) / height);
-        // Nose and tail curl away from the wall, like an actual deck.
-        const kick = Math.max(0, (Math.abs(y) - height * .32) / (height * .18));
-        positions.setZ(vertex, positions.getZ(vertex) + .085 * kick * kick);
-      }
-      geometry.computeVertexNormals();
-      const mesh = new THREE.Mesh(geometry, [face, maple]); mesh.castShadow = mesh.receiveShadow = true; deck.add(mesh);
-      for (const y of [-.72, .72]) {
-        const mount = new THREE.Mesh(new THREE.CylinderGeometry(.055, .055, .10, 12), mountMaterial);
-        mount.rotation.x = Math.PI / 2; mount.position.set(0, y, -.045); mount.castShadow = true; deck.add(mount);
-        for (const dx of [-.075, .075]) for (const dy of [-.045, .045]) {
-          const screw = new THREE.Mesh(new THREE.SphereGeometry(.012, 8, 6), mountMaterial);
-          screw.position.set(dx, y + dy, .035); deck.add(screw);
-        }
-      }
-      scene.add(deck);
+  // Photographic cutouts mounted directly against the right wall.
+  await Promise.all(showroomDecks.map(async (deck, index) => {
+    try {
+      const map = await loadDecorTexture(deck.image);
+      map.colorSpace = THREE.SRGBColorSpace;
+      map.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
+      const height = 2.45, width = height * map.image.width / map.image.height;
+      const photo = new THREE.Mesh(new THREE.PlaneGeometry(width, height), new THREE.MeshBasicMaterial({
+        map, transparent: true, alphaTest: .06, side: THREE.DoubleSide, toneMapped: false,
+      }));
+      photo.name = `NG photographed deck / ${deck.title}`;
+      photo.position.set(roomWidth / 2 - .115, 2.75, -1.2 + index * 1.02);
+      photo.rotation.y = -Math.PI / 2;
+      photo.castShadow = true; scene.add(photo);
+      motion = 1;
+    } catch (error) {
+      if (!disposed) console.warn(`Showroom deck unavailable: ${deck.id}`, error);
     }
-  } catch (error) {
-    if (!disposed) console.warn('Showroom skate decks unavailable', error);
+  }));
+  if (!disposed) {
+    floorProps = await addShowroomFloor(scene, { roomWidth, textures, isDisposed: () => disposed });
+    motion = 1;
   }
 
   // Framed portrait on the inside of the left wall.
