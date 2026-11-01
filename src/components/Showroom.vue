@@ -1,5 +1,5 @@
 <template>
-  <section class="showroom" :class="{ 'is-catalog-view': catalogView }" aria-labelledby="showroom-title">
+  <section class="showroom" :class="{ 'is-catalog-view': catalogView, 'is-skate-view': skateView }" aria-labelledby="showroom-title">
     <h1 id="showroom-title" class="sr-only">NewGbonhi — Le showroom</h1>
     <div v-show="!catalogView" ref="sceneHost" class="room-scene" :class="{ 'is-loading': loading }"></div>
     <div v-if="loading && !catalogView" class="room-loading" role="status"><span>NG.</span><p>{{ copy.loading }}</p></div>
@@ -9,7 +9,7 @@
       <button type="button" :aria-pressed="catalogView" @click="setView('catalog')">{{ copy.viewCatalog }}</button>
     </div>
     <p v-if="sceneFailed" class="room-fallback-note" role="status">{{ copy.fallback }}</p>
-    <p class="room-invitation"><span v-if="catalogView">{{ copy.catalogHint }}</span><template v-else><span class="room-hint-desktop">{{ copy.explore }}</span><span class="room-hint-touch">{{ copy.exploreTouch }}</span></template><span class="room-count" role="status">{{ pieces.length }} {{ copy.pieces }}</span></p>
+    <p class="room-invitation"><span v-if="catalogView">{{ copy.catalogHint }}</span><span v-else-if="skateView">{{ copy.skateHint }}</span><template v-else><span class="room-hint-desktop">{{ copy.explore }}</span><span class="room-hint-touch">{{ copy.exploreTouch }}</span></template><span v-if="!skateView" class="room-count" role="status">{{ pieces.length }} {{ copy.pieces }}</span></p>
     <div v-if="hovered && !selected && !catalogView" class="room-hover" :style="hoverStyle"><strong>{{ hovered.label }}</strong><span>{{ price(hovered.product.price) }} · ↗</span></div>
     <p id="room-keyboard-help" class="sr-only">{{ copy.keyboardHelp }}</p>
     <div ref="rack" class="room-accessible" :class="{ 'is-fallback': sceneFailed && !catalogView, 'is-catalog': catalogView }" :aria-label="copy.rack" aria-describedby="room-keyboard-help" @keydown="navigatePieces" @scroll="syncFallbackNavigation">
@@ -18,7 +18,7 @@
         <span class="room-piece-name">{{ piece.product.title }} {{ piece.variant?.label }}</span><span class="room-piece-price">{{ price(piece.product.price) }}</span>
       </button>
     </div>
-    <div class="room-bottom">
+    <div v-show="!skateView" class="room-bottom">
       <button v-if="!catalogView" class="room-arrow" type="button" :disabled="loading || !navigation.canPrevious" :aria-label="copy.previous" @click="move(-1)">←</button>
       <nav class="room-tabs" :aria-label="copy.collections">
         <button v-for="tab in tabs" :key="tab.id" type="button" :class="{ active: collection === tab.id }" :aria-pressed="collection === tab.id" @click="changeCollection(tab.id)">{{ tab.label }}</button>
@@ -27,6 +27,12 @@
     </div>
     <button v-if="!loading && !sceneFailed && !catalogView" type="button" class="room-artwork room-skates" :aria-pressed="artworkView" @click="toggleArtwork">{{ artworkView ? copy.backToRack : copy.artworkWall }} ↗</button>
     <button v-if="!loading && !sceneFailed && !catalogView" type="button" class="room-skates" :aria-pressed="skateView" @click="toggleSkates">{{ skateView ? copy.backToRack : copy.skateWall }} ↗</button>
+    <div v-if="skateView && !catalogView && skateReady" class="room-skate-controls" role="group" :aria-label="copy.skateDisplay">
+      <button type="button" :aria-label="copy.previousDeck" @click="rotateSkates(-1)">←</button>
+      <div class="room-skate-caption" aria-live="polite"><strong>{{ activeSkate.title }}</strong><span>{{ skateIndex + 1 }} / {{ skateDecks.length }}</span></div>
+      <button type="button" :aria-label="copy.nextDeck" @click="rotateSkates(1)">→</button>
+      <button type="button" class="room-skate-play" :aria-pressed="skatePlaying" :disabled="skateReducedMotion" @click="toggleSkateRotation">{{ skatePlaying ? copy.pauseSkates : copy.rotateSkates }}</button>
+    </div>
     <RouterLink to="/collections" class="room-catalog">{{ copy.catalog }} ↗</RouterLink>
     <span class="room-edition" aria-hidden="true">ABIDJAN · NG. / CONCEPT STORE</span>
     <dialog ref="detail" class="room-detail" aria-labelledby="room-product-title" @click="closeOnBackdrop" @close="closeDetail">
@@ -78,6 +84,7 @@
 import { products } from '../data/products.ts';
 import { cartStore } from '../data/cart.ts';
 import { i18nState } from '../i18n.js';
+import { skateDecks } from '../data/skateDecks.js';
 
 const campaignPhotos = [
   new URL('../assets/webp/editorial/cameleon-worn-01-800.webp', import.meta.url).href,
@@ -115,8 +122,9 @@ const inventory = capsule.flatMap(product => (product.variants?.length ? product
 export default {
   name: 'Showroom',
   emits: ['open-cart'],
-  data: () => ({ photoIndex: 0, view: '3d', collection: 'all', selected: null, selectedSize: null, loading: true, sceneFailed: false, hovered: null, hoverStyle: {}, imageZoomed: false, viewAngle: 0, viewZoom: 0, skateView: false, artworkView: false, navigation: { canPrevious: false, canNext: false } }),
+  data: () => ({ skateReducedMotion: false, skateDecks, skateIndex: 0, skatePlaying: false, skateReady: false, photoIndex: 0, view: '3d', collection: 'all', selected: null, selectedSize: null, loading: true, sceneFailed: false, hovered: null, hoverStyle: {}, imageZoomed: false, viewAngle: 0, viewZoom: 0, skateView: false, artworkView: false, navigation: { canPrevious: false, canNext: false } }),
   computed: {
+    activeSkate() { return this.skateDecks[this.skateIndex]; },
     productPhotos() {
       if (!this.selected) return [];
       const { product, variant, catalogImage } = this.selected;
@@ -133,20 +141,24 @@ export default {
     catalogView() { return this.view === 'catalog' || this.sceneFailed; },
     copy() {
       return i18nState.language === 'fr' ? {
-        keyboardHelp: 'Flèches gauche et droite pour parcourir les pièces, Début et Fin pour rejoindre les extrémités, Entrée pour ouvrir une pièce.', front: 'Avant', back: 'Arrière', worn: 'Porté', productViews: 'Vues du produit', displayMode: 'Affichage des pièces', view3d: 'Vue 3D', viewCatalog: 'Vue catalogue', catalogHint: 'Choisis une pièce pour voir les détails.', fallback: 'La 3D est indisponible. Explore les pièces en catalogue.', artworkWall: 'Le tableau NG', skateWall: 'Le mur skate', backToRack: 'Retour au portant', fullGuide: 'Voir le guide complet', pieces: 'pièces à découvrir', exploreTouch: 'Glisse pour explorer · Touche une pièce.', angle: 'Angle de vue', zoom: 'Rapprocher', reset: 'Réinitialiser', zoomIn: 'Agrandir la photo', zoomOut: 'Réduire la photo', loading: 'Ouverture du showroom…', rack: 'Pièces du showroom', previous: 'Pièces précédentes', next: 'Pièces suivantes', explore: 'Explore le portant. Clique sur ta pièce.', collections: 'Collections du showroom', catalog: 'Tout le catalogue', details: 'Voir la fiche complète', all: 'Le showroom',
+        skateDisplay: 'Présentoir skate rotatif', previousDeck: 'Design précédent', nextDeck: 'Design suivant', rotateSkates: 'Lancer la rotation', pauseSkates: 'Pause', skateHint: 'Glisse sur une planche pour tourner le présentoir.', keyboardHelp: 'Flèches gauche et droite pour parcourir les pièces, Début et Fin pour rejoindre les extrémités, Entrée pour ouvrir une pièce.', front: 'Avant', back: 'Arrière', worn: 'Porté', productViews: 'Vues du produit', displayMode: 'Affichage des pièces', view3d: 'Vue 3D', viewCatalog: 'Vue catalogue', catalogHint: 'Choisis une pièce pour voir les détails.', fallback: 'La 3D est indisponible. Explore les pièces en catalogue.', artworkWall: 'Le tableau NG', skateWall: 'Le mur skate', backToRack: 'Retour au portant', fullGuide: 'Voir le guide complet', pieces: 'pièces à découvrir', exploreTouch: 'Glisse pour explorer · Touche une pièce.', angle: 'Angle de vue', zoom: 'Rapprocher', reset: 'Réinitialiser', zoomIn: 'Agrandir la photo', zoomOut: 'Réduire la photo', loading: 'Ouverture du showroom…', rack: 'Pièces du showroom', previous: 'Pièces précédentes', next: 'Pièces suivantes', explore: 'Explore le portant. Clique sur ta pièce.', collections: 'Collections du showroom', catalog: 'Tout le catalogue', details: 'Voir la fiche complète', all: 'Le showroom',
       } : {
-        keyboardHelp: 'Use left and right arrows to browse, Home and End to reach the first or last piece, and Enter to open a piece.', front: 'Front', back: 'Back', worn: 'Worn', productViews: 'Product views', displayMode: 'Product display', view3d: '3D view', viewCatalog: 'Catalog view', catalogHint: 'Select a piece to see the details.', fallback: '3D is unavailable. Explore the catalog instead.', artworkWall: 'The NG artwork', skateWall: 'The skate wall', backToRack: 'Back to the rail', fullGuide: 'View the full guide', pieces: 'pieces to explore', exploreTouch: 'Swipe to explore · Tap a piece.', angle: 'Viewing angle', zoom: 'Zoom in', reset: 'Reset', zoomIn: 'Enlarge photo', zoomOut: 'Reduce photo', loading: 'Opening the showroom…', rack: 'Showroom pieces', previous: 'Previous pieces', next: 'Next pieces', explore: 'Explore the rail. Select your piece.', collections: 'Showroom collections', catalog: 'Full collection', details: 'View full details', all: 'The showroom',
+        skateDisplay: 'Rotating skate display', previousDeck: 'Previous design', nextDeck: 'Next design', rotateSkates: 'Start rotation', pauseSkates: 'Pause', skateHint: 'Swipe a deck to turn the display.', keyboardHelp: 'Use left and right arrows to browse, Home and End to reach the first or last piece, and Enter to open a piece.', front: 'Front', back: 'Back', worn: 'Worn', productViews: 'Product views', displayMode: 'Product display', view3d: '3D view', viewCatalog: 'Catalog view', catalogHint: 'Select a piece to see the details.', fallback: '3D is unavailable. Explore the catalog instead.', artworkWall: 'The NG artwork', skateWall: 'The skate wall', backToRack: 'Back to the rail', fullGuide: 'View the full guide', pieces: 'pieces to explore', exploreTouch: 'Swipe to explore · Tap a piece.', angle: 'Viewing angle', zoom: 'Zoom in', reset: 'Reset', zoomIn: 'Enlarge photo', zoomOut: 'Reduce photo', loading: 'Opening the showroom…', rack: 'Showroom pieces', previous: 'Previous pieces', next: 'Next pieces', explore: 'Explore the rail. Select your piece.', collections: 'Showroom collections', catalog: 'Full collection', details: 'View full details', all: 'The showroom',
       };
     },
     tabs() { return [{ id: 'all', label: this.copy.all, count: inventory.length }, { id: 'drop04', label: 'Caméléon', count: inventory.filter(p => p.product.tags.includes('drop04')).length }, { id: 'drop03', label: 'ARW Film', count: inventory.filter(p => p.product.tags.includes('drop03')).length }]; },
     pieces() { return inventory.filter(p => this.collection === 'all' || p.product.tags.includes(this.collection)); },
   },
   async mounted() {
+    this.skateMotionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
+    this.syncSkateMotion = () => { this.skateReducedMotion = this.skateMotionPreference.matches; if (this.skateReducedMotion) this.scene?.playSkates?.(false); };
+    this.syncSkateMotion(); this.skateMotionPreference.addEventListener('change', this.syncSkateMotion);
     try {
       const { createShowroomScene } = await import('./showroomScene.js');
       if (this.sceneUnmounted) return;
       const scene = await createShowroomScene(this.$refs.sceneHost, {
         pieces: inventory,
+        onSkateChange: state => { this.skateIndex = state.index; this.skatePlaying = state.playing; this.skateReady = state.ready; },
         onNavigate: state => { this.navigation = state; this.artworkView = state.artworkView; this.skateView = state.skateView; },
         onSelect: piece => this.openPiece(piece),
         onHover: (piece, x, y) => {
@@ -169,8 +181,10 @@ export default {
       this.$refs.sceneHost?.replaceChildren();
     }
   },
-  beforeUnmount() { this.sceneUnmounted = true; this.$refs.detail?.close(); this.scene?.dispose(); },
+  beforeUnmount() { this.skateMotionPreference?.removeEventListener('change', this.syncSkateMotion); this.sceneUnmounted = true; this.$refs.detail?.close(); this.scene?.dispose(); },
   methods: {
+    rotateSkates(direction) { this.scene?.rotateSkates?.(direction); },
+    toggleSkateRotation() { if (!this.skateReducedMotion) this.scene?.playSkates?.(!this.skatePlaying); },
     focusPiece(piece) {
       if (this.catalogView) return;
       this.artworkView = false; this.skateView = false;
@@ -315,4 +329,8 @@ export default {
   .showroom:not(.is-catalog-view) .room-skates{top:98px;z-index:2;font-size:9px!important;padding:5px 10px;min-height:32px}
   .showroom:not(.is-catalog-view) .room-view-switch{top:43px}
 }
+.room-skate-controls{position:absolute;left:36px;bottom:36px;display:flex;align-items:center;gap:12px;padding:8px 12px;background:#181a18ed;border:1px solid #ffffff35;border-radius:28px;color:#f1ece1;white-space:nowrap}
+.room-skate-controls button{min-width:40px;min-height:40px;border:1px solid #ffffff35;border-radius:22px;background:transparent;color:inherit;font-size:12px}.room-skate-caption{text-align:center;min-width:110px}.room-skate-caption strong{display:block;font-size:12px}.room-skate-caption span{display:block;margin-top:4px;font:9px monospace;opacity:.7}.room-skate-controls button:disabled{opacity:.4;cursor:default}.room-skate-controls .room-skate-play{padding:0 14px;font-size:11px}
+.is-skate-view .room-edition{display:none}
+@media(max-width:700px){.room-skate-controls{left:50%;transform:translateX(-50%);bottom:49px;gap:7px;padding:5px 9px;border-radius:20px;flex-wrap:wrap;justify-content:center;width:max-content;max-width:calc(100% - 24px)}.room-skate-controls .room-skate-play{min-height:32px;font-size:10px}.room-skate-caption{min-width:90px}.room-skate-caption strong{font-size:11px}.room-skate-controls button{min-width:36px;min-height:36px}}
 </style>

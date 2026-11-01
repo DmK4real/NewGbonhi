@@ -5,6 +5,7 @@ import { arrangeGarments, findShoulder } from './showroomLayout.js';
 import { prepareGarmentPixels } from './garmentTexture.js';
 import { addShowroomFloor } from './showroomFloor.js';
 import { panScale, coastPan } from './showroomGesture.js';
+import { createSkateDisplay } from './skateDisplay.js';
 import { showroomDecks } from '../data/skateDecks.js';
 
 const centralArtworksUrl = new URL('../assets/showroom/ng-central-artworks.webp', import.meta.url).href;
@@ -12,7 +13,7 @@ const leftArtworkUrl = new URL('../assets/showroom/ng-cfa-portrait.webp', import
 const crewMuralUrl = new URL('../assets/showroom/ng-crew-wall-minimal.webp', import.meta.url).href;
 
 // The shop stays usable through its HTML controls if WebGL is unavailable.
-export async function createShowroomScene(host, { pieces, onSelect, onHover, onReady, onNavigate }) {
+export async function createShowroomScene(host, { pieces, onSelect, onHover, onReady, onNavigate, onSkateChange }) {
   const scene = new THREE.Scene();
   scene.background = new THREE.Color('#514c48');
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'low-power' });
@@ -50,6 +51,7 @@ export async function createShowroomScene(host, { pieces, onSelect, onHover, onR
   let hoverKey = null;
   let frame;
   let floorProps;
+  let skateDisplay;
   let motion = 1;
   let lastFrame = 0;
   const groups = new Map();
@@ -227,6 +229,13 @@ export async function createShowroomScene(host, { pieces, onSelect, onHover, onR
       if (!disposed) console.warn(`Showroom deck unavailable: ${deck.id}`, error);
     }
   }));
+  // Independent floor-standing rack, clear of the wall decks and loose boards.
+  try {
+    skateDisplay = await createSkateDisplay({ roomWidth, loadTexture: loadDecorTexture, isDisposed: () => disposed, onChange: onSkateChange });
+    if (skateDisplay && !disposed) { scene.add(skateDisplay.root); motion = 1; }
+  } catch (error) {
+    if (!disposed) console.warn('Showroom rotating display unavailable', error);
+  }
   if (!disposed) {
     floorProps = await addShowroomFloor(scene, { roomWidth, textures, isDisposed: () => disposed });
     motion = 1;
@@ -398,15 +407,26 @@ export async function createShowroomScene(host, { pieces, onSelect, onHover, onR
       return mask.data[(y * mask.width + x) * 4 + 3] > 80;
     });
   }
+  function hitSkate(event) {
+    if (!skateView || !skateDisplay) return false;
+    const r = renderer.domElement.getBoundingClientRect();
+    pointer.set((event.clientX - r.left) / r.width * 2 - 1, -(event.clientY - r.top) / r.height * 2 + 1);
+    raycaster.setFromCamera(pointer, camera);
+    return raycaster.intersectObjects(skateDisplay.pickables).length > 0;
+  }
   function pointerMove(event) {
     if (pointerDown) {
       const dx = event.clientX - pointerDown.x, dy = event.clientY - pointerDown.y;
       if (!pointerDown.dragged && Math.abs(dx) > 5 && Math.abs(dx) > Math.abs(dy)) {
         pointerDown.dragged = true;
-        artworkView = false; skateView = false;
+        if (!pointerDown.skate) { artworkView = false; skateView = false; }
         hoverKey = null; onHover?.(null);
       }
       if (pointerDown.dragged) {
+        if (pointerDown.skate) {
+          if (!pointerDown.turned && Math.abs(dx) > 25) { skateDisplay.move(dx < 0 ? 1 : -1); pointerDown.turned = true; motion = 1; }
+          return;
+        }
         const rawPan = pointerDown.pan - dx * pointerDown.scale;
         const next = THREE.MathUtils.clamp(rawPan, -panLimit, panLimit);
         const elapsed = Math.max(1, event.timeStamp - pointerDown.lastTime);
@@ -431,14 +451,15 @@ export async function createShowroomScene(host, { pieces, onSelect, onHover, onR
     if (artworkView) pan = -panLimit;
     if (skateView) pan = panLimit;
     pointerDown = {
-      x: event.clientX, y: event.clientY, pan, rawPan: pan, dragged: false, lastTime: event.timeStamp,
+      skate: hitSkate(event), turned: false, x: event.clientX, y: event.clientY, pan, rawPan: pan, dragged: false, lastTime: event.timeStamp,
       scale: panScale(renderer.domElement.clientWidth, camera.aspect, camera.fov, Math.max(5, camera.position.z + 2.18)),
     };
     renderer.domElement.setPointerCapture(event.pointerId);
   };
   const up = event => {
     if (!pointerDown) return;
-    if (!pointerDown.dragged) {
+    if (pointerDown.skate) { panVelocity = 0; }
+    else if (!pointerDown.dragged) {
       panVelocity = 0;
       const found = hit(event); if (found) onSelect(found.object.userData.piece);
     } else {
@@ -466,8 +487,8 @@ export async function createShowroomScene(host, { pieces, onSelect, onHover, onR
       destination.set(-roomWidth / 2 + (mobile ? 7 : 4.8), 2.9, mobile ? 1.1 : 2.3);
       aim.set(-roomWidth / 2 + .55, 1.95, -.05);
     } else if (skateView) {
-      destination.set(roomWidth / 2 - (mobile ? 10 : 5.6), 2.9, mobile ? 1.8 : 3.9);
-      aim.set(roomWidth / 2 - .65, 1.95, -.18);
+      destination.set(roomWidth / 2 - (mobile ? 8.5 : 7.6), 3.4, mobile ? 6.4 : 7.1);
+      aim.set(roomWidth / 2 - 2.0, 1.9, 1.15);
     } else if (selected) {
       destination.set(selected.targetX + (mobile ? 0 : .9), 2.5, mobile ? 5.5 - inspectionZoom * 1.8 : 4.1 - inspectionZoom * 1.5);
       aim.set(selected.targetX + (mobile ? 0 : .9), mobile ? 1.45 : 2.3, -2.18);
@@ -492,9 +513,10 @@ export async function createShowroomScene(host, { pieces, onSelect, onHover, onR
     if (disposed) return;
     frame = requestAnimationFrame(render);
     if (!active || document.hidden) { panVelocity = 0; return; }
-    const interacting = pointerDown?.dragged || panVelocity !== 0;
+    const interacting = pointerDown?.dragged || panVelocity !== 0 || skateDisplay?.needsAnimation(skateView, reducedMotion.matches);
     if ((!interacting && motion < .001) || time - lastFrame < (interacting ? 15 : 33)) return;
-    const elapsed = Math.min(64, lastFrame ? time - lastFrame : 33);
+    const frameElapsed = lastFrame ? time - lastFrame : 33;
+    const elapsed = Math.min(64, frameElapsed);
     lastFrame = time;
     if (!pointerDown && panVelocity) {
       const coast = coastPan(pan, panVelocity, elapsed, panLimit);
@@ -509,6 +531,7 @@ export async function createShowroomScene(host, { pieces, onSelect, onHover, onR
       item.group.rotation.y = THREE.MathUtils.lerp(item.group.rotation.y, (key === selectedKey ? inspectionAngle : item.originalRotation + (focus ? -.065 : 0)), speed);
       item.group.position.z = THREE.MathUtils.lerp(item.group.position.z, focus ? -1.98 : -2.18, speed);
     }
+    skateDisplay?.tick(Math.min(1000, frameElapsed), skateView, reducedMotion.matches);
     floorProps?.updateFacing(camera);
     renderer.render(scene, camera);
   }
@@ -519,6 +542,8 @@ export async function createShowroomScene(host, { pieces, onSelect, onHover, onR
   });
 
   return {
+    rotateSkates(direction) { skateDisplay?.move(direction); motion = 1; },
+    playSkates(enabled) { skateDisplay?.setPlaying(enabled && !reducedMotion.matches); motion = 1; },
     focus(key) {
       panVelocity = 0;
       const item = groups.get(key);

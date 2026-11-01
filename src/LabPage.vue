@@ -62,8 +62,6 @@
         </div>
       </section>
 
-      <SkateArchive />
-
       <section id="clients" class="lab-explorer" aria-labelledby="lab-explorer-title">
         <div class="explorer-head">
           <div>
@@ -408,7 +406,6 @@
 </template>
 
 <script>
-import SkateArchive from "./components/SkateArchive.vue";
 import SiteHeader from "./components/SiteHeader.vue";
 import CartPanel from "./components/CartPanel.vue";
 import { cartStore } from "./data/cart.ts";
@@ -574,7 +571,6 @@ const pageCopies = {
 export default {
   name: "LabPage",
   components: {
-    SkateArchive,
     SiteHeader,
     CartPanel,
   },
