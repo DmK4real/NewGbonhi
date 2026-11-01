@@ -20,3 +20,7 @@ Même build servi localement, écran 390 × 844, débit simulé 10 Mb/s, latence
 | Première requête décorative | 13,1 s | 7,9 s |
 
 Les textures des vêtements sont traitées avec un côté maximal de 768 px sur téléphone et 1536 px sur grand écran, sans agrandir les sources plus petites. Le décor reste chargé après les vêtements. Ces mesures uniques en environnement simulé ne remplacent pas des mesures répétées sur appareils réels ou en production.
+
+## Commandes discrètes sur ordinateur
+
+Après 2,8 secondes sans mouvement de souris, les commandes et annotations superposées à la scène 3D s’effacent progressivement. Le mouvement, le clic ou le focus clavier les réaffichent. L’effacement est suspendu pendant un glissement, en navigation clavier, dans le catalogue, pendant le chargement et dans une fiche produit. Les commandes restent visibles sur écran tactile. Les temporisateurs et écouteurs sont nettoyés à la sortie du showroom.

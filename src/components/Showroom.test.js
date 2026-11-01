@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Showroom from './Showroom.vue';
 import { cartStore } from '../data/cart.ts';
 
@@ -17,6 +17,7 @@ function room() {
 
 describe('showroom purchase flow', () => {
   beforeEach(() => vi.clearAllMocks());
+  afterEach(() => vi.useRealTimers());
 
   it('shows available capsule pieces and filters by drop', () => {
     const all = Showroom.computed.pieces.call({ collection: 'all' });
@@ -176,6 +177,32 @@ describe('showroom purchase flow', () => {
     page.catalogView = true;
     page.focusPiece({ key: 'piece-2' });
     expect(page.scene.focus).toHaveBeenCalledTimes(1);
+  });
+
+  it('hides desktop overlays when idle and restores them immediately on mouse movement', () => {
+    vi.useFakeTimers();
+    const page = room(); page.loading = false;
+    page.wakeControls({ pointerType: 'mouse' });
+    vi.advanceTimersByTime(2799); expect(page.controlsHidden).toBe(false);
+    vi.advanceTimersByTime(1); expect(page.controlsHidden).toBe(true);
+    page.wakeControls({ pointerType: 'mouse' }); expect(page.controlsHidden).toBe(false);
+  });
+
+  it('keeps controls visible for touch, keyboard, dragging, catalog and product details', () => {
+    vi.useFakeTimers();
+    const page = room(); page.loading = false;
+    page.wakeControls({ pointerType: 'touch' });
+    vi.advanceTimersByTime(4000); expect(page.controlsHidden).toBe(false);
+    page.wakeControls({ pointerType: 'mouse' }); page.showKeyboardControls();
+    vi.advanceTimersByTime(4000); expect(page.controlsHidden).toBe(false);
+    page.holdControls({ pointerType: 'mouse' });
+    vi.advanceTimersByTime(4000); expect(page.controlsHidden).toBe(false);
+    page.releaseControls({ pointerType: 'mouse' });
+    vi.advanceTimersByTime(2800); expect(page.controlsHidden).toBe(true);
+    page.catalogView = true; page.wakeControls();
+    vi.advanceTimersByTime(4000); expect(page.controlsHidden).toBe(false);
+    page.catalogView = false; page.selected = { key: 'product' }; page.wakeControls();
+    vi.advanceTimersByTime(4000); expect(page.controlsHidden).toBe(false);
   });
 
   it('requires an available size before preordering', () => {

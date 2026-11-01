@@ -1,5 +1,5 @@
 <template>
-  <section class="showroom" :class="{ 'is-catalog-view': catalogView, 'is-skate-view': skateView }" aria-labelledby="showroom-title">
+  <section class="showroom" :class="{ 'is-catalog-view': catalogView, 'is-skate-view': skateView, 'is-idle': controlsHidden }" aria-labelledby="showroom-title" @pointerenter="wakeControls" @pointermove="wakeControls" @pointerdown="holdControls" @focusin="onControlFocus">
     <h1 id="showroom-title" class="sr-only">NewGbonhi — Le showroom</h1>
     <div v-show="!catalogView" ref="sceneHost" class="room-scene" :class="{ 'is-loading': loading }"></div>
     <div v-if="loading && !catalogView" class="room-loading" role="status"><span>NG.</span><p>{{ copy.loading }}</p></div>
@@ -122,7 +122,7 @@ const inventory = capsule.flatMap(product => (product.variants?.length ? product
 export default {
   name: 'Showroom',
   emits: ['open-cart'],
-  data: () => ({ skateReducedMotion: false, skateDecks, skateIndex: 0, skatePlaying: false, skateReady: false, photoIndex: 0, view: '3d', collection: 'all', selected: null, selectedSize: null, loading: true, sceneFailed: false, hovered: null, hoverStyle: {}, imageZoomed: false, viewAngle: 0, viewZoom: 0, skateView: false, artworkView: false, navigation: { canPrevious: false, canNext: false } }),
+  data: () => ({ controlsHidden: false, idleMouse: false, usingKeyboard: false, pointerHeld: false, skateReducedMotion: false, skateDecks, skateIndex: 0, skatePlaying: false, skateReady: false, photoIndex: 0, view: '3d', collection: 'all', selected: null, selectedSize: null, loading: true, sceneFailed: false, hovered: null, hoverStyle: {}, imageZoomed: false, viewAngle: 0, viewZoom: 0, skateView: false, artworkView: false, navigation: { canPrevious: false, canNext: false } }),
   computed: {
     activeSkate() { return this.skateDecks[this.skateIndex]; },
     productPhotos() {
@@ -149,7 +149,16 @@ export default {
     tabs() { return [{ id: 'all', label: this.copy.all, count: inventory.length }, { id: 'drop04', label: 'Caméléon', count: inventory.filter(p => p.product.tags.includes('drop04')).length }, { id: 'drop03', label: 'ARW Film', count: inventory.filter(p => p.product.tags.includes('drop03')).length }]; },
     pieces() { return inventory.filter(p => this.collection === 'all' || p.product.tags.includes(this.collection)); },
   },
+  watch: {
+    catalogView() { this.wakeControls(); },
+    selected() { this.wakeControls(); },
+    loading() { this.wakeControls(); },
+  },
   async mounted() {
+    this.idleMouse = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    window.addEventListener('pointerup', this.releaseControls);
+    window.addEventListener('pointercancel', this.releaseControls);
+    window.addEventListener('keydown', this.showKeyboardControls);
     this.skateMotionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
     this.syncSkateMotion = () => { this.skateReducedMotion = this.skateMotionPreference.matches; if (this.skateReducedMotion) this.scene?.playSkates?.(false); };
     this.syncSkateMotion(); this.skateMotionPreference.addEventListener('change', this.syncSkateMotion);
@@ -181,8 +190,25 @@ export default {
       this.$refs.sceneHost?.replaceChildren();
     }
   },
-  beforeUnmount() { this.skateMotionPreference?.removeEventListener('change', this.syncSkateMotion); this.sceneUnmounted = true; this.$refs.detail?.close(); this.scene?.dispose(); },
+  beforeUnmount() { clearTimeout(this.controlsIdleTimer); window.removeEventListener('pointerup', this.releaseControls); window.removeEventListener('pointercancel', this.releaseControls); window.removeEventListener('keydown', this.showKeyboardControls); this.skateMotionPreference?.removeEventListener('change', this.syncSkateMotion); this.sceneUnmounted = true; this.$refs.detail?.close(); this.scene?.dispose(); },
   methods: {
+    scheduleControlsHide() {
+      clearTimeout(this.controlsIdleTimer);
+      if (!this.idleMouse || this.usingKeyboard || this.pointerHeld || this.catalogView || this.selected || this.loading) return;
+      this.controlsIdleTimer = setTimeout(() => {
+        if (this.idleMouse && !this.usingKeyboard && !this.pointerHeld && !this.catalogView && !this.selected && !this.loading) this.controlsHidden = true;
+      }, 2800);
+    },
+    wakeControls(event) {
+      this.controlsHidden = false;
+      if (event?.pointerType) { this.idleMouse = event.pointerType === 'mouse'; this.usingKeyboard = false; }
+      this.scheduleControlsHide();
+    },
+    holdControls(event) { this.pointerHeld = true; this.wakeControls(event); },
+    releaseControls(event) { if (this.pointerHeld) { this.pointerHeld = false; this.wakeControls(event); } },
+    showKeyboardControls() { this.usingKeyboard = true; this.controlsHidden = false; clearTimeout(this.controlsIdleTimer); },
+    onControlFocus(event) { if (event.target.matches(':focus-visible')) this.showKeyboardControls(); else this.wakeControls(); },
+
     rotateSkates(direction) { this.scene?.rotateSkates?.(direction); },
     toggleSkateRotation() { if (!this.skateReducedMotion) this.scene?.playSkates?.(!this.skatePlaying); },
     focusPiece(piece) {
@@ -333,4 +359,7 @@ export default {
 .room-skate-controls button{min-width:40px;min-height:40px;border:1px solid #ffffff35;border-radius:22px;background:transparent;color:inherit;font-size:12px}.room-skate-caption{text-align:center;min-width:110px}.room-skate-caption strong{display:block;font-size:12px}.room-skate-caption span{display:block;margin-top:4px;font:9px monospace;opacity:.7}.room-skate-controls button:disabled{opacity:.4;cursor:default}.room-skate-controls .room-skate-play{padding:0 14px;font-size:11px}
 .is-skate-view .room-edition{display:none}
 @media(max-width:700px){.room-skate-controls{left:50%;transform:translateX(-50%);bottom:49px;gap:7px;padding:5px 9px;border-radius:20px;flex-wrap:wrap;justify-content:center;width:max-content;max-width:calc(100% - 24px)}.room-skate-controls .room-skate-play{min-height:32px;font-size:10px}.room-skate-caption{min-width:90px}.room-skate-caption strong{font-size:11px}.room-skate-controls button{min-width:36px;min-height:36px}}
+.showroom :is(.room-view-switch,.room-bottom,.room-skates,.room-skate-controls,.room-catalog,.room-invitation,.room-topline,.room-edition,.room-hover){transition:opacity .3s ease,visibility .3s}
+.showroom.is-idle :is(.room-view-switch,.room-bottom,.room-skates,.room-skate-controls,.room-catalog,.room-invitation,.room-topline,.room-edition,.room-hover){opacity:0;visibility:hidden;pointer-events:none}
+@media(prefers-reduced-motion:reduce){.showroom :is(.room-view-switch,.room-bottom,.room-skates,.room-skate-controls,.room-catalog,.room-invitation,.room-topline,.room-edition,.room-hover){transition:none}}
 </style>
