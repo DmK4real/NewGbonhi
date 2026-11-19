@@ -145,6 +145,9 @@ router.afterEach((to) => {
     robots: to.meta?.robots,
     path: to.path,
     image: to.meta?.image,
+    imageAlt: to.meta?.imageAlt,
+    imageWidth: to.meta?.imageWidth,
+    imageHeight: to.meta?.imageHeight,
   });
 });
 

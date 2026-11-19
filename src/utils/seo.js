@@ -58,7 +58,12 @@ export const applySeo = (options = {}) => {
   setMeta("name", "twitter:card", "summary_large_image");
   const image = options.image || `${CANONICAL_ORIGIN}/social-share.jpg`;
   setMeta("property", "og:image", image);
+  setMeta("property", "og:image:width", String(options.imageWidth || 1200));
+  setMeta("property", "og:image:height", String(options.imageHeight || 630));
+  const imageAlt = options.imageAlt || "NewGbonhi — streetwear indépendant à Abidjan";
+  setMeta("property", "og:image:alt", imageAlt);
   setMeta("name", "twitter:image", image);
+  setMeta("name", "twitter:image:alt", imageAlt);
   setMeta("name", "twitter:title", title);
   setMeta("name", "twitter:description", description);
 

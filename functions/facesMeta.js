@@ -8,9 +8,12 @@ export function rewriteFacesHtml(html) {
   const metadata = {
     description, "og:title": title, "og:description": description,
     "og:url": url, "og:image": FACES_META.image,
-    "og:image:alt": "FACES — NewGbonhi, 19 décembre 2026 à 18 h, Abidjan",
+    "og:image:alt": FACES_META.imageAlt,
+    "og:image:width": String(FACES_META.imageWidth),
+    "og:image:height": String(FACES_META.imageHeight),
     "twitter:title": title, "twitter:description": description,
     "twitter:image": FACES_META.image,
+    "twitter:image:alt": FACES_META.imageAlt,
   };
   const seen = new Set();
   const rewritten = html

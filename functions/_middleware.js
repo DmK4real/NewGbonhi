@@ -1,6 +1,7 @@
 // Pages currently bundles Functions with Wrangler 3; use its JSON loader.
 import products from "../src/data/products.json";
 import { rewriteFacesHtml } from "./facesMeta.js";
+import { FACES_META } from "../src/data/facesDrop.js";
 const appPaths = new Set(["/", "/faces", "/collections", "/lookbook", "/lab", "/lab/arw-studio", "/about", "/studio", "/checkout", "/orders", "/confidentialite", "/cgu", ...products.map(product => `/product/${product.slug}`)]);
 const PRIMARY_HOST = "newgbonhi.com";
 const REDIRECT_HOSTS = new Set(["www.newgbonhi.com"]);
@@ -13,6 +14,10 @@ export const onRequest = async (context) => {
     url.hostname = PRIMARY_HOST;
     url.port = "";
     return Response.redirect(url.toString(), 301);
+  }
+
+  if (url.pathname === "/faces/social-share.jpg") {
+    return new Response(null, { status: 301, headers: { Location: FACES_META.image, "Cache-Control": "no-store" } });
   }
 
   const withHtmlCachePolicy = async (response) => {

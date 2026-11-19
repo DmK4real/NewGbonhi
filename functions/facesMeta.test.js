@@ -14,9 +14,18 @@ describe("Faces direct visits and social previews", () => {
     const html = await result.text();
     expect(html).toContain("<title>FACES — 19 décembre à 18 h | NewGbonhi</title>");
     expect(html).toContain('href="https://newgbonhi.com/faces"');
-    expect(html).toContain('content="https://newgbonhi.com/faces/social-share.jpg"');
+    expect(html).toContain('content="https://newgbonhi.com/faces/newgbonhi-logo.png"');
+    expect(html).toContain('property="og:image:width" content="512"');
+    expect(html).toContain('property="og:image:height" content="512"');
+    expect(html).toContain('content="Logo NewGbonhi"');
     expect(html).toContain('content="https://newgbonhi.com/faces"');
     expect(result.headers.get("Cache-Control")).toContain("no-store");
+  });
+  it("redirects the old portrait preview to the brand logo", async () => {
+    const result = await onRequest({ request: new Request("https://newgbonhi.com/faces/social-share.jpg"), next: async () => new Response("Old portrait") });
+    expect(result.status).toBe(301);
+    expect(result.headers.get("Location")).toBe("https://newgbonhi.com/faces/newgbonhi-logo.png");
+    expect(result.headers.get("Cache-Control")).toBe("no-store");
   });
   it("still returns 404 for an unknown page", async () => {
     const result = await onRequest({ request: new Request("https://newgbonhi.com/not-a-page"), next: async () => new Response("<html></html>", { headers: { "Content-Type": "text/html" } }) });
