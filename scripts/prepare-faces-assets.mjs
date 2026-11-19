@@ -14,6 +14,5 @@ const sources = {
 for (const [name, filename] of Object.entries(sources)) {
   await sharp(path.join(source, filename)).resize(420, 420).webp({ quality: 85 }).toFile(path.join(destination, `${name}.webp`));
 }
-// Reuse the official logo byte-for-byte for link previews.
-await fs.copyFile(path.resolve("public/email-logo.png"), path.join(destination, "newgbonhi-logo.png"));
-console.log("Prepared Faces fragments and official logo preview.");
+// The supplied puzzle screenshot is tracked directly in public/faces/faces-puzzle-preview.jpg.
+console.log("Prepared Faces portrait fragments.");

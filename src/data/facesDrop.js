@@ -3,10 +3,10 @@ export const FACES_DROP_TIMESTAMP = Date.parse(FACES_DROP_AT);
 export const FACES_META = {
   title: "FACES — 19 décembre à 18 h | NewGbonhi",
   description: "Un détail aujourd'hui. Faces le 19 décembre 2026 à 18 h, heure d'Abidjan. Rejoins le Gbonhi pour découvrir les premiers aperçus de la collection.",
-  image: "https://newgbonhi.com/faces/newgbonhi-logo.png",
-  imageAlt: "Logo NewGbonhi",
-  imageWidth: 512,
-  imageHeight: 512,
+  image: "https://newgbonhi.com/faces/faces-puzzle-preview.jpg",
+  imageAlt: "FACES — un nouveau fragment chaque jour",
+  imageWidth: 1047,
+  imageHeight: 1280,
 };
 
 export function getFacesCountdown(now = Date.now()) {

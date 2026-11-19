@@ -16,7 +16,7 @@ export const onRequest = async (context) => {
     return Response.redirect(url.toString(), 301);
   }
 
-  if (url.pathname === "/faces/social-share.jpg") {
+  if (["/faces/social-share.jpg", "/faces/newgbonhi-logo.png"].includes(url.pathname)) {
     return new Response(null, { status: 301, headers: { Location: FACES_META.image, "Cache-Control": "no-store" } });
   }
 
