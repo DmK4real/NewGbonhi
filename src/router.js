@@ -2,6 +2,7 @@ import { createRouter, createWebHashHistory, createWebHistory } from "vue-router
 import { applySeo } from "./utils/seo.js";
 import { clearAppError } from "./utils/appError.js";
 import { FACES_META } from "./data/facesDrop.js";
+import { shouldUseHashRouter } from "./utils/routerMode.js";
 
 const ShopPage = () => import("./ShopPage.vue");
 const LookbookPage = () => import("./LookbookPage.vue");
@@ -118,7 +119,10 @@ const routes = [
   },
 ];
 
-const useHashRouter = import.meta.env.VITE_USE_HASH_ROUTER === "true";
+const useHashRouter = shouldUseHashRouter(
+  import.meta.env.VITE_USE_HASH_ROUTER,
+  typeof window === "undefined" ? "" : window.location.hostname
+);
 const history = useHashRouter
   ? createWebHashHistory(import.meta.env.BASE_URL)
   : createWebHistory(import.meta.env.BASE_URL);

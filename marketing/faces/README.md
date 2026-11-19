@@ -12,6 +12,7 @@ Drop confirmé : **19 décembre 2026 à 18 h, heure d'Abidjan (GMT)**.
 - L'échéance est définie dans `src/data/facesDrop.js`, en UTC : `2026-12-19T18:00:00Z`.
 - Après l'échéance, la page montre les produits du catalogue portant le tag exact `faces`, si des produits existent. Ajouter les vrais modèles, images, prix, tailles et stocks au catalogue avant le drop. Le temps écoulé seul ne déclenche pas de message « disponible ».
 - Le fichier agenda est `public/faces/drop-faces.ics`.
+- Les domaines NewGbonhi sur Cloudflare utilisent les vraies URL, même si l'ancien réglage de compilation `VITE_USE_HASH_ROUTER=true` est présent. Le mode hash reste disponible sur les autres hébergements.
 
 ## Emails préparés
 
