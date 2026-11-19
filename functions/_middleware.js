@@ -1,6 +1,7 @@
 // Pages currently bundles Functions with Wrangler 3; use its JSON loader.
 import products from "../src/data/products.json";
-const appPaths = new Set(["/", "/collections", "/lookbook", "/lab", "/lab/arw-studio", "/about", "/studio", "/checkout", "/orders", "/confidentialite", "/cgu", ...products.map(product => `/product/${product.slug}`)]);
+import { rewriteFacesHtml } from "./facesMeta.js";
+const appPaths = new Set(["/", "/faces", "/collections", "/lookbook", "/lab", "/lab/arw-studio", "/about", "/studio", "/checkout", "/orders", "/confidentialite", "/cgu", ...products.map(product => `/product/${product.slug}`)]);
 const PRIMARY_HOST = "newgbonhi.com";
 const REDIRECT_HOSTS = new Set(["www.newgbonhi.com"]);
 
@@ -14,7 +15,7 @@ export const onRequest = async (context) => {
     return Response.redirect(url.toString(), 301);
   }
 
-  const withHtmlCachePolicy = (response) => {
+  const withHtmlCachePolicy = async (response) => {
     const contentType = response.headers.get("Content-Type") || "";
     const headers = new Headers(response.headers);
     headers.set("X-Content-Type-Options", "nosniff");
@@ -22,7 +23,10 @@ export const onRequest = async (context) => {
     headers.set("X-Frame-Options", "DENY");
     if (url.protocol === "https:") headers.set("Strict-Transport-Security", "max-age=31536000");
     if (contentType.includes("text/html")) headers.set("Cache-Control", "no-cache, no-store, must-revalidate");
-    return new Response(response.body, {
+    const body = contentType.includes("text/html") && url.pathname.replace(/\/$/, "") === "/faces"
+      ? rewriteFacesHtml(await response.text())
+      : response.body;
+    return new Response(body, {
       status: contentType.includes("text/html") && !appPaths.has(url.pathname.replace(/\/$/, "") || "/") ? 404 : response.status,
       statusText: response.statusText,
       headers,

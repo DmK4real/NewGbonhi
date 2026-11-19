@@ -1,0 +1,50 @@
+{
+  "dropAt": "2026-12-19T18:00:00Z",
+  "timezone": "Africa/Abidjan",
+  "segment": "NewGbonhi Newsletter",
+  "status": "draft",
+  "campaigns": [
+    {
+      "id": "faces-2026-annonce",
+      "suggestedAt": "2026-11-20T18:00:00Z",
+      "subject": "FACES. Rendez-vous le 19 décembre.",
+      "preheader": "Un détail aujourd'hui. Faces le 19 décembre à 18 h, heure d'Abidjan.",
+      "heading": "TU N'AS PAS ENCORE TOUT VU.",
+      "paragraphs": ["Tu es dans le Gbonhi, alors on commence ici.", "Notre nouvelle collection, Faces, sort le 19 décembre à 18 h, heure d'Abidjan.", "Un regard. Un détail. Une présence. On t'en montre un premier fragment aujourd'hui. La suite se dévoile bientôt.", "Tu recevras les prochains aperçus ici, puis le lien le jour du drop."],
+      "cta": "DÉCOUVRIR FACES",
+      "url": "https://newgbonhi.com/faces?utm_source=newsletter&utm_medium=email&utm_campaign=faces_2026&utm_content=annonce"
+    },
+    {
+      "id": "faces-2026-apercu",
+      "suggestedAt": "2026-12-05T18:00:00Z",
+      "subject": "On t'en montre un peu plus de Faces.",
+      "preheader": "Le visage se précise. Le drop arrive le 19 décembre.",
+      "heading": "LE VISAGE SE PRÉCISE.",
+      "paragraphs": ["La dernière fois, un premier détail. Aujourd'hui, on se rapproche de Faces.", "Voici un nouvel aperçu de la collection, pour le Gbonhi.", "Le rendez-vous reste le même : le 19 décembre à 18 h, heure d'Abidjan. On te donne les dernières infos avant l'ouverture."],
+      "cta": "RETROUVER FACES",
+      "url": "https://newgbonhi.com/faces?utm_source=newsletter&utm_medium=email&utm_campaign=faces_2026&utm_content=apercu",
+      "needsFinalVisual": true
+    },
+    {
+      "id": "faces-2026-rappel",
+      "suggestedAt": "2026-12-17T18:00:00Z",
+      "subject": "Faces sort dans deux jours. 18 h, Abidjan.",
+      "preheader": "Le 19 décembre à 18 h. Le rendez-vous est pris.",
+      "heading": "DANS DEUX JOURS.",
+      "paragraphs": ["Le rendez-vous approche.", "Faces sort le 19 décembre à 18 h, heure d'Abidjan (GMT).", "Garde un œil sur ta boîte mail : on t'envoie le lien dès que la collection est disponible.", "Tu peux aussi ajouter le rendez-vous à ton agenda depuis la page Faces."],
+      "cta": "GARDER LE RENDEZ-VOUS",
+      "url": "https://newgbonhi.com/faces?utm_source=newsletter&utm_medium=email&utm_campaign=faces_2026&utm_content=rappel"
+    },
+    {
+      "id": "faces-2026-ouverture",
+      "suggestedAt": "2026-12-19T18:00:00Z",
+      "subject": "FACES est disponible.",
+      "preheader": "La nouvelle collection NewGbonhi est en ligne.",
+      "heading": "CETTE FOIS, TOUT EST LÀ.",
+      "paragraphs": ["Faces est disponible.", "La nouvelle collection NewGbonhi est en ligne. Découvre les pièces et choisis la tienne.", "Merci de faire partie du Gbonhi."],
+      "cta": "DÉCOUVRIR LA COLLECTION",
+      "url": "https://newgbonhi.com/faces?utm_source=newsletter&utm_medium=email&utm_campaign=faces_2026&utm_content=ouverture#faces-collection",
+      "requiresCollectionOpen": true
+    }
+  ]
+}

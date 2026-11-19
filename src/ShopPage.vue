@@ -8,6 +8,12 @@
 
     <CartPanel :open="cartOpen" @close="cartOpen = false" />
 
+    <RouterLink class="faces-announcement" to="/faces">
+      <div><span>{{ $language.language === 'fr' ? 'LE PROCHAIN DROP' : 'THE NEXT DROP' }}</span><strong>FACES<span>.</span></strong></div>
+      <p>19.12.2026<br /><b>18:00 / ABIDJAN</b></p>
+      <span class="faces-announcement-cta">{{ $language.language === 'fr' ? 'Découvrir Faces' : 'Discover Faces' }}</span>
+    </RouterLink>
+
     <Showroom @open-cart="cartOpen = true" />
 
     <section class="featured-drop" aria-labelledby="featured-drop-title">
@@ -766,6 +772,17 @@ export default {
 </script>
 
 <style scoped>
+.faces-announcement { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 24px; margin-top: 26px; padding: 28px clamp(20px, 4vw, 48px); background: #101010; color: #f5f5f1; text-decoration: none; }
+.faces-announcement > div { display: grid; gap: 12px; }
+.faces-announcement > div > span { font-size: .875rem; letter-spacing: .08em; }
+.faces-announcement strong { font: 400 clamp(40px, 6vw, 72px)/1 "Archivo Black", Arial, sans-serif; letter-spacing: -.07em; }
+.faces-announcement strong span { color: #e10600; }
+.faces-announcement p { margin: 0; font-size: 1.25rem; line-height: 1.5; }
+.faces-announcement b { color: #f86b62; font-size: .875rem; font-weight: 500; }
+.faces-announcement-cta { padding: 16px 20px; background: #e10600; font-size: 1rem; font-weight: 600; }
+.faces-announcement:focus-visible { outline: 3px solid #e10600; outline-offset: 4px; }
+@media (max-width: 600px) { .faces-announcement-cta { width: 100%; text-align: center; } }
+
 :global(*) {
   box-sizing: border-box;
 }

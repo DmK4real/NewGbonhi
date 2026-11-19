@@ -1,0 +1,15 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//NewGbonhi//Faces Drop//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:faces-20261219@newgbonhi.com
+DTSTAMP:20261119T000000Z
+DTSTART:20261219T180000Z
+SUMMARY:FACES - Drop NewGbonhi
+DESCRIPTION:Le drop Faces le 19 decembre 2026 a 18 h\, heure d'Abidjan.
+LOCATION:https://newgbonhi.com/faces
+URL:https://newgbonhi.com/faces
+END:VEVENT
+END:VCALENDAR

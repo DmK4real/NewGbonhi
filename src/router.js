@@ -1,6 +1,7 @@
 import { createRouter, createWebHashHistory, createWebHistory } from "vue-router";
 import { applySeo } from "./utils/seo.js";
 import { clearAppError } from "./utils/appError.js";
+import { FACES_META } from "./data/facesDrop.js";
 
 const ShopPage = () => import("./ShopPage.vue");
 const LookbookPage = () => import("./LookbookPage.vue");
@@ -14,6 +15,7 @@ const StudioPage = () => import("./StudioPage.vue");
 const CollectionsPage = () => import("./CollectionsPage.vue");
 
 const routes = [
+  { path: "/faces", name: "faces", component: () => import("./FacesPage.vue"), meta: FACES_META },
   { path: "/confidentialite", name: "privacy", component: () => import("./LegalPage.vue"), meta: { title: "Confidentialité et données personnelles | NewGbonhi", description: "Données personnelles, cookies et droits des visiteurs NewGbonhi." } },
   { path: "/cgu", name: "terms", component: () => import("./LegalPage.vue"), meta: { title: "Conditions générales d’utilisation | NewGbonhi", description: "Conditions d’utilisation des services NewGbonhi et contact." } },
   { path: "/:pathMatch(.*)*", name: "not-found", component: () => import("./NotFoundPage.vue"), meta: { title: "Page introuvable | NewGbonhi", robots: "noindex, follow" } },
@@ -138,6 +140,7 @@ router.afterEach((to) => {
     description: to.meta?.description,
     robots: to.meta?.robots,
     path: to.path,
+    image: to.meta?.image,
   });
 });
 

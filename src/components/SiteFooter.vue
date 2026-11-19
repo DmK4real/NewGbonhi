@@ -6,6 +6,7 @@
     <nav class="footer-sitemap" aria-label="Footer">
       <RouterLink to="/">{{ $t("navShop") }}</RouterLink>
       <RouterLink to="/collections">{{ $t("navCollections") }}</RouterLink>
+      <RouterLink to="/faces">Faces — 19.12.2026</RouterLink>
       <RouterLink to="/lookbook">{{ $t("navLookbook") }}</RouterLink>
       <RouterLink to="/lab">{{ $t("navLab") }}</RouterLink>
       <RouterLink to="/studio">{{ $t("navStudio") }}</RouterLink>

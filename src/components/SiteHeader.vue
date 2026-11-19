@@ -30,6 +30,7 @@
         {{ $t("navShop") }}
       </RouterLink>
       <RouterLink :class="{ 'is-active': $route.name === 'collections' }" to="/collections" @click="closeMenu">{{ $t("navCollections") }}</RouterLink>
+      <RouterLink class="faces-nav-link" :class="{ 'is-active': $route.name === 'faces' }" to="/faces" @click="closeMenu">Faces</RouterLink>
       <RouterLink :class="{ 'is-active': $route.name === 'lab' }" to="/lab" @click="closeMenu">
         {{ $t("navLab") }}
       </RouterLink>
@@ -233,6 +234,8 @@ export default {
 .site-navigation a.is-active {
   border-color: #e10600;
 }
+
+.site-navigation a.faces-nav-link { color: #e10600; font-weight: 700; }
 
 .site-home-search {
   grid-column: 1 / -1;

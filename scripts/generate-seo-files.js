@@ -92,6 +92,7 @@ const main = async () => {
   const staticRoutes = [
     { path: "/", changefreq: "daily", priority: "1.0" },
     { path: "/collections", changefreq: "daily", priority: "0.9" },
+    { path: "/faces", changefreq: "daily", priority: "0.9" },
     { path: "/about", changefreq: "weekly", priority: "0.7" },
     { path: "/lookbook", changefreq: "weekly", priority: "0.8" },
     { path: "/lab", changefreq: "weekly", priority: "0.9" },
