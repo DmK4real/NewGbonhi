@@ -16,7 +16,6 @@ Drop confirmé : **19 décembre 2026 à 18 h, heure d'Abidjan (GMT)**.
 
 ## Emails préparés
 
-La soirée privée compte 30 invités sélectionnés manuellement dans Resend. Elle commence à 17 h et se termine à minuit le 19 décembre ; le drop en ligne reste à 18 h. Voir `PRIVATE-PARTY.md` pour le groupe d'invités, l'invitation séparée et les confirmations. L'inscription à la newsletter ne garantit pas de place.
 
 Ouvrir `apercus.html` pour voir les quatre brouillons. Les fichiers `emails/*.html` sans suffixe `-apercu` sont les versions destinées à Resend ; les `.txt` sont leurs équivalents texte. Les aperçus locaux utilisent l'image du dossier public.
 

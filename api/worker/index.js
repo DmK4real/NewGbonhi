@@ -1436,7 +1436,6 @@ export class OrdersStore {
               <td class="pad" style="padding:24px 28px 34px;background:#e10600;color:#ffffff">
                 <p style="max-width:500px;margin:0 0 12px;font-size:22px;line-height:1.35;font-weight:900">Bienvenue dans la NewGbonhiFamily.</p>
                 <p style="max-width:500px;margin:0;font-size:18px;line-height:1.5;font-weight:700">Ton inscription &agrave; la newsletter est confirm&eacute;e. D&eacute;sormais, tu re&ccedil;ois les drops, les collaborations et les mouvements du Lab avant le bruit.</p>
-                <p style="max-width:500px;margin:18px 0 0;font-size:16px;line-height:1.6">Nos &eacute;v&eacute;nements priv&eacute;s sont accessibles sur invitation personnelle. L'inscription &agrave; la newsletter ne vaut pas invitation : les personnes s&eacute;lectionn&eacute;es re&ccedil;oivent un email distinct.</p>
               </td>
             </tr>
             <tr>
@@ -1486,7 +1485,6 @@ export class OrdersStore {
       "",
       "Ton inscription à la newsletter est confirmée. Désormais, tu reçois les drops, les collaborations et les mouvements du Lab avant le bruit.",
       "",
-      "Nos événements privés sont accessibles sur invitation personnelle. L'inscription à la newsletter ne vaut pas invitation : les personnes sélectionnées reçoivent un email distinct.",
       "",
       `Voir le Drop 04 : ${shopUrl}`,
       `Explorer les archives : ${collectionsUrl}`,
