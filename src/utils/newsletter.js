@@ -1,5 +1,7 @@
+import { normalizeApiBase } from "./apiBase.js";
+
 export async function subscribeToNewsletter(email, website = "") {
-  const apiBase = String(import.meta.env.VITE_API_BASE || "").replace(/\/$/, "");
+  const apiBase = normalizeApiBase(import.meta.env.VITE_API_BASE);
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 15000);
   try {

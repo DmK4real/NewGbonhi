@@ -1,4 +1,5 @@
-const apiBase = String(import.meta.env.VITE_API_BASE || "").replace(/\/$/, "");
+import { normalizeApiBase } from "./apiBase.js";
+const apiBase = normalizeApiBase(import.meta.env.VITE_API_BASE);
 export const facesTileUrl = src => `${apiBase}${src}`;
 
 export async function facesRequest(path, payload, token) {
