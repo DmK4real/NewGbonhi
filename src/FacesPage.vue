@@ -68,11 +68,30 @@
         <ProductGrid :products="facesProducts" currency="XOF" locale="fr-CI" @add-to-cart="addToCart" />
       </section>
 
+      <section v-if="partyUpcoming" id="faces-private-party" class="faces-private-party" aria-labelledby="faces-party-title">
+        <div>
+          <p class="faces-eyebrow">FACES / PRIVATE HOUSE PARTY</p>
+          <h2 id="faces-party-title">{{ party.guestLimit }} {{ copy.partyGuests }}.<br />{{ copy.partyTitle }}</h2>
+          <p class="faces-party-date">19.12.2026 · {{ copy.partyTimezone }}</p>
+        </div>
+        <div class="faces-party-details">
+          <p>{{ copy.partyText }}</p>
+          <dl class="faces-party-times">
+            <div><dt>{{ copy.partyEvening }}</dt><dd><time :datetime="party.startsAt">17:00</time> — <time :datetime="party.endsAt">00:00</time></dd></div>
+            <div><dt>{{ copy.partyDrop }}</dt><dd>18:00</dd></div>
+          </dl>
+          <p class="faces-party-policy">{{ copy.partySelection }}</p>
+          <p>{{ copy.partyExisting }}</p>
+          <a class="faces-button" href="#faces-newsletter">{{ copy.partyJoin }}</a>
+        </div>
+      </section>
+
       <section id="faces-newsletter" class="faces-newsletter" aria-labelledby="faces-newsletter-title">
         <div class="faces-newsletter-copy">
           <p class="faces-eyebrow">{{ copy.newsKicker }}</p>
           <h2 id="faces-newsletter-title">{{ copy.newsTitle }}</h2>
           <p>{{ copy.newsText }}</p>
+          <p v-if="partyUpcoming">{{ copy.partyNewsletter }}</p>
           <span class="faces-news-date">19 DÉCEMBRE 2026 · 18:00 GMT</span>
         </div>
         <form class="faces-form" :aria-busy="loading" @submit.prevent="joinNewsletter">
@@ -83,6 +102,7 @@
             <input id="faces-website" v-model="website" name="website" type="text" tabindex="-1" autocomplete="off" />
           </div>
           <p class="faces-consent">{{ copy.consent }} <RouterLink to="/confidentialite">{{ copy.privacy }}</RouterLink></p>
+          <p v-if="partyUpcoming" class="faces-selection-note">{{ copy.partyEligibility }}</p>
           <button class="faces-button" type="submit" :disabled="loading">{{ loading ? copy.sending : copy.join }}</button>
           <p v-if="message" class="faces-form-feedback" :class="{ 'is-error': failed }" :role="failed ? 'alert' : 'status'">{{ message }}</p>
           <p class="faces-form-existing">{{ copy.existing }}</p>
@@ -103,7 +123,7 @@ import ProductGrid from "./components/ProductGrid.vue";
 import { i18nState } from "./i18n.js";
 import { products } from "./data/products.ts";
 import { cartStore } from "./data/cart.ts";
-import { FACES_DROP_AT, getFacesCountdown } from "./data/facesDrop.js";
+import { FACES_DROP_AT, FACES_PRIVATE_PARTY, getFacesCountdown } from "./data/facesDrop.js";
 import { subscribeToNewsletter } from "./utils/newsletter.js";
 
 const content = {
@@ -125,6 +145,13 @@ const content = {
     already: "Tu es déjà dans le Gbonhi. Tu recevras les nouvelles de Faces.", error: "L'inscription n'a pas abouti. Réessaie dans un instant.",
     available: "Faces est disponible.", rendezvous: "Le rendez-vous est arrivé.",
     waiting: "Retrouve les dernières nouvelles de Faces dans le Gbonhi. Le lien arrive par email dès l'ouverture effective du drop.", shop: "Découvrir la collection",
+    partyGuests: "invités", partyTitle: "Une soirée à part.", partyTimezone: "HEURE D'ABIDJAN / GMT",
+    partyText: "Le soir du drop, on se retrouve pour découvrir Faces, partager un moment et faire vivre le Gbonhi. Présentation de la collection, vente flash, drinks & food.",
+    partyEvening: "La soirée privée", partyDrop: "Le drop en ligne",
+    partySelection: "30 invités seront choisis manuellement parmi les abonnés à la newsletter. Les personnes retenues recevront leur invitation et les informations pratiques par email.",
+    partyExisting: "Déjà abonné ? Tu fais aussi partie des personnes parmi lesquelles nous choisirons les invités. Inutile de te réinscrire.",
+    partyJoin: "Rejoindre le Gbonhi", partyNewsletter: "Les 30 invités de la soirée privée seront sélectionnés parmi les abonnés du Gbonhi.",
+    partyEligibility: "L'inscription à la newsletter ne garantit pas une place à la soirée. L'accès est réservé aux personnes qui auront reçu une invitation personnelle.",
   },
   en: {
     kicker: "THE NEXT NEWGBONHI DROP", newCollection: "NEW COLLECTION",
@@ -144,6 +171,13 @@ const content = {
     already: "You're already in the Gbonhi. You'll receive the Faces updates.", error: "We couldn't complete your signup. Please try again shortly.",
     available: "Faces is available.", rendezvous: "The date has arrived.",
     waiting: "Get the latest Faces news in the Gbonhi. We'll email the link once the drop is open.", shop: "Discover the collection",
+    partyGuests: "guests", partyTitle: "One special evening.", partyTimezone: "ABIDJAN TIME / GMT",
+    partyText: "On drop day, we're getting together to discover Faces and celebrate the Gbonhi. Collection reveal, flash sale, drinks & food.",
+    partyEvening: "The private party", partyDrop: "The online drop",
+    partySelection: "30 guests will be personally selected from our newsletter subscribers. Selected guests will receive their invitation and practical details by email.",
+    partyExisting: "Already subscribed? You're also part of the subscribers we'll choose our guests from. No need to sign up again.",
+    partyJoin: "Join the Gbonhi", partyNewsletter: "The 30 private-party guests will be selected from the Gbonhi newsletter subscribers.",
+    partyEligibility: "Newsletter signup does not guarantee a place at the party. Entry is reserved for guests who receive a personal invitation.",
   },
 };
 
@@ -152,6 +186,8 @@ const assetBase = `${import.meta.env.BASE_URL}faces/`;
 const dropAt = FACES_DROP_AT;
 const cartOpen = ref(false);
 const now = ref(Date.now());
+const party = FACES_PRIVATE_PARTY;
+const partyUpcoming = computed(() => now.value < Date.parse(party.endsAt));
 const countdown = computed(() => getFacesCountdown(now.value));
 const timerUnits = computed(() => ["days", "hours", "minutes", "seconds"].map(key => ({ key, label: copy.value[key] })));
 const facesProducts = computed(() => products.filter(product => product.tags?.includes("faces")));
@@ -250,6 +286,17 @@ function addToCart(product) {
 .faces-utilities { display: flex; flex-direction: column; align-items: flex-start; gap: 20px; flex-shrink: 0; }
 .faces-utilities a, .faces-utilities button { padding: 0 0 4px; border: 0; border-bottom: 1px solid currentColor; background: none; color: inherit; font: 500 1rem/1.4 "Space Grotesk", Arial, sans-serif; text-decoration: none; cursor: pointer; }
 .faces-share-feedback { margin: 24px 0 0; font-size: 1rem; }
+.faces-private-party { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(28px, 6vw, 86px); padding: clamp(28px, 5vw, 68px); border-top: 6px solid #e10600; background: #101010; color: #f5f5f1; }
+.faces-private-party .faces-eyebrow { color: #ff746b; }
+.faces-private-party h2 { margin: 0 0 28px; font-size: clamp(36px, 4.6vw, 64px); font-weight: 600; line-height: 1.05; letter-spacing: -.045em; }
+.faces-party-date { margin: 0; font-size: .875rem; line-height: 1.7; color: #c1c1be; }
+.faces-party-details > p { margin: 0 0 22px; font-size: 1rem; line-height: 1.7; color: #c1c1be; }
+.faces-party-times { margin: 26px 0; border-top: 1px solid #494949; }
+.faces-party-times > div { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding: 16px 0; border-bottom: 1px solid #494949; }
+.faces-party-times dt { font-size: 1rem; }
+.faces-party-times dd { margin: 0; font-size: 1.25rem; white-space: nowrap; font-weight: 600; font-variant-numeric: tabular-nums; }
+.faces-party-details > .faces-party-policy { color: #fff; }
+.faces-selection-note { padding: 16px; border: 1px solid #fff; font-size: .875rem; line-height: 1.6; }
 .faces-newsletter { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(32px, 7vw, 100px); padding: clamp(28px, 5vw, 68px); background: #e10600; color: #fff; scroll-margin-top: 30px; }
 .faces-newsletter h2 { margin: 0 0 24px; font-size: clamp(34px, 4vw, 58px); font-weight: 600; line-height: 1.04; letter-spacing: -.045em; }
 .faces-newsletter-copy > p:not(.faces-eyebrow) { max-width: 410px; margin: 0 0 28px; font-size: 1.125rem; line-height: 1.6; }
@@ -282,6 +329,7 @@ function addToCart(product) {
   .faces-story-bottom { align-items: flex-start; flex-direction: column; gap: 28px; }
   .faces-utilities { flex-direction: row; flex-wrap: wrap; gap: 24px; }
   .faces-newsletter { grid-template-columns: 1fr; }
+  .faces-private-party { grid-template-columns: 1fr; }
 }
 @media (max-width: 600px) {
   .faces-page { padding: 20px 14px 0; }
@@ -297,6 +345,7 @@ function addToCart(product) {
   .faces-countdown > div { padding-left: 8px; }
   .faces-countdown dt { font-size: .875rem; }
   .faces-newsletter { padding: 28px 20px; }
+  .faces-private-party { padding: 28px 20px; }
   .faces-intro > .faces-button { width: 100%; }
 }
 @media (prefers-reduced-motion: reduce) { .faces-button { transition: none; } }
