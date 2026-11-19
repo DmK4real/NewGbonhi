@@ -11,9 +11,9 @@ export const FACES_CAMPAIGN = Object.freeze({
 });
 
 export const FACES_PORTRAITS = Object.freeze([
-  { id: "leila", name: "Leila" },
-  { id: "laury", name: "Laury" },
-  { id: "isis", name: "Isis" },
+  { id: "leila", name: "Visage 1" },
+  { id: "laury", name: "Visage 2" },
+  { id: "isis", name: "Visage 3" },
 ]);
 
 export function facesCampaignPhase(now) {
