@@ -22,6 +22,7 @@
         </div>
       </div>
 
+      <FacesWinner v-if="isAuthorized" :key="adminToken" :token="adminToken" />
       <section v-if="isAuthorized" class="orders-stats" aria-label="Order overview">
         <article><span>ALL</span><strong>{{ orders.length }}</strong></article>
         <article><span>TO VALIDATE</span><strong>{{ pendingOrders }}</strong></article>
@@ -255,6 +256,7 @@
 <script>
 import SiteHeader from "./components/SiteHeader.vue";
 import CartPanel from "./components/CartPanel.vue";
+import FacesWinner from "./components/FacesWinner.vue";
 import { Download, RefreshCw } from "@lucide/vue";
 import { buildOrdersCsv } from "./utils/orderExport.js";
 import { cartStore } from "./data/cart.ts";
@@ -275,6 +277,7 @@ export default {
   components: {
     SiteHeader,
     CartPanel,
+    FacesWinner,
     Download,
     RefreshCw,
   },

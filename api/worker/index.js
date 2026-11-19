@@ -1,4 +1,5 @@
 import { createRateLimiter, guardedRoute, validateCustomerContact, validateItems, validateOrderCatalog } from "../guard.js";
+import { FacesCampaign } from "./faces.js";
 const STATUS_VALUES = new Set([
   "sent",
   "paid_reported",
@@ -665,6 +666,11 @@ export class OrdersStore {
     this.state = state;
     this.env = env;
     this.allowRequest = createRateLimiter();
+    this.faces = new FacesCampaign(state, env);
+  }
+
+  async alarm() {
+    await this.faces.cleanup();
   }
 
   get tokenTtlMs() {
@@ -2074,6 +2080,9 @@ export class OrdersStore {
     }
 
     try {
+      if (pathname.startsWith("/api/faces/")) {
+        return this.faces.handle(request, candidate => this.isAuthorized(candidate));
+      }
       if (guardedRoute(method, pathname)) {
         const fingerprint = await sha256Hex(request.headers.get("CF-Connecting-IP") || "unknown");
         const group = pathname.replace(/\/orders\/[^/]+\//, "/orders/item/");
@@ -2614,7 +2623,7 @@ export default {
       return json(404, { error: "Route not found." });
     }
 
-    const id = env.ORDERS_STORE.idFromName("global");
+    const id = env.ORDERS_STORE.idFromName(pathname.startsWith("/api/faces/") ? "faces-campaign-2026" : "global");
     const stub = env.ORDERS_STORE.get(id);
     return stub.fetch(request);
   },

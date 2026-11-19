@@ -5,7 +5,7 @@
     <main class="legal-content">
       <p>NEWGBONHI / INFORMATIONS</p>
       <h1>{{ isPrivacy ? 'Confidentialité et données personnelles' : 'Conditions générales d’utilisation' }}</h1>
-      <p>Dernière mise à jour : 19 septembre 2026.</p>
+      <p>Dernière mise à jour : 19 novembre 2026.</p>
       <p>NewGbonhi est géré par Dominik Kouakou, Wadja Bright et Yohann Munier.</p>
       <template v-if="isPrivacy">
         <h2>Qui contacter ?</h2>
@@ -15,6 +15,7 @@
           <li>Commandes : nom, prénom, email, téléphone, adresse, articles et état du paiement, pour préparer votre commande, organiser sa livraison et assurer son suivi. Ce traitement sert à exécuter votre commande.</li>
           <li>Candidatures au Lab : identité ou nom du projet, coordonnées, discipline, ville, portfolio, présentation et acceptation du pacte, pour examiner votre candidature et vous répondre.</li>
           <li>Newsletter : votre email, uniquement si vous demandez à recevoir les nouvelles des drops. Vous pouvez retirer votre accord en nous écrivant ou via le lien de désinscription lorsqu’il figure dans le message.</li>
+          <li>Défi FACES : votre email vérifié par un code, votre acceptation des règles et, pour le gagnant, l’heure de validation et une référence, pour gérer la participation et remettre le T-shirt. Participer au défi ne vous inscrit pas à la newsletter. Les données personnelles du défi sont supprimées au plus tard le 19 mars 2027.</li>
           <li>Sécurité : informations techniques de connexion pour limiter les abus et protéger les services, sur la base de l’intérêt légitime à sécuriser le site.</li>
         </ul>
         <p>Les champs marqués obligatoires sont nécessaires au service demandé. Les formulaires ne demandent pas vos codes de paiement ni vos numéros de carte : le paiement se déroule auprès du prestataire choisi.</p>
@@ -22,6 +23,7 @@
         <p>Les données nécessaires sont accessibles à l’équipe NewGbonhi et aux prestataires intervenant dans le service : Cloudflare pour l’hébergement, Resend pour les emails lorsqu’il est configuré, le prestataire de paiement sélectionné et le livreur pour la livraison. WhatsApp et les réseaux sociaux appliquent leurs propres politiques lorsque vous ouvrez leurs liens. Les polices Google Fonts sont chargées depuis Google, qui reçoit alors les informations techniques de connexion.</p>
         <h2>Stockage sur votre appareil et statistiques</h2>
         <p>Le panier et la préférence de langue sont conservés dans votre navigateur jusqu’à leur suppression. La session d’administration utilise le stockage de session. Votre préférence de confidentialité est conservée six mois ; elle peut être modifiée à tout moment.</p>
+        <p>Le défi FACES conserve sur votre appareil la position de vos pièces, un jeton de participation et, le cas échéant, votre référence de victoire, afin de reprendre votre partie. Le jeton expire à la clôture du défi, le 18 décembre 2026 à 18 h GMT. Vous pouvez supprimer ces informations dans les données de votre navigateur ; le bouton « Changer d’adresse » retire le jeton de participation.</p>
         <p>Si l’outil Plausible est configuré et que vous l’acceptez, seules les visites des pages publiques sont mesurées. Les formulaires, les paramètres d’URL et les pages de commande ou d’administration sont exclus. Aucun outil de publicité n’est installé par cette fonctionnalité.</p>
         <button type="button" @click="openPrivacy">Gérer les cookies</button>
         <h2>Conservation et exercice des droits</h2>

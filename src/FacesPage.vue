@@ -15,6 +15,7 @@
             <p class="faces-eyebrow">{{ copy.newCollection }}</p>
             <h1 id="faces-title">FACES<span>.</span></h1>
             <p class="faces-hook">{{ copy.hook }}</p>
+            <a class="faces-puzzle-link" href="#faces-puzzle">{{ copy.explore }}</a>
             <dl v-if="!countdown.finished" class="faces-countdown" role="timer" aria-live="off" :aria-label="copy.countdown">
               <div v-for="unit in timerUnits" :key="unit.key">
                 <dt>{{ unit.label }}</dt>
@@ -26,20 +27,7 @@
             <p class="faces-existing">{{ copy.existing }}</p>
           </div>
 
-          <figure class="faces-art">
-            <div class="faces-mosaic" role="img" :aria-label="copy.artAlt">
-              <div class="faces-tile faces-type-tile">NEW<br />GBONHI</div>
-              <div class="faces-tile faces-hidden-tile"><span>F</span></div>
-              <div class="faces-tile faces-date-tile">19<br />12</div>
-              <div class="faces-tile"><img :src="`${assetBase}eye-left.webp`" alt="" width="420" height="420" fetchpriority="high" /></div>
-              <div class="faces-tile faces-center-eye"><img :src="`${assetBase}eye-center.webp`" alt="" width="420" height="420" fetchpriority="high" /></div>
-              <div class="faces-tile faces-hidden-tile"><span>A</span></div>
-              <div class="faces-tile faces-hidden-tile faces-outline"><span>C</span></div>
-              <div class="faces-tile"><img :src="`${assetBase}lips.webp`" alt="" width="420" height="420" /></div>
-              <div class="faces-tile faces-time-tile">18:00<br /><small>GMT / ABIDJAN</small></div>
-            </div>
-            <figcaption><span>{{ copy.caption }}</span><span>FACES / NEWGBONHI</span></figcaption>
-          </figure>
+          <FacesPuzzle />
         </div>
 
         <div v-if="countdown.finished" class="faces-drop-status" role="status">
@@ -120,6 +108,7 @@ import SiteHeader from "./components/SiteHeader.vue";
 import SiteFooter from "./components/SiteFooter.vue";
 import CartPanel from "./components/CartPanel.vue";
 import ProductGrid from "./components/ProductGrid.vue";
+import FacesPuzzle from "./components/FacesPuzzle.vue";
 import { i18nState } from "./i18n.js";
 import { products } from "./data/products.ts";
 import { cartStore } from "./data/cart.ts";
@@ -129,14 +118,15 @@ import { subscribeToNewsletter } from "./utils/newsletter.js";
 const content = {
   fr: {
     kicker: "LE PROCHAIN DROP NEWGBONHI", newCollection: "NOUVELLE COLLECTION",
-    hook: "Un détail aujourd'hui. Faces le 19 décembre.",
-    intro: "Le visage se précise. Entre dans le Gbonhi pour découvrir les premiers aperçus avant le drop.",
+    hook: "Trois visages. Une nouvelle pièce chaque jour.",
+    explore: "Découvrir les fragments et le défi",
+    intro: "27 fragments, dévoilés dans le désordre. Leila, Laury et Isis se précisent jusqu’au défi du 17 décembre. Entre dans le Gbonhi pour suivre Faces avant le drop.",
     join: "Je veux voir Faces", existing: "Déjà dans le Gbonhi ? Tu recevras aussi les nouvelles, sans te réinscrire.",
     artAlt: "Un visage en noir et blanc fragmenté en une mosaïque, entre regards, lèvres et blocs rouges Faces.",
     caption: "TOUT NE SE DÉVOILE PAS D'UN COUP.", countdown: "Le rendez-vous approche.",
     days: "Jours", hours: "Heures", minutes: "Min.", seconds: "Sec.",
     storyKicker: "LE VISAGE SE PRÉCISE", storyTitle: "Un regard. Un détail. Une présence.",
-    storyText: "Faces se dévoile par fragments. Ici, les premiers indices. Dans le Gbonhi, on t'en montre davantage par mail. Rendez-vous le 19 décembre à 18 h, heure d'Abidjan.",
+    storyText: "Du 20 novembre au 16 décembre, un nouveau morceau apparaît chaque jour à 18 h, en alternant Leila, Laury et Isis. Le 17 décembre, reconstitue les trois visages : une première validation, un T-shirt FACES. Reveal le 18 décembre à 18 h. Drop le 19 décembre à 18 h, heure d’Abidjan.",
     calendar: "Ajouter à mon agenda", share: "Partager le rendez-vous", copied: "Le lien de Faces est copié.",
     shareError: "Retrouve Faces sur newgbonhi.com/faces.", newsKicker: "LE GBONHI VOIT LA SUITE",
     newsTitle: "Tu n'as pas encore tout vu.", newsText: "Reçois les prochains aperçus de Faces et le lien dès l'ouverture du drop.",
@@ -155,14 +145,15 @@ const content = {
   },
   en: {
     kicker: "THE NEXT NEWGBONHI DROP", newCollection: "NEW COLLECTION",
-    hook: "A detail today. Faces on December 19.",
-    intro: "The picture is coming together. Join the Gbonhi for the first glimpses before the drop.",
+    hook: "Three faces. One new piece every day.",
+    explore: "Explore the fragments and the challenge",
+    intro: "27 fragments, revealed out of order. Leila, Laury and Isis come into view before the December 17 challenge. Join the Gbonhi to follow Faces before the drop.",
     join: "I want to see Faces", existing: "Already in the Gbonhi? You'll get the updates too. No need to sign up again.",
     artAlt: "A black-and-white face fragmented into a mosaic of eyes, lips and red Faces blocks.",
     caption: "NOT EVERYTHING IS REVEALED AT ONCE.", countdown: "The date is getting closer.",
     days: "Days", hours: "Hours", minutes: "Min.", seconds: "Sec.",
     storyKicker: "THE PICTURE IS COMING TOGETHER", storyTitle: "A look. A detail. A presence.",
-    storyText: "Faces unfolds in fragments. Here, the first clues. Inside the Gbonhi, we'll show you more by email. December 19 at 6 pm, Abidjan time (GMT).",
+    storyText: "November 20 to December 16: one new piece every day at 6 pm, alternating Leila, Laury and Isis. On December 17, rebuild all three faces: the first validated solution wins a FACES T-shirt. Reveal December 18 at 6 pm. Drop December 19 at 6 pm, Abidjan time (GMT).",
     calendar: "Add to my calendar", share: "Share the date", copied: "The Faces link has been copied.",
     shareError: "Find Faces at newgbonhi.com/faces.", newsKicker: "THE GBONHI SEES WHAT'S NEXT",
     newsTitle: "You haven't seen it all yet.", newsText: "Get the next glimpses of Faces and the link when the drop opens.",
@@ -252,6 +243,7 @@ function addToCart(product) {
 .faces-intro h1 { margin: 0 0 26px -.065em; font: 400 clamp(80px, 10.8vw, 156px)/.9 "Archivo Black", Arial, sans-serif; letter-spacing: -.08em; }
 .faces-intro h1 span { color: #e10600; }
 .faces-hook { max-width: 440px; margin: 0 0 20px; font-size: clamp(24px, 2.8vw, 38px); line-height: 1.1; letter-spacing: -.035em; font-weight: 600; }
+.faces-puzzle-link { display: inline-block; color: #ffa499; font-size: 1rem; line-height: 1.5; text-underline-offset: 4px; }
 .faces-intro-text { max-width: 390px; margin: 0 0 28px; font-size: 1rem; line-height: 1.65; color: #c1c1be; }
 .faces-button { display: inline-flex; align-items: center; justify-content: center; min-height: 54px; padding: 16px 24px; border: 1px solid #e10600; color: #fff; background: #e10600; font: 700 1rem/1.3 "Space Grotesk", Arial, sans-serif; text-decoration: none; text-align: center; cursor: pointer; border-radius: 0; transition: background .18s; }
 .faces-button:hover { background: #ba0500; border-color: #ba0500; }
