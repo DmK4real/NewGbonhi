@@ -9,7 +9,7 @@ Le projet utilise Vue + Capacitor 8. Les interfaces, le catalogue et les images 
 - Barre mobile Boutique / Collections / Faces / Panier, panier local persistant et message hors connexion.
 - Retour Android : fermeture du panier ou du menu, retour dans l'historique, puis reduction de l'application a l'accueil.
 - Liens WhatsApp ouverts par le systeme, pages de paiement dans le navigateur natif, partage et presse-papiers natifs.
-- Logo NewGbonhi sur les icones et ecrans de lancement.
+- Monogramme NG rouge sur fond noir pour les icones Android et iOS ; logo NewGbonhi sur les ecrans de lancement.
 - Liens explicites `newgbonhi://app/faces` ou `newgbonhi://app/product/<slug>`.
 
 Les liens HTTPS ouverts depuis une autre application restent des liens web : les Android App Links / iOS Universal Links ne sont pas configures. Le schema personnalise ne doit jamais servir de preuve de paiement ou de connexion. Le serveur reste responsable de la validation des paiements.
@@ -30,11 +30,13 @@ Ne jamais mettre de mot de passe, cle de paiement ou certificat de signature dan
 npm run mobile:build    # produit dist-mobile/, separe du site web
 npm run mobile:preview  # apercu HTTP local, port 4173
 npm run mobile:sync     # reconstruit puis copie dans Android et iOS
-npm run mobile:icons    # regenere les images natives depuis le logo existant
+npm run mobile:icons    # regenere les icones NG et les images de lancement
 npm run mobile:apk      # compile et prepare un APK Android de test
 ```
 
 L'apercu navigateur permet de voir l'interface application. Les plugins natifs ne sont executables que dans une application installee. Le catalogue embarque est celui de la compilation : une modification du catalogue ou de l'interface demande une nouvelle version de l'application.
+
+Le monogramme NG provient de `public/favicon.png`. La commande `mobile:icons` prepare les ressources natives, l'icone Safari de l'apercu mobile dans `public/mobile/apple-touch-icon.png` et deux PNG a telecharger dans `deliverables/mobile/NewGbonhi-NG-icon-{1024,512}.png`. Les icones natives seront visibles apres une nouvelle compilation et installation. Dans Safari, ouvrir l'apercu mobile puis choisir Partager > Sur l'ecran d'accueil pour ajouter l'icone NewGbonhi.
 
 ## Android
 

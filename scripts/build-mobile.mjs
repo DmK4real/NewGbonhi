@@ -9,6 +9,15 @@ if (api.protocol !== "https:" || api.username || api.password) {
 await build({
   mode: "mobile",
   base: "/",
+  plugins: [{
+    name: "newgbonhi-mobile-home-icon",
+    transformIndexHtml(html) {
+      return {
+        html: html.replace(/href="[^"]*apple-touch-icon\.png"/, 'href="/mobile/apple-touch-icon.png"'),
+        tags: [{ tag: "meta", attrs: { name: "apple-mobile-web-app-title", content: "NewGbonhi" }, injectTo: "head" }],
+      };
+    },
+  }],
   define: {
     "import.meta.env.VITE_NATIVE_APP": JSON.stringify("true"),
     "import.meta.env.VITE_USE_HASH_ROUTER": JSON.stringify("true"),
