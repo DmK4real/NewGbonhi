@@ -276,3 +276,13 @@ Voir `docs/AUDIT-20-POINTS.md` pour les résultats et limites des vérifications
 - Ne jamais placer un secret dans `VITE_*`. La configuration Vite refuse les variables dont le nom indique un mot de passe ou une clé secrète.
 - Sur Cloudflare Pages, le middleware redirige HTTP vers HTTPS pour le domaine principal, pose les en-têtes de sécurité et renvoie 404 pour une route inconnue. Sur GitHub Pages, activer **Enforce HTTPS** dans les paramètres de l’hébergement ; le middleware Cloudflare n’y est pas exécuté.
 - Les règles anti-spam limitent les soumissions à 10 tentatives par minute, par client et groupe de route. Les compteurs en mémoire expirent et se réinitialisent au redémarrage ; ce n’est pas une protection contre une attaque distribuée.
+
+## Applications Android et iOS
+
+Le projet contient une version mobile Vue + Capacitor, avec des projets natifs Android et iOS. Voir [le guide mobile](docs/MOBILE.md) pour la configuration, les tests, la compilation et la publication.
+
+```sh
+npm run mobile:sync
+npm run mobile:android
+# Sur Mac : npm run mobile:ios
+```

@@ -411,6 +411,7 @@ import CartPanel from "./components/CartPanel.vue";
 import { cartStore } from "./data/cart.ts";
 import { products } from "./data/products.ts";
 import { i18nState } from "./i18n.js";
+import { apiUrl } from "./utils/apiBase.js";
 
 const logoUrl = new URL("./assets/webp/newgbonhi-logo.webp", import.meta.url).href;
 const arwLogo = new URL("./assets/webp/ARW FILM.webp", import.meta.url).href;
@@ -822,7 +823,7 @@ export default {
       this.openCallError = false;
 
       try {
-        const response = await fetch("/api/lab-applications", {
+        const response = await fetch(apiUrl("lab-applications"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(this.openCall),

@@ -34,10 +34,13 @@
       </Transition>
     </RouterView>
   </div>
+  <MobileShell v-if="isMobileApp" />
 </template>
 
 <script>
 import CookieConsent from "./components/CookieConsent.vue";
+import MobileShell from "./components/MobileShell.vue";
+import { isMobileApp } from "./mobile/platform.js";
 import { watch } from "vue";
 import { privacy } from "./utils/privacy.js";
 import { trackPage } from "./utils/analytics.js";
@@ -49,9 +52,11 @@ export default {
   components: {
     ScrollProgress,
     CookieConsent,
+    MobileShell,
   },
   data() {
     return {
+      isMobileApp,
       lastScrollY: 0,
       headerObserver: null,
       observedHeader: null,

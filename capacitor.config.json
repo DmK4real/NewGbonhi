@@ -1,0 +1,22 @@
+{
+  "appId": "com.newgbonhi.app",
+  "appName": "NewGbonhi",
+  "webDir": "dist-mobile",
+  "backgroundColor": "#f5f5f1",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": false
+  },
+  "ios": {
+    "contentInset": "never",
+    "allowsLinkPreview": false
+  },
+  "plugins": {
+    "SystemBars": {
+      "insetsHandling": "native",
+      "style": "DEFAULT"
+    }
+  }
+}

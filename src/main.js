@@ -7,6 +7,10 @@ import LanguageSwitch from "./components/LanguageSwitch.vue";
 import PaymentMethods from "./components/PaymentMethods.vue";
 import SiteFooter from "./components/SiteFooter.vue";
 import { reportAppError } from "./utils/appError.js";
+import { isMobileApp } from "./mobile/platform.js";
+import "./mobile/mobile.css";
+
+if (isMobileApp) document.documentElement.classList.add("mobile-app");
 
 const app = createApp(App);
 const CHUNK_RELOAD_KEY = "newgbonhi:chunk-reload";
@@ -74,5 +78,12 @@ app.use(router);
 
 // Avoid treating the first async route as an animated page transition.
 // On failure, still mount the error screen populated by router.onError.
-const mountApp = () => app.mount("#app");
+const mountApp = () => {
+  app.mount("#app");
+  if (isMobileApp) {
+    void import("./mobile/runtime.js")
+      .then(({ initializeNativeApp }) => initializeNativeApp(router))
+      .catch((error) => console.error("Native app initialization failed", error));
+  }
+};
 router.isReady().then(mountApp, mountApp);

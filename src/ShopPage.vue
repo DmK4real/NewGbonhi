@@ -370,6 +370,7 @@ import CartPanel from "./components/CartPanel.vue";
 import LanguageSwitch from "./components/LanguageSwitch.vue";
 import { products } from "./data/products.ts";
 import { cartStore } from "./data/cart.ts";
+import { subscribeToNewsletter } from "./utils/newsletter.js";
 
 const logoUrl = new URL("./assets/webp/newgbonhi-logo-128.webp", import.meta.url).href;
 const heroImage = new URL(
@@ -710,12 +711,7 @@ export default {
       this.earlyAccessLoading = true;
       this.earlyAccessError = false;
       try {
-        const response = await fetch("/api/newsletter/subscribe", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, website: this.earlyAccessWebsite }),
-        });
-        if (!response.ok) throw new Error("Newsletter subscription failed");
+        await subscribeToNewsletter(email, this.earlyAccessWebsite);
         this.earlyAccessMessage = this.$t("earlyAccessSuccess");
         this.earlyAccessEmail = "";
         this.earlyAccessWebsite = "";

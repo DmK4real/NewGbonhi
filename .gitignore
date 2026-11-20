@@ -1,5 +1,17 @@
 node_modules/
 dist/
+dist-mobile/
+android/.gradle/
+android/local.properties
+android/**/build/
+ios/App/App/public/
+ios/App/App/capacitor.config.json
+ios/App/Pods/
+ios/App/build/
+*.jks
+*.keystore
+*.p12
+*.mobileprovision
 .env
 *.log
 ~$*.docx
@@ -7,3 +19,19 @@ dist/
 .dev.vars
 .codex
 gbonhi.md
+
+.env.*.local
+
+# Local Android build tools and test binaries
+.codex-tmp/android-sdk/
+.codex-tmp/android-user/
+.codex-tmp/gradle/
+.codex-tmp/gradle-cache-quarantine/
+.codex-tmp/actionlint/
+deliverables/mobile/*.apk
+deliverables/mobile/*.ipa
+deliverables/mobile/*.tmp
+ios/build/
+ios/device-build/
+ios/simulator-build/
+/NewGbonhi-iOS-simulator.zip

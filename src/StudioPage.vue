@@ -436,6 +436,7 @@
 import SiteHeader from "./components/SiteHeader.vue";
 import CartPanel from "./components/CartPanel.vue";
 import { cartStore } from "./data/cart.ts";
+import { apiUrl } from "./utils/apiBase.js";
 import { studioDesigns } from "./data/studioDesigns.ts";
 import studioMockups from "./data/studioMockups.json";
 
@@ -717,7 +718,7 @@ export default {
     async unlockStudio() {
       let response;
       try {
-        response = await fetch(`${String(import.meta.env.VITE_API_BASE || "/api").replace(/\/$/, "")}/studio/login`, {
+        response = await fetch(apiUrl("studio/login"), {
           method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ password: this.studioPasswordInput }),
         });

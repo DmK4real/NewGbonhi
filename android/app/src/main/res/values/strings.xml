@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">NewGbonhi</string>
+    <string name="title_activity_main">NewGbonhi</string>
+    <string name="package_name">com.newgbonhi.app</string>
+    <string name="custom_url_scheme">newgbonhi</string>
+</resources>

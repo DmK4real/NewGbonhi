@@ -381,6 +381,8 @@
 
 <script>
 import SiteHeader from "./components/SiteHeader.vue";
+import { isNativePlatform } from "./mobile/platform.js";
+import { openExternalUrl, copyText } from "./mobile/actions.js";
 import CartPanel from "./components/CartPanel.vue";
 import { cartStore } from "./data/cart.ts";
 import {
@@ -671,12 +673,14 @@ export default {
       // This now comes from utils/checkout.ts
       return buildOrderId();
     },
-    openWhatsApp() {
+    async openWhatsApp() {
       if (!this.whatsappUrl) {
         this.error = "WhatsApp number missing.";
         return;
       }
-      window.open(this.whatsappUrl, "_blank", "noopener");
+      try {
+        await openExternalUrl(this.whatsappUrl);
+      } catch { this.error = this.$t("paymentLaunchBlocked", { method: "WhatsApp" }); }
     },
     normalizePaymentValue(value) {
       return String(value || "")
@@ -705,7 +709,7 @@ export default {
         return;
       }
       try {
-        await navigator.clipboard.writeText(text);
+        await copyText(text);
         this.error = "";
         this.success = message || this.$t("copied");
       } catch (error) {
@@ -726,6 +730,7 @@ export default {
       return this.copyText(this.manualPaymentDetails, this.$t("paymentDetailsCopied"));
     },
     openPaymentWindow(url = "about:blank") {
+      if (isNativePlatform()) return null;
       try {
         const paymentWindow = window.open(url, "_blank");
         if (paymentWindow) {
@@ -746,10 +751,13 @@ export default {
         // Ignore browser restrictions around external payment windows.
       }
     },
-    redirectPaymentWindow(paymentWindow, url) {
+    async redirectPaymentWindow(paymentWindow, url) {
       const launchUrl = String(url || "").trim();
       if (!launchUrl) {
         return false;
+      }
+      if (isNativePlatform()) {
+        try { return await openExternalUrl(launchUrl); } catch { return false; }
       }
       try {
         if (paymentWindow && !paymentWindow.closed) {
@@ -762,9 +770,13 @@ export default {
       }
       return Boolean(this.openPaymentWindow(launchUrl));
     },
-    launchPaymentUrl(url) {
+    async launchPaymentUrl(url) {
       const launchUrl = String(url || "").trim();
-      return Boolean(launchUrl && this.openPaymentWindow(launchUrl));
+      if (!launchUrl) return false;
+      if (isNativePlatform()) {
+        try { return await openExternalUrl(launchUrl); } catch { return false; }
+      }
+      return Boolean(this.openPaymentWindow(launchUrl));
     },
     async sendOrder() {
       this.error = "";
@@ -827,8 +839,8 @@ export default {
 
         if (shouldUsePaymentApi) {
           paymentWindow = this.openPaymentWindow();
-        } else if (paymentLaunchUrl) {
-          paymentLaunched = this.launchPaymentUrl(paymentLaunchUrl);
+        } else if (paymentLaunchUrl && !isNativePlatform()) {
+          paymentLaunched = await this.launchPaymentUrl(paymentLaunchUrl);
         }
 
         if (paymentLaunchUrl || shouldUsePaymentApi) {
@@ -852,6 +864,11 @@ export default {
         this.lastOrderTotal = createdOrder.total ?? this.totalWithShipping;
         this.lastOrderMessage = this.buildOrderMessage();
 
+        // Native browsers can open after the order is saved, without a popup placeholder.
+        if (!shouldUsePaymentApi && paymentLaunchUrl && isNativePlatform()) {
+          paymentLaunched = await this.launchPaymentUrl(paymentLaunchUrl);
+        }
+
         if (shouldUsePaymentApi) {
           try {
             const result = await createMobileMoneyPayment(
@@ -861,13 +878,13 @@ export default {
             );
             const apiPaymentUrl =
               result.payment?.paymentUrl || result.payment?.checkoutUrl || "";
-            paymentLaunched = this.redirectPaymentWindow(
+            paymentLaunched = await this.redirectPaymentWindow(
               paymentWindow,
               apiPaymentUrl || paymentLaunchUrl
             );
           } catch {
             paymentLaunched = paymentLaunchUrl
-              ? this.redirectPaymentWindow(paymentWindow, paymentLaunchUrl)
+              ? await this.redirectPaymentWindow(paymentWindow, paymentLaunchUrl)
               : false;
           }
 

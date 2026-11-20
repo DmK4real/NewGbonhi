@@ -83,6 +83,7 @@
 </template>
 
 <script setup>
+import { shareContent } from "./mobile/actions.js";
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import SiteHeader from "./components/SiteHeader.vue";
 import SiteFooter from "./components/SiteFooter.vue";
@@ -179,11 +180,8 @@ async function shareFaces() {
   const url = "https://newgbonhi.com/faces";
   shareMessage.value = "";
   try {
-    if (navigator.share) await navigator.share({ title: "FACES / NEWGBONHI", text: copy.value.hook, url });
-    else {
-      await navigator.clipboard.writeText(url);
-      shareMessage.value = copy.value.copied;
-    }
+    const shared = await shareContent({ title: "FACES / NEWGBONHI", text: copy.value.hook, url });
+    if (!shared) shareMessage.value = copy.value.copied;
   } catch (error) {
     if (error.name !== "AbortError") shareMessage.value = copy.value.shareError;
   }

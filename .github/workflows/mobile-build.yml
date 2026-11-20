@@ -1,0 +1,98 @@
+name: Build mobile test apps
+
+on:
+  push:
+    branches:
+      - 'codex/ios-device-test/**'
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: Platform to build
+        type: choice
+        options: [android, ios-device, ios-simulator, both]
+        default: ios-device
+
+permissions:
+  contents: read
+
+jobs:
+  android:
+    if: inputs.platform == 'android' || inputs.platform == 'both'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: android-actions/setup-android@v3
+      - run: npm ci
+      - name: Build and sync web assets
+        run: npm run mobile:build && npx cap sync android
+        env:
+          VITE_WHATSAPP_NUMBER: ${{ vars.VITE_WHATSAPP_NUMBER }}
+      - name: Build test APK
+        working-directory: android
+        run: chmod +x gradlew && ./gradlew :app:assembleDebug --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NewGbonhi-Android-test
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+
+  ios:
+    if: github.event_name == 'push' || inputs.platform == 'ios-device' || inputs.platform == 'ios-simulator' || inputs.platform == 'both'
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Apple build tools
+        run: |
+          xcodebuild -version
+          xcrun --sdk iphoneos --show-sdk-version
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Build and sync web assets
+        run: npm run mobile:build && npx cap sync ios
+        env:
+          VITE_WHATSAPP_NUMBER: ${{ vars.VITE_WHATSAPP_NUMBER }}
+      - name: Build for a physical iPhone without personal signing
+        if: github.event_name == 'push' || inputs.platform == 'ios-device' || inputs.platform == 'both'
+        run: >-
+          xcodebuild -project ios/App/App.xcodeproj -scheme App
+          -configuration Release -sdk iphoneos
+          -destination 'generic/platform=iOS'
+          -derivedDataPath ios/device-build
+          CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY= build
+      - name: Verify device build and package unsigned IPA
+        if: github.event_name == 'push' || inputs.platform == 'ios-device' || inputs.platform == 'both'
+        run: node scripts/package-ios-ipa.mjs ios/device-build/Build/Products/Release-iphoneos/App.app
+      - uses: actions/upload-artifact@v4
+        if: github.event_name == 'push' || inputs.platform == 'ios-device' || inputs.platform == 'both'
+        with:
+          name: NewGbonhi-iPhone-unsigned
+          if-no-files-found: error
+          path: |
+            deliverables/mobile/NewGbonhi-iOS-unsigned.ipa
+            deliverables/mobile/NewGbonhi-iOS-unsigned.ipa.sha256
+            deliverables/mobile/iphone-build-info.json
+      - name: Build for simulator without distribution signing
+        if: inputs.platform == 'ios-simulator' || inputs.platform == 'both'
+        run: >-
+          xcodebuild -project ios/App/App.xcodeproj -scheme App
+          -configuration Debug -sdk iphonesimulator
+          -destination 'generic/platform=iOS Simulator'
+          -derivedDataPath ios/simulator-build CODE_SIGNING_ALLOWED=NO build
+      - name: Package simulator app
+        if: inputs.platform == 'ios-simulator' || inputs.platform == 'both'
+        run: ditto -c -k --keepParent ios/simulator-build/Build/Products/Debug-iphonesimulator/App.app NewGbonhi-iOS-simulator.zip
+      - uses: actions/upload-artifact@v4
+        if: inputs.platform == 'ios-simulator' || inputs.platform == 'both'
+        with:
+          name: NewGbonhi-iOS-simulator
+          path: NewGbonhi-iOS-simulator.zip
