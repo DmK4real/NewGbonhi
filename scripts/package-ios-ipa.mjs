@@ -20,7 +20,7 @@ if (!info.CFBundleSupportedPlatforms?.includes("iPhoneOS") || info.DTPlatformNam
 if (info.CFBundleIdentifier !== "com.newgbonhi.app") throw new Error("Unexpected iPhone application identifier.");
 const executable = await realpath(join(app, info.CFBundleExecutable));
 if (!executable.startsWith(app + sep)) throw new Error("Unexpected app executable path.");
-await run("xcrun", ["lipo", "-verify_arch", "arm64", executable]);
+await run("xcrun", ["lipo", executable, "-verify_arch", "arm64"]);
 const native = JSON.parse(await readFile(join(app, "capacitor.config.json"), "utf8"));
 if (native.appId !== "com.newgbonhi.app" || native.server?.url) throw new Error("Unexpected native app configuration.");
 await stat(join(app, "public/index.html"));
