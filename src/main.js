@@ -7,10 +7,18 @@ import LanguageSwitch from "./components/LanguageSwitch.vue";
 import PaymentMethods from "./components/PaymentMethods.vue";
 import SiteFooter from "./components/SiteFooter.vue";
 import { reportAppError } from "./utils/appError.js";
-import { isMobileApp } from "./mobile/platform.js";
+import { isMobileApp, isMobilePreview } from "./mobile/platform.js";
+import { createPreviewFetch } from "./mobile/preview.js";
 import "./mobile/mobile.css";
 
 if (isMobileApp) document.documentElement.classList.add("mobile-app");
+if (isMobilePreview) {
+  document.documentElement.classList.add("mobile-preview");
+  globalThis.fetch = createPreviewFetch(globalThis.fetch.bind(globalThis), {
+    apiBase: import.meta.env.VITE_API_BASE,
+    pageUrl: window.location.href,
+  });
+}
 
 const app = createApp(App);
 const CHUNK_RELOAD_KEY = "newgbonhi:chunk-reload";

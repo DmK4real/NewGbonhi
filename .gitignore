@@ -1,6 +1,7 @@
 node_modules/
 dist/
 dist-mobile/
+dist-mobile-preview/
 android/.gradle/
 android/local.properties
 android/**/build/

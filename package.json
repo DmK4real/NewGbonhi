@@ -18,6 +18,7 @@
     "images:social": "node scripts/generate-social-image.js",
     "mobile:dev": "vite --mode mobile",
     "mobile:build": "node scripts/build-mobile.mjs",
+    "mobile:build:preview": "node scripts/build-mobile.mjs --preview",
     "mobile:sync": "npm run mobile:build && cap sync",
     "mobile:android": "npm run mobile:sync && cap open android",
     "mobile:ios": "npm run mobile:sync && cap open ios",

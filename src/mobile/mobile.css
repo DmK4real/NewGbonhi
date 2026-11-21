@@ -5,6 +5,13 @@ html.mobile-app {
   overscroll-behavior-y: none;
 }
 html.mobile-app body { padding-bottom: var(--mobile-bottom); }
+html.mobile-app.mobile-preview { --mobile-tabs-height: 110px; }
+.mobile-preview-notice { grid-column: 1 / -1; color: #fff; background: #171717; font: 14px/1.5 "Space Grotesk", Arial, sans-serif; }
+.mobile-preview-notice summary { display: flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 12px; box-sizing: border-box; list-style: none; cursor: pointer; text-align: center; }
+.mobile-preview-notice summary::-webkit-details-marker { display: none; }
+.mobile-preview-notice summary:focus-visible { outline: 2px solid #fff; outline-offset: -4px; }
+.mobile-preview-notice > div { max-height: 40dvh; overflow: auto; padding: 0 16px 12px; }
+.mobile-preview-notice p { margin: 8px 0; }
 html.mobile-app .shop-header {
   padding-top: calc(10px + env(safe-area-inset-top, 0px));
   padding-left: max(12px, env(safe-area-inset-left, 0px));

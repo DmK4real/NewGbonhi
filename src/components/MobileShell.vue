@@ -4,6 +4,13 @@
     <button v-if="linkError && connected" type="button" @click="linkError = false">{{ labels.close }}</button>
   </div>
   <nav class="mobile-tabs" :aria-label="labels.navigation">
+    <details v-if="isMobilePreview" class="mobile-preview-notice">
+      <summary>Version de test · Informations et retours</summary>
+      <div>
+        <p>Essayez les pages, les collections, les tailles, les couleurs et le panier. Les commandes, paiements et inscriptions sont désactivés sur ce lien.</p>
+        <p>Pour votre retour, indiquez votre téléphone, la page, ce que vous avez essayé et le résultat obtenu. Ajoutez une capture si possible, puis transmettez le tout à l’équipe NewGbonhi.</p>
+      </div>
+    </details>
     <RouterLink to="/" :aria-current="route.name === 'shop' ? 'page' : undefined">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10H3Z M9 20v-7h6v7" /></svg>
       <span>{{ labels.shop }}</span>
@@ -30,7 +37,7 @@ import { useRoute } from "vue-router";
 import CartPanel from "./CartPanel.vue";
 import { cartStore } from "../data/cart.ts";
 import { i18nState } from "../i18n.js";
-import { isNativePlatform } from "../mobile/platform.js";
+import { isNativePlatform, isMobilePreview } from "../mobile/platform.js";
 
 const route = useRoute();
 const cartOpen = ref(false);
