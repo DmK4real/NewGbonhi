@@ -1,5 +1,5 @@
 import { FACES_CAMPAIGN as CAMPAIGN, FACES_PORTRAITS, facesCampaignPhase, facesRevealedCount } from "../../src/data/facesCampaign.js";
-import { FACES_ASSETS } from "./faces-assets.js";
+import { FACES_ASSETS, FACES_ASSETS_REVISION } from "./faces-assets.js";
 
 const ROOT = "/api/faces";
 const PREFIX = "faces.";
@@ -70,7 +70,7 @@ export class FacesCampaign {
       portraits: FACES_PORTRAITS.map(person => {
         const slots = Array(9).fill(null);
         for (const tile of tiles.filter(x => x.portrait === person.id && x.day < count)) {
-          slots[phase === "revealed" ? tile.index : tile.slot] = { id: tile.id, src: `${ROOT}/tiles/${tile.id}.webp` };
+          slots[phase === "revealed" ? tile.index : tile.slot] = { id: tile.id, src: `${ROOT}/tiles/${tile.id}.webp?v=${FACES_ASSETS_REVISION}` };
         }
         return { ...person, tiles: slots };
       }),
