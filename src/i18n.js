@@ -1,5 +1,7 @@
 ﻿import { reactive } from "vue";
 
+import { readStoredValue, writeStoredValue } from "./utils/storage.js";
+
 const storageKey = "newgbonhi-language";
 
 export const messages = {
@@ -874,7 +876,7 @@ const getInitialLanguage = () => {
   if (typeof window === "undefined") {
     return "en";
   }
-  const saved = window.localStorage.getItem(storageKey);
+  const saved = readStoredValue(storageKey);
   if (saved === "fr" || saved === "en") {
     return saved;
   }
@@ -891,7 +893,7 @@ export const setLanguage = (language) => {
   }
   i18nState.language = language;
   if (typeof window !== "undefined") {
-    window.localStorage.setItem(storageKey, language);
+    writeStoredValue(storageKey, language);
   }
   if (typeof document !== "undefined") {
     document.documentElement.lang = language;

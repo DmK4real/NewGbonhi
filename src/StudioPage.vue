@@ -42,10 +42,10 @@
     </section>
 
     <nav class="atelier-progress" aria-label="Creation steps">
-      <a href="#create-base"><b>01</b><span>Base</span></a>
-      <a href="#create-visual"><b>02</b><span>Visual</span></a>
-      <a href="#create-placement"><b>03</b><span>Placement</span></a>
-      <a href="#create-order"><b>04</b><span>Order</span></a>
+      <RouterLink :to="{ path: $route.path, query: $route.query, hash: '#create-base' }"><b>01</b><span>Base</span></RouterLink>
+      <RouterLink :to="{ path: $route.path, query: $route.query, hash: '#create-visual' }"><b>02</b><span>Visual</span></RouterLink>
+      <RouterLink :to="{ path: $route.path, query: $route.query, hash: '#create-placement' }"><b>03</b><span>Placement</span></RouterLink>
+      <RouterLink :to="{ path: $route.path, query: $route.query, hash: '#create-order' }"><b>04</b><span>Order</span></RouterLink>
     </nav>
 
     <main class="studio-main">
@@ -436,6 +436,8 @@
 import SiteHeader from "./components/SiteHeader.vue";
 import CartPanel from "./components/CartPanel.vue";
 import { cartStore } from "./data/cart.ts";
+import { apiUrl } from "./utils/apiBase.js";
+import { readStoredValue, writeStoredValue } from "./utils/storage.js";
 import { studioDesigns } from "./data/studioDesigns.ts";
 import studioMockups from "./data/studioMockups.json";
 
@@ -577,9 +579,7 @@ export default {
     };
   },
   mounted() {
-    this.studioUnlocked =
-      typeof window !== "undefined" &&
-      window.sessionStorage.getItem(studioAccessStorageKey) === "unlocked";
+    this.studioUnlocked = readStoredValue(studioAccessStorageKey, "sessionStorage") === "unlocked";
     if (this.studioUnlocked) {
       this.addSticker();
     }
@@ -717,7 +717,7 @@ export default {
     async unlockStudio() {
       let response;
       try {
-        response = await fetch(`${String(import.meta.env.VITE_API_BASE || "/api").replace(/\/$/, "")}/studio/login`, {
+        response = await fetch(apiUrl("studio/login"), {
           method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ password: this.studioPasswordInput }),
         });
@@ -731,7 +731,7 @@ export default {
       this.studioPasswordInput = "";
       this.studioUnlocked = true;
       if (typeof window !== "undefined") {
-        window.sessionStorage.setItem(studioAccessStorageKey, "unlocked");
+        writeStoredValue(studioAccessStorageKey, "unlocked", "sessionStorage");
       }
       if (!this.stickers.length) {
         this.addSticker();

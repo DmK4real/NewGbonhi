@@ -785,6 +785,7 @@ export default {
       }
 
       this.isSubmitting = true;
+      let paymentWindow = null;
 
       try {
         const selectedPaymentMethod = this.currentManualPaymentMethod;
@@ -821,14 +822,12 @@ export default {
         const shouldUsePaymentApi = Boolean(
           VITE_MOBILE_MONEY_API_ENABLED && selectedPaymentMethod?.apiProvider
         );
-        const orderRequest = createOrder(orderPayload);
-        let paymentWindow = null;
         let paymentLaunched = false;
 
-        if (shouldUsePaymentApi) {
+        // Reserve a browser tab during the click, then wait for a saved order
+        // before opening either a hosted payment page or a native payment app.
+        if (shouldUsePaymentApi || paymentLaunchUrl) {
           paymentWindow = this.openPaymentWindow();
-        } else if (paymentLaunchUrl) {
-          paymentLaunched = this.launchPaymentUrl(paymentLaunchUrl);
         }
 
         if (paymentLaunchUrl || shouldUsePaymentApi) {
@@ -837,7 +836,7 @@ export default {
           });
         }
 
-        const createdOrder = await orderRequest;
+        const createdOrder = await createOrder(orderPayload);
 
         if (!createdOrder || !createdOrder.id) {
           throw new Error("Unable to create order.");
@@ -851,6 +850,10 @@ export default {
           createdOrder.shipping?.label || this.selectedShipping.label;
         this.lastOrderTotal = createdOrder.total ?? this.totalWithShipping;
         this.lastOrderMessage = this.buildOrderMessage();
+
+        if (!shouldUsePaymentApi && paymentLaunchUrl) {
+          paymentLaunched = await this.redirectPaymentWindow(paymentWindow, paymentLaunchUrl);
+        }
 
         if (shouldUsePaymentApi) {
           try {
@@ -885,6 +888,7 @@ export default {
           this.success = this.$t("manualPaymentReady");
         }
       } catch (error) {
+        this.closePaymentWindow(paymentWindow);
         this.error =
           error instanceof Error ? error.message : "Unable to send order.";
       } finally {

@@ -259,6 +259,7 @@ import CartPanel from "./components/CartPanel.vue";
 import FacesWinner from "./components/FacesWinner.vue";
 import { Download, RefreshCw } from "@lucide/vue";
 import { buildOrdersCsv } from "./utils/orderExport.js";
+import { readStoredValue, writeStoredValue, removeStoredValue } from "./utils/storage.js";
 import { cartStore } from "./data/cart.ts";
 import {
   adminLogin,
@@ -299,7 +300,7 @@ export default {
     };
   },
   async created() {
-    const savedToken = window.sessionStorage.getItem(AUTH_KEY) || "";
+    const savedToken = readStoredValue(AUTH_KEY, "sessionStorage") || "";
     if (!savedToken) {
       return;
     }
@@ -761,7 +762,7 @@ export default {
         }
         this.adminToken = session.token;
         this.isAuthorized = true;
-        window.sessionStorage.setItem(AUTH_KEY, session.token);
+        writeStoredValue(AUTH_KEY, session.token, "sessionStorage");
         this.adminPasswordInput = "";
         this.orders = await loadOrders(this.adminToken);
       } catch (error) {
@@ -774,7 +775,7 @@ export default {
     logout(clearError = true) {
       this.isAuthorized = false;
       this.adminToken = "";
-      window.sessionStorage.removeItem(AUTH_KEY);
+      removeStoredValue(AUTH_KEY, "sessionStorage");
       this.adminPasswordInput = "";
       this.orders = [];
       if (clearError) {

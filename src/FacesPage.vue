@@ -15,7 +15,7 @@
             <p class="faces-eyebrow">{{ copy.newCollection }}</p>
             <h1 id="faces-title">FACES<span>.</span></h1>
             <p class="faces-hook">{{ copy.hook }}</p>
-            <a class="faces-puzzle-link" href="#faces-puzzle">{{ copy.explore }}</a>
+            <RouterLink class="faces-puzzle-link" :to="{ path: $route.path, query: $route.query, hash: '#faces-puzzle' }">{{ copy.explore }}</RouterLink>
             <dl v-if="!countdown.finished" class="faces-countdown" role="timer" aria-live="off" :aria-label="copy.countdown">
               <div v-for="unit in timerUnits" :key="unit.key">
                 <dt>{{ unit.label }}</dt>
@@ -23,7 +23,7 @@
               </div>
             </dl>
             <p class="faces-intro-text">{{ copy.intro }}</p>
-            <a class="faces-button" href="#faces-newsletter">{{ copy.join }}</a>
+            <RouterLink class="faces-button" :to="{ path: $route.path, query: $route.query, hash: '#faces-newsletter' }">{{ copy.join }}</RouterLink>
             <p class="faces-existing">{{ copy.existing }}</p>
           </div>
 
@@ -32,7 +32,7 @@
 
         <div v-if="countdown.finished" class="faces-drop-status" role="status">
           <strong>{{ isCollectionOpen ? copy.available : copy.rendezvous }}</strong>
-          <a v-if="isCollectionOpen" class="faces-button" href="#faces-collection">{{ copy.shop }}</a>
+          <RouterLink v-if="isCollectionOpen" class="faces-button" :to="{ path: $route.path, query: $route.query, hash: '#faces-collection' }">{{ copy.shop }}</RouterLink>
           <p v-else>{{ copy.waiting }}</p>
         </div>
       </section>

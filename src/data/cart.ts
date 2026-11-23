@@ -1,5 +1,7 @@
 import { computed, reactive, watch, type ComputedRef } from "vue";
 
+import { readStoredValue, writeStoredValue } from "../utils/storage.js";
+
 const STORAGE_KEY = "newgbonhi_cart_v1";
 
 export type ProductLike = {
@@ -76,8 +78,6 @@ export const calculateCartTotal = (
 ): number =>
   items.reduce((total, item) => total + (item.qty || 0) * (item.price || 0), 0);
 
-const hasStorage = (): boolean => typeof localStorage !== "undefined";
-
 const normalizeStoredItem = (item: unknown): CartItem | null => {
   if (!item || typeof item !== "object") {
     return null;
@@ -123,22 +123,16 @@ const normalizeStoredItem = (item: unknown): CartItem | null => {
 };
 
 const saveToStorage = (): void => {
-  if (!hasStorage()) {
-    return;
-  }
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state.items));
+    writeStoredValue(STORAGE_KEY, JSON.stringify(state.items));
   } catch (error) {
     console.error("Failed to save cart to localStorage", error);
   }
 };
 
 const loadFromStorage = (): void => {
-  if (!hasStorage()) {
-    return;
-  }
   try {
-    const saved = localStorage.getItem(STORAGE_KEY);
+    const saved = readStoredValue(STORAGE_KEY);
     if (!saved) {
       return;
     }
