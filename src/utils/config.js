@@ -12,6 +12,7 @@ const readBooleanEnv = (key, fallback = false) => {
 };
 
 const DEFAULT_MOMO_WAVE = "Wave 07 89 53 83 88";
+const DEFAULT_WHATSAPP_NUMBER = "002250789538388";
 const DEFAULT_MOMO_ORANGE = "Orange 07 89 53 83 88";
 const DEFAULT_MOMO_MTN = "MTN 05 04 31 53 31";
 const DEFAULT_MOMO_WAVE_LINK = "https://pay.wave.com/m/M_ci_cNiKvg4QvKE3/c/ci/";
@@ -28,7 +29,7 @@ const warnOnce = (message) => {
 };
 
 export const checkoutConfig = {
-  whatsappNumber: readEnv("VITE_WHATSAPP_NUMBER"),
+  whatsappNumber: readEnv("VITE_WHATSAPP_NUMBER", DEFAULT_WHATSAPP_NUMBER),
   contactEmail: readEnv("VITE_CONTACT_EMAIL", DEFAULT_CONTACT_EMAIL),
   momoWave: readEnv("VITE_MOMO_WAVE", DEFAULT_MOMO_WAVE),
   momoOrange: readEnv("VITE_MOMO_ORANGE", DEFAULT_MOMO_ORANGE),
