@@ -52,4 +52,18 @@ describe("initial application navigation", () => {
     expect(app.mount).toHaveBeenCalledExactlyOnceWith("#app");
     log.mockRestore();
   });
+
+  it("does not break navigation or reload indefinitely when session storage is blocked", async () => {
+    const reload = vi.fn();
+    vi.stubGlobal("window", { addEventListener: vi.fn(), location: { reload }, get sessionStorage() { throw new DOMException("Blocked", "SecurityError"); } });
+    router.isReady.mockResolvedValue();
+    await import("./main.js");
+    expect(() => router.afterEach.mock.calls[0][0]({}, {}, undefined)).not.toThrow();
+    const error = new Error("Failed to fetch dynamically imported module");
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    expect(() => router.onError.mock.calls[0][0](error)).not.toThrow();
+    expect(reload).not.toHaveBeenCalled();
+    expect(reportAppError).toHaveBeenCalledWith(error, expect.objectContaining({ source: "router" }));
+    log.mockRestore();
+  });
 });

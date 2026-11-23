@@ -9,6 +9,7 @@ import SiteFooter from "./components/SiteFooter.vue";
 import { reportAppError } from "./utils/appError.js";
 import { isMobileApp, isMobilePreview } from "./mobile/platform.js";
 import { createPreviewFetch } from "./mobile/preview.js";
+import { readStoredValue, writeStoredValue, removeStoredValue } from "./utils/storage.js";
 import "./mobile/mobile.css";
 
 if (isMobileApp) document.documentElement.classList.add("mobile-app");
@@ -29,11 +30,12 @@ const recoverFromStaleChunk = (error) => {
   const message = String(error?.message || error || "");
   if (!CHUNK_ERROR_PATTERN.test(message)) return false;
 
-  const previousAttempt = Number(sessionStorage.getItem(CHUNK_RELOAD_KEY)) || 0;
+  const previousAttempt = Number(readStoredValue(CHUNK_RELOAD_KEY, "sessionStorage")) || 0;
   const now = Date.now();
   if (now - previousAttempt < 30_000) return false;
 
-  sessionStorage.setItem(CHUNK_RELOAD_KEY, String(now));
+  // Without a persisted throttle, retrying could cause an endless reload loop.
+  if (!writeStoredValue(CHUNK_RELOAD_KEY, String(now), "sessionStorage")) return false;
   window.location.reload();
   return true;
 };
@@ -64,7 +66,7 @@ router.onError((error) => {
 });
 
 router.afterEach((to, from, failure) => {
-  if (!failure) sessionStorage.removeItem(CHUNK_RELOAD_KEY);
+  if (!failure) removeStoredValue(CHUNK_RELOAD_KEY, "sessionStorage");
 });
 
 window.addEventListener("error", (event) => {

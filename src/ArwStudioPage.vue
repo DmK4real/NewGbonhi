@@ -5,7 +5,7 @@
     <header class="arw-header">
       <nav class="arw-nav" aria-label="ARW navigation">
         <RouterLink to="/">Boutique</RouterLink>
-        <a href="#collection">Collection</a>
+        <RouterLink :to="{ path: $route.path, query: $route.query, hash: '#collection' }">Collection</RouterLink>
         <RouterLink to="/lookbook">Lookbook</RouterLink>
       </nav>
 
@@ -27,6 +27,8 @@
           <img
             class="hero-logo"
             :src="chromeLogo"
+            width="1024"
+            height="1024"
             alt="ARW Film"
             loading="eager"
             fetchpriority="high"
@@ -40,7 +42,7 @@
             premium pour la collaboration.
           </p>
           <div class="hero-buttons">
-            <a class="chrome-button" href="#collection">Decouvrir la collection</a>
+            <RouterLink class="chrome-button" :to="{ path: $route.path, query: $route.query, hash: '#collection' }">Decouvrir la collection</RouterLink>
             <RouterLink class="chrome-button ghost" to="/lookbook">Voir le lookbook</RouterLink>
           </div>
         </div>
@@ -57,10 +59,10 @@
       </section>
 
       <section class="quick-links" aria-label="ARW capsule categories">
-        <a v-for="item in quickLinks" :key="item.label" :href="item.href">
+        <RouterLink v-for="item in quickLinks" :key="item.label" :to="item.href.startsWith('#') ? { path: $route.path, query: $route.query, hash: item.href } : item.href">
           <span>{{ item.icon }}</span>
           <strong>{{ item.label }}</strong>
-        </a>
+        </RouterLink>
       </section>
 
       <section id="collection" class="collection-section">
@@ -130,7 +132,7 @@
         <RouterLink to="/">Boutique</RouterLink>
         <RouterLink to="/lab">NewGbonhi Lab</RouterLink>
         <RouterLink to="/lookbook">Lookbook</RouterLink>
-        <a href="#contact">Contact</a>
+        <RouterLink to="/about#contact">Contact</RouterLink>
       </nav>
     </footer>
   </div>

@@ -3,7 +3,7 @@ import path from 'node:path';
 import { parse as parseSfc } from '@vue/compiler-sfc';
 import { parse } from '@vue/compiler-dom';
 const products = JSON.parse(fs.readFileSync('src/data/products.json', 'utf8'));
-const routes = new Set(['/', '/collections', '/studio', '/checkout', '/orders', '/lookbook', '/lab', '/lab/arw-studio', '/about', '/cgu', '/confidentialite', ...products.map(p => `/product/${p.slug}`)]);
+const routes = new Set(['/', '/faces', '/collections', '/studio', '/checkout', '/orders', '/lookbook', '/lab', '/lab/arw-studio', '/about', '/cgu', '/confidentialite', ...products.map(p => `/product/${p.slug}`)]);
 const files = fs.readdirSync('src', { recursive: true }).filter(f => f.endsWith('.vue')).map(f => path.join('src', f));
 const errors = [];
 let images = 0, links = 0;

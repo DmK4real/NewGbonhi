@@ -15,9 +15,9 @@
           <h1>{{ pageCopy.heroTitle }}</h1>
           <p class="hero-sub">{{ pageCopy.heroSub }}</p>
           <div class="hero-actions">
-            <a class="lab-button" href="#clients">
+            <RouterLink class="lab-button" :to="{ path: $route.path, query: $route.query, hash: '#clients' }">
               {{ pageCopy.primaryCta }}
-            </a>
+            </RouterLink>
             <RouterLink class="lab-button lab-button-light" to="/lab/arw-studio">
               {{ pageCopy.secondaryCta }}
             </RouterLink>

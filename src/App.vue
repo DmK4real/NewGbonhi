@@ -1,5 +1,5 @@
 ﻿<template>
-  <a class="skip-link" href="#app-content">Skip to content</a>
+  <RouterLink class="skip-link" :to="{ path: $route.path, query: $route.query, hash: '#app-content' }" @click="focusContent">Skip to content</RouterLink>
   <CookieConsent />
   <ScrollProgress v-if="!appError.active" />
   <main v-if="appError.active" class="app-error-shell">
@@ -97,6 +97,9 @@ export default {
     document.documentElement.style.removeProperty("--header-height");
   },
   methods: {
+    focusContent() {
+      this.$nextTick(() => document.getElementById("app-content")?.focus({ preventScroll: true }));
+    },
     observeHeader() {
       const header = document.querySelector(".shop-header");
       if (header === this.observedHeader) return;

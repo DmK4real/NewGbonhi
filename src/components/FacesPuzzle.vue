@@ -33,7 +33,7 @@
           <label for="puzzle-email">{{ text.emailLabel }}</label>
           <input id="puzzle-email" v-model.trim="email" type="email" autocomplete="email" inputmode="email" maxlength="160" required :readonly="busy" placeholder="toi@email.com" />
           <div class="puzzle-honeypot" aria-hidden="true" inert><label for="puzzle-website">Website</label><input id="puzzle-website" v-model="website" tabindex="-1" autocomplete="off" /></div>
-          <label class="puzzle-agree"><input v-model="acceptRules" type="checkbox" required :disabled="busy" /><span>{{ text.accept }} <a href="#faces-puzzle-rules" @click="openRules">{{ text.rulesLink }}</a>.</span></label>
+          <label class="puzzle-agree"><input v-model="acceptRules" type="checkbox" required :disabled="busy" /><span>{{ text.accept }} <RouterLink :to="{ path: $route.path, query: $route.query, hash: '#faces-puzzle-rules' }" @click="openRules">{{ text.rulesLink }}</RouterLink>.</span></label>
           <button class="puzzle-action" type="submit" :disabled="busy">{{ busy ? text.wait : text.sendCode }}</button>
           <p class="puzzle-note">{{ text.noSubscription }}</p>
         </form>
