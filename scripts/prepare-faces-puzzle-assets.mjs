@@ -1,4 +1,4 @@
-// Usage: node scripts/prepare-faces-puzzle-assets.mjs <Leila.png> <Laury.png> <Isis.png>
+// Usage: node scripts/prepare-faces-puzzle-assets.mjs <Ada.jpg> <Laury.png> <Isis.png>
 // Inputs are full portraits. Keep them outside public/; only the worker imports the output.
 import fs from 'node:fs/promises';
 import path from 'node:path';
@@ -7,10 +7,10 @@ import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
 
 // One continuous close-up per face: forehead above, eyes/nose in the middle,
-// mouth below. Leila matches INDEX-DECOUPES.csv from the supplied T-shirt design.
-// The other two crops align the same facial features with those three rows.
+// mouth below. The first slot uses Ada's supplied portrait with curly hair.
+// Keep the legacy slot key "leila" stable for existing game boards and app versions.
 const portraits = [
-  { id: 'leila', width: 1170, height: 1560, left: 220, top: 160, side: 720 },
+  { id: 'leila', width: 720, height: 1280, left: 10, top: 220, side: 660 },
   { id: 'laury', width: 1086, height: 1448, left: 220, top: 400, side: 630 },
   { id: 'isis', width: 1087, height: 1447, left: 140, top: 390, side: 820 },
 ];
@@ -45,7 +45,7 @@ export async function createPortraitTiles(portrait, source) {
 }
 
 export async function prepareFacesPuzzleAssets(files) {
-  if (files.length !== 3) throw new Error('Provide the Leila, Laury and Isis source portraits, in that order.');
+  if (files.length !== 3) throw new Error('Provide the Ada, Laury and Isis source portraits, in that order.');
   const assets = [];
   for (const [index, portrait] of portraits.entries()) assets.push(...await createPortraitTiles(portrait.id, path.resolve(files[index])));
   // New URLs prevent already released pieces from mixing the old and new crops in a browser cache.
