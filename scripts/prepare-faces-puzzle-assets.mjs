@@ -24,7 +24,7 @@ export function portraitCrop(portrait, width, height) {
   if (Math.abs(height / frame.height / scale - 1) > 0.01) {
     throw new Error(`Unexpected source proportions for ${portrait}; use the original portrait.`);
   }
-  const side = Math.round(frame.side * scale);
+  const side = Math.floor(Math.round(frame.side * scale) / 3) * 3;
   const crop = { left: Math.round(frame.left * scale), top: Math.round(frame.top * scale), width: side, height: side };
   if (side < 3 || crop.left < 0 || crop.top < 0 || crop.left + side > width || crop.top + side > height) {
     throw new Error(`The ${portrait} crop must fit inside its source image.`);
@@ -33,12 +33,12 @@ export function portraitCrop(portrait, width, height) {
 }
 
 export async function createPortraitTiles(portrait, source) {
-  const oriented = await sharp(source).rotate().greyscale().png().toBuffer({ resolveWithObject: true });
+  const oriented = await sharp(source).autoOrient().png().toBuffer({ resolveWithObject: true });
   const crop = portraitCrop(portrait, oriented.info.width, oriented.info.height);
-  const square = await sharp(oriented.data).extract(crop).resize(720, 720).png().toBuffer();
+  const side = crop.width / 3;
   const tiles = [];
   for (let index = 0; index < 9; index++) {
-    const data = await sharp(square).extract({ left: (index % 3) * 240, top: Math.floor(index / 3) * 240, width: 240, height: 240 }).webp({ quality: 85 }).toBuffer();
+    const data = await sharp(oriented.data).extract({ left: crop.left + (index % 3) * side, top: crop.top + Math.floor(index / 3) * side, width: side, height: side }).webp({ lossless: true }).toBuffer();
     tiles.push({ portrait, index, data: data.toString('base64') });
   }
   return tiles;

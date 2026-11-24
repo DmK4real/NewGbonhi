@@ -59,18 +59,19 @@ export class FacesCampaign {
     try { return await this.tilePromise; } catch (error) { this.tilePromise = null; throw error; }
   }
 
-  async publicState(now = Date.now()) {
+  async publicState(now = Date.now(), preview = "") {
     const phase = facesCampaignPhase(now);
     const count = facesRevealedCount(now);
+    const previewQuery = preview ? `&preview=${encodeURIComponent(preview)}` : "";
     const tiles = await this.tiles();
     return {
       campaign: CAMPAIGN, serverNow: new Date(now).toISOString(), phase, revealedCount: count,
       nextRevealAt: count < 27 ? new Date(Date.parse(CAMPAIGN.startsAt) + count * DAY).toISOString() : null,
-      winnerClaimed: Boolean(await this.storage.get(CLAIMED)),
+      preview: Boolean(preview), winnerClaimed: !preview && Boolean(await this.storage.get(CLAIMED)),
       portraits: FACES_PORTRAITS.map(person => {
         const slots = Array(9).fill(null);
         for (const tile of tiles.filter(x => x.portrait === person.id && x.day < count)) {
-          slots[phase === "revealed" ? tile.index : tile.slot] = { id: tile.id, src: `${ROOT}/tiles/${tile.id}.webp?v=${FACES_ASSETS_REVISION}` };
+          slots[phase === "revealed" ? tile.index : tile.slot] = { id: tile.id, src: `${ROOT}/tiles/${tile.id}.webp?v=${FACES_ASSETS_REVISION}${previewQuery}` };
         }
         return { ...person, tiles: slots };
       }),
@@ -162,12 +163,7 @@ export class FacesCampaign {
     const session = await this.storage.get(`${PREFIX}session.${await sha(token)}`);
     if (!session || now >= session.expires) fail(401, "verify_email");
     await this.rate(`submit.email.${session.emailHash}`, 10, 60000);
-    const tiles = await this.tiles();
-    const correct = FACES_PORTRAITS.every(person => {
-      const answer = payload.boards?.[person.id];
-      return Array.isArray(answer) && answer.length === 9 && tiles.filter(tile => tile.portrait === person.id).every(tile => answer[tile.index] === tile.id);
-    });
-    if (!correct) return response(200, { complete: false });
+    if (!(await this.solved(payload.boards))) return response(200, { complete: false });
     const result = await this.storage.transaction(async tx => {
       if (Date.now() >= Date.parse(CAMPAIGN.contestClosesAt)) fail(409, "contest_closed");
       const winner = await tx.get(WINNER);
@@ -178,6 +174,14 @@ export class FacesCampaign {
       return { complete: true, winner: true, winnerClaimed: true, receipt: record.receipt };
     });
     return response(200, result);
+  }
+
+  async solved(boards) {
+    const tiles = await this.tiles();
+    return FACES_PORTRAITS.every(person => {
+      const answer = boards?.[person.id];
+      return Array.isArray(answer) && answer.length === 9 && tiles.filter(tile => tile.portrait === person.id).every(tile => answer[tile.index] === tile.id);
+    });
   }
 
   async cleanup() {
@@ -195,7 +199,10 @@ export class FacesCampaign {
     const url = new URL(request.url);
     const path = url.pathname.replace(/\/$/, "");
     try {
-      if (request.method === "GET" && path === `${ROOT}/state`) return response(200, await this.publicState());
+      const preview = url.searchParams.get("preview");
+      if (preview !== null && (!this.env.FACES_PREVIEW_KEY || preview !== this.env.FACES_PREVIEW_KEY)) fail(403, "preview_denied");
+      const campaignNow = preview ? Date.parse(CAMPAIGN.contestOpensAt) : Date.now();
+      if (request.method === "GET" && path === `${ROOT}/state`) return response(200, await this.publicState(campaignNow, preview));
       if (request.method === "GET" && path === `${ROOT}/winner`) {
         if (!(await authorize(request))) fail(401, "unauthorized");
         const winner = Date.now() < Date.parse(CAMPAIGN.deletePersonalDataAt) ? await this.storage.get(WINNER) : null;
@@ -204,14 +211,18 @@ export class FacesCampaign {
       if (request.method === "GET" && path.startsWith(`${ROOT}/tiles/`)) {
         const id = path.slice(`${ROOT}/tiles/`.length).replace(/\.webp$/, "");
         const tile = (await this.tiles()).find(item => item.id === id);
-        if (!tile || tile.day >= facesRevealedCount(Date.now())) fail(404, "not_found");
+        if (!tile || tile.day >= facesRevealedCount(campaignNow)) fail(404, "not_found");
         const data = Uint8Array.from(atob(tile.data), char => char.charCodeAt(0));
-        return new Response(data, { headers: { "Content-Type": "image/webp", "Cache-Control": "private, max-age=3600", "X-Content-Type-Options": "nosniff", "Access-Control-Allow-Origin": "*" } });
+        return new Response(data, { headers: { "Content-Type": "image/webp", "Cache-Control": preview ? "no-store" : "private, max-age=3600", "X-Content-Type-Options": "nosniff", "Access-Control-Allow-Origin": "*" } });
       }
       if (request.method !== "POST") fail(404, "not_found");
       const origin = request.headers.get("Origin");
-      if (origin && !["https://newgbonhi.com", "https://www.newgbonhi.com"].includes(origin) && !/^https:\/\/(?:[a-z0-9-]+\.)?newgbonhi\.pages\.dev$/.test(origin)) fail(403, "invalid_request");
+      if (origin && !["https://newgbonhi.com", "https://www.newgbonhi.com", "capacitor://localhost", "https://localhost"].includes(origin) && !/^https:\/\/(?:[a-z0-9-]+\.)?newgbonhi\.pages\.dev$/.test(origin)) fail(403, "invalid_request");
       const payload = await body(request);
+      if (preview) {
+        if (path !== `${ROOT}/submit`) fail(404, "not_found");
+        return response(200, { complete: await this.solved(payload.boards) });
+      }
       const ip = await sha(request.headers.get("CF-Connecting-IP") || "unknown");
       if (path === `${ROOT}/access`) return await this.access(payload, ip);
       if (path === `${ROOT}/verify`) return await this.verify(payload, ip);

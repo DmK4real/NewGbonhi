@@ -2,11 +2,12 @@ import { normalizeApiBase } from "./apiBase.js";
 const apiBase = normalizeApiBase(import.meta.env.VITE_API_BASE);
 export const facesTileUrl = src => `${apiBase}${src}`;
 
-export async function facesRequest(path, payload, token) {
+export async function facesRequest(path, payload, token, preview) {
+  const query = preview ? `?preview=${encodeURIComponent(preview)}` : "";
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 20000);
   try {
-    const response = await fetch(`${apiBase}/api/faces/${path}`, {
+    const response = await fetch(`${apiBase}/api/faces/${path}${query}`, {
       method: payload ? "POST" : "GET", cache: "no-store",
       headers: { ...(payload ? { "Content-Type": "application/json" } : {}), ...(token ? { Authorization: `Bearer ${token}` } : {}) },
       ...(payload ? { body: JSON.stringify(payload) } : {}), signal: controller.signal,
