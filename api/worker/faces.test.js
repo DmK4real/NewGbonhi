@@ -50,6 +50,21 @@ async function solution() {
 }
 
 describe('Faces calendar and protected image delivery', () => {
+  it('opens a private rehearsal with 27 tiles and validates it without using contest storage', async () => {
+    api = new FacesCampaign({ storage }, { ...env, FACES_PREVIEW_KEY: 'test-preview-key' });
+    const query = '?preview=test-preview-key';
+    expect((await handle(req('state?preview=invalid'))).status).toBe(403);
+    const state = await (await handle(req('state' + query))).json();
+    expect(state).toMatchObject({ phase: 'game', preview: true, revealedCount: 27, serverNow: '2026-12-17T18:00:00.000Z' });
+    const tile = state.portraits[0].tiles[0].src.replace('/api/faces/', '');
+    expect((await handle(req(tile))).headers.get('Cache-Control')).toBe('no-store');
+    expect((await handle(req(tile.split('?')[0]))).status).toBe(404);
+    expect(await (await handle(req('submit' + query, { boards: {} }))).json()).toEqual({ complete: false });
+    expect(await (await handle(req('submit' + query, { boards: await solution() }))).json()).toEqual({ complete: true });
+    expect((await handle(req('submit', { boards: await solution() }))).status).toBe(409);
+    expect(storage.map.size).toBe(0);
+    expect(emails).toHaveLength(0);
+  });
   it('releases exactly one global fragment at each Abidjan 18:00 boundary, alternating Leila, Laury and Isis', async () => {
     const start = Date.parse(C.startsAt);
     for (let day=0;day<27;day++) {

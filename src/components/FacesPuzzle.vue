@@ -3,6 +3,7 @@
     <div class="puzzle-heading"><span>{{ text.kicker }}</span><strong>{{ state ? `${state.revealedCount} / 27` : '— / 27' }}</strong></div>
     <p v-if="initialLoading" role="status">{{ text.loading }}</p>
     <template v-if="state">
+      <p v-if="state.preview" class="puzzle-note">{{ previewCopy.status }}</p>
       <div class="puzzle-tabs" role="group" :aria-label="text.choose">
         <button v-for="portrait in state.portraits" :key="portrait.id" type="button" :aria-pressed="active === portrait.id" @click="choose(portrait.id)">
           {{ portraitLabel(portrait) }} <span>{{ portrait.tiles.filter(Boolean).length }}/9</span>
@@ -10,7 +11,7 @@
       </div>
       <div class="puzzle-grid" :class="{ 'is-playing': playing, 'is-revealed': state.phase === 'revealed' }" :aria-label="`${text.portrait} ${portraitLabel(activePortrait)}`">
         <button v-for="(id, index) in boards[active]" :key="index" type="button" :disabled="!playing || !id" :class="{ 'is-selected': selected === index }" :aria-pressed="selected === index" :aria-label="tileLabel(index, id)" @click="pick(index)">
-          <img v-if="id" :src="facesTileUrl(tileMap[id].src)" alt="" width="240" height="240" :draggable="false" />
+          <img v-if="id" :src="facesTileUrl(tileMap[id].src)" alt="" width="240" height="240" :draggable="false" referrerpolicy="no-referrer" />
           <span v-else aria-hidden="true">{{ ['F', 'A', 'C', 'E', 'S', '.', 'N', 'G', '.'][index] }}</span>
           <span v-if="selected === index" class="puzzle-selection" aria-hidden="true">✓</span>
         </button>
@@ -21,11 +22,11 @@
 
       <template v-if="playing">
         <p class="puzzle-help">{{ text.help }}</p>
-        <button class="puzzle-action" type="button" :disabled="busy || !accessToken" @click="submit">{{ busy ? text.wait : text.validate }}</button>
+        <button class="puzzle-action" type="button" :disabled="busy || (!state.preview && !accessToken)" @click="submit">{{ busy ? text.wait : text.validate }}</button>
         <button class="puzzle-reset" type="button" :disabled="busy" @click="reset">{{ text.reset }}</button>
       </template>
 
-      <details v-if="state.phase !== 'revealed'" class="puzzle-entry" :open="playing">
+      <details v-if="!state.preview && state.phase !== 'revealed'" class="puzzle-entry" :open="playing">
         <summary class="puzzle-prize">{{ state.winnerClaimed ? text.prizeTaken : text.prize }}</summary>
         <p class="puzzle-dates">{{ text.dates }}</p>
         <p v-if="accessToken" class="puzzle-verified">{{ text.verified }} <button type="button" @click="changeEmail">{{ text.changeEmail }}</button></p>
@@ -45,7 +46,7 @@
           <button class="puzzle-reset" type="button" :disabled="busy" @click="challengeId = ''; code = ''">{{ text.anotherCode }}</button>
         </form>
       </details>
-      <details id="faces-puzzle-rules" class="puzzle-rules">
+      <details v-if="!state.preview" id="faces-puzzle-rules" class="puzzle-rules">
         <summary>{{ text.rulesTitle }}</summary>
         <p>{{ text.rulesBody }}</p><p>{{ text.rulesContact }}</p>
         <p>{{ text.data }} <RouterLink to="/confidentialite">{{ text.privacy }}</RouterLink>.</p>
@@ -88,12 +89,25 @@ const state = ref(null), initialLoading = ref(true), active = ref('leila'), boar
 const email = ref(''), website = ref(''), acceptRules = ref(false), challengeId = ref(''), code = ref(''), accessToken = ref('');
 const busy = ref(false), feedback = ref(''), failed = ref(false);
 const winnerReceipt = ref('');
-const key = `${FACES_CAMPAIGN.id}.puzzle`;
+const { previewKey } = defineProps({ previewKey: { type: String, default: '' } });
+const emit = defineEmits(['test-date']);
+const key = `${FACES_CAMPAIGN.id}.puzzle${previewKey ? '.preview' : ''}`;
+const previewCopy = computed(() => i18nState.language === 'en' ? {
+  status: 'Test mode · December 17 at 6 pm (Abidjan). Solve all three faces and submit a test entry.',
+  game: 'Rebuild all three faces to test your solution.',
+  complete: 'All three faces are correct. Test entry validated!',
+  denied: 'This test link is invalid or has expired.',
+} : {
+  status: 'Mode test · 17 décembre à 18 h (Abidjan). Reconstitue les trois visages et valide ta participation test.',
+  game: 'Reconstitue les trois visages pour tester ta solution.',
+  complete: 'Les trois visages sont corrects. Participation test validée !',
+  denied: 'Ce lien de test est invalide ou a expiré.',
+});
 let poll, abortRefresh = false;
 const activePortrait = computed(() => state.value?.portraits.find(p => p.id === active.value));
 const playing = computed(() => state.value?.phase === 'game');
 const tileMap = computed(() => Object.fromEntries((state.value?.portraits || []).flatMap(p => p.tiles.filter(Boolean).map(t => [t.id, t]))));
-const phaseMessage = computed(() => !state.value ? '' : state.value.phase === 'game' ? state.value.winnerClaimed ? text.value.gameTaken : text.value.game : state.value.phase === 'fragments' && state.value.revealedCount === 27 ? text.value.ready : text.value[state.value.phase]);
+const phaseMessage = computed(() => !state.value ? '' : state.value.preview ? previewCopy.value.game : state.value.phase === 'game' ? state.value.winnerClaimed ? text.value.gameTaken : text.value.game : state.value.phase === 'fragments' && state.value.revealedCount === 27 ? text.value.ready : text.value[state.value.phase]);
 
 function stored(suffix) { try { return JSON.parse(localStorage.getItem(`${key}.${suffix}`)); } catch { return null; } }
 function save(suffix, value) { try { localStorage.setItem(`${key}.${suffix}`, JSON.stringify(value)); } catch { /* Storage is optional. */ } }
@@ -112,12 +126,13 @@ function openRules() { const rules = document.getElementById('faces-puzzle-rules
 
 async function loadState() {
   try {
-    const result = await facesRequest('state');
+    const result = await facesRequest('state', undefined, undefined, previewKey);
     if (abortRefresh) return;
     const prior = playing.value ? boards.value : stored('boards');
     boards.value = restoreFacesBoards(result.portraits, prior, result.phase === 'game');
     if (state.value?.phase !== result.phase) selected.value = null;
     state.value = result;
+    if (result.preview) emit('test-date', Date.parse(result.serverNow));
     const receipt = stored('receipt');
     if (typeof receipt === 'string' && /^FACES-[A-F0-9]{8}$/.test(receipt)) winnerReceipt.value = receipt;
     const access = stored('access');
@@ -130,7 +145,7 @@ async function loadState() {
 }
 function reportError(error) {
   failed.value = true;
-  feedback.value = text.value.errors[error.code] || text.value.errors.unavailable;
+  feedback.value = error.code === 'preview_denied' ? previewCopy.value.denied : text.value.errors[error.code] || text.value.errors.unavailable;
   if (error.code === 'verify_email') changeEmail();
   if (error.code === 'contest_closed' || error.code === 'contest_not_open') loadState();
 }
@@ -142,8 +157,8 @@ async function act(action) {
 async function requestCode() { await act(async () => { const result = await facesRequest('access', { email: email.value, website: website.value, acceptRules: acceptRules.value, rulesVersion: FACES_CAMPAIGN.rulesVersion }); challengeId.value = result.challengeId; }); }
 async function verifyCode() { await act(async () => { const result = await facesRequest('verify', { challengeId: challengeId.value, code: code.value }); accessToken.value = result.token; save('access', result); challengeId.value = ''; code.value = ''; }); }
 async function submit() { await act(async () => {
-  const result = await facesRequest('submit', { boards: boards.value }, accessToken.value);
-  feedback.value = result.complete ? result.winner ? '' : text.value.complete : text.value.incomplete;
+  const result = await facesRequest('submit', { boards: boards.value }, accessToken.value, previewKey);
+  feedback.value = result.complete ? state.value.preview ? previewCopy.value.complete : result.winner ? '' : text.value.complete : text.value.incomplete;
   if (result.winner) { save('receipt', result.receipt); winnerReceipt.value = result.receipt; }
   if (result.winnerClaimed) state.value.winnerClaimed = true;
 }); }
@@ -156,7 +171,7 @@ onUnmounted(() => { abortRefresh = true; clearInterval(poll); document.removeEve
 .puzzle { min-width:0; color:#f5f5f1; font:400 1rem/1.6 'Space Grotesk',Arial,sans-serif; scroll-margin-top:24px }
 .puzzle * { box-sizing:border-box }.puzzle-heading{display:flex;justify-content:space-between;gap:12px;font-size:.875rem;font-weight:700;letter-spacing:.08em;margin-bottom:16px}.puzzle-heading strong{color:#ff8b80;white-space:nowrap}
 .puzzle-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-bottom:10px}.puzzle-tabs button{border:1px solid #575757;background:transparent;color:#eee;padding:10px 4px;font:inherit;font-weight:600;line-height:1.4;cursor:pointer}.puzzle-tabs button[aria-pressed=true]{background:#e10600;border-color:#e10600}.puzzle-tabs span{display:block;font-size:.875rem;opacity:.8}
-.puzzle-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));aspect-ratio:1;gap:4.5%}.puzzle-grid button{position:relative;display:grid;place-items:center;aspect-ratio:1;min-width:0;overflow:hidden;padding:0;border:0;background:#242424;color:#606060;opacity:1;font:400 clamp(32px,5vw,72px)/1 'Archivo Black',Arial,sans-serif}.puzzle-grid button:nth-child(3n+1){background:#e10600;color:#f5f5f1}.puzzle-grid img{display:block;width:100%;height:100%;object-fit:cover;filter:grayscale(1)}.puzzle-grid.is-playing button{cursor:pointer}.puzzle-grid button.is-selected{outline:4px solid #ff9086;outline-offset:-4px}.puzzle-selection{position:absolute;top:5px;right:5px;width:30px;height:30px;display:grid;place-items:center;color:#111;background:#fff;font:700 18px/1 Arial}
+.puzzle-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));aspect-ratio:1;gap:4.5%}.puzzle-grid button{position:relative;display:grid;place-items:center;aspect-ratio:1;min-width:0;overflow:hidden;padding:0;border:0;background:#242424;color:#606060;opacity:1;font:400 clamp(32px,5vw,72px)/1 'Archivo Black',Arial,sans-serif}.puzzle-grid button:nth-child(3n+1){background:#e10600;color:#f5f5f1}.puzzle-grid img{display:block;width:100%;height:100%;object-fit:contain}.puzzle-grid:is(.is-playing,.is-revealed){gap:0}.puzzle-grid.is-playing button{cursor:pointer}.puzzle-grid button.is-selected{outline:4px solid #ff9086;outline-offset:-4px}.puzzle-selection{position:absolute;top:5px;right:5px;width:30px;height:30px;display:grid;place-items:center;color:#111;background:#fff;font:700 18px/1 Arial}
 .puzzle-caption{display:flex;justify-content:space-between;gap:12px;font-size:.75rem;color:#b7b7b7;margin-top:12px}.puzzle-status{font-size:1.125rem;line-height:1.5;margin:20px 0 8px}.puzzle-next{font-size:.875rem;color:#ff9d93;margin:8px 0 0}.puzzle-help{color:#c7c7c7}.puzzle-prize{cursor:pointer;font-size:1.25rem;font-weight:700;line-height:1.4;margin:0 0 12px}.puzzle-entry{border-top:1px solid #535353;margin-top:24px;padding-top:24px}.puzzle-dates,.puzzle-note{font-size:.875rem;color:#c7c7c7;line-height:1.6}.puzzle-entry form{margin-top:18px}.puzzle-entry label{display:block;margin-bottom:8px}.puzzle-entry input[type=email],.puzzle-entry input[type=text]{display:block;width:100%;min-height:48px;padding:12px;border:1px solid #777;background:#151515;color:#fff;font:inherit;border-radius:0}.puzzle-entry .puzzle-agree{display:flex;align-items:flex-start;gap:10px;margin:16px 0;font-size:.875rem}.puzzle-agree input{width:20px;height:20px;flex-shrink:0;margin:2px 0 0;accent-color:#e10600}.puzzle a{color:#ffa499;text-decoration:underline}.puzzle-action{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:12px 18px;border:1px solid #e10600;background:#e10600;color:#fff;font:700 1rem/1.4 'Space Grotesk',Arial,sans-serif;cursor:pointer}.puzzle-action:disabled{opacity:.55;cursor:default}.puzzle-reset,.puzzle-verified button{border:0;background:none;color:#ddd;font:inherit;text-decoration:underline;cursor:pointer;padding:12px 0;margin:0 0 0 16px}.puzzle-verified{color:#d1e8ce}.puzzle-verified button{margin-left:0;display:block}.puzzle-rules{margin-top:20px;font-size:.875rem;color:#ccc}.puzzle-rules summary{cursor:pointer;padding:10px 0;font-weight:700}.puzzle-feedback{padding:14px;border-left:3px solid #b4e3a9;background:#252d23;font-size:1rem}.puzzle-feedback.is-error{border-color:#ff8d81;background:#38231f}.puzzle-honeypot{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}.puzzle :where(a,button,input,summary):focus-visible{outline:3px solid #ffb0a4;outline-offset:3px}
 @media(max-width:600px){.puzzle-caption{flex-direction:column;gap:2px}.puzzle-tabs button{font-size:.9375rem}.puzzle-reset{display:block;margin:8px 0 0}.puzzle-action{width:100%}.puzzle-heading{letter-spacing:.03em}}
 </style>

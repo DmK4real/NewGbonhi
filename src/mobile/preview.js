@@ -10,7 +10,9 @@ export function createPreviewFetch(fetchImplementation, { apiBase, pageUrl }) {
     const method = String(options?.method || input?.method || "GET").toUpperCase();
     const targetsApi = url.origin === apiOrigin ||
       (url.origin === pageOrigin && (url.pathname === "/api" || url.pathname.startsWith("/api/")));
-    if (targetsApi && !readMethods.has(method)) {
+    const facesTest = url.origin === apiOrigin && url.pathname === "/api/faces/submit"
+      && method === "POST" && Boolean(url.searchParams.get("preview"));
+    if (targetsApi && !readMethods.has(method) && !facesTest) {
       return new Response(JSON.stringify({
         error: "Version de test : les commandes, paiements et inscriptions sont désactivés.",
       }), { status: 403, headers: { "Content-Type": "application/json" } });

@@ -27,7 +27,16 @@
             <p class="faces-existing">{{ copy.existing }}</p>
           </div>
 
-          <FacesPuzzle />
+          <FacesPuzzle :key="previewKey" :preview-key="previewKey" @test-date="testDate = $event" />
+          <details class="faces-test">
+            <summary>{{ copy.test }}</summary>
+            <form v-if="!previewKey" @submit.prevent="startPreview">
+              <label for="faces-preview-code">{{ copy.testCode }}</label>
+              <input id="faces-preview-code" v-model.trim="previewInput" type="password" autocomplete="off" required />
+              <button type="submit">{{ copy.testOpen }}</button>
+            </form>
+            <button v-else type="button" @click="stopPreview">{{ copy.testExit }}</button>
+          </details>
         </div>
 
         <div v-if="countdown.finished" class="faces-drop-status" role="status">
@@ -83,7 +92,6 @@
 </template>
 
 <script setup>
-import { shareContent } from "./mobile/actions.js";
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import SiteHeader from "./components/SiteHeader.vue";
 import SiteFooter from "./components/SiteFooter.vue";
@@ -104,6 +112,7 @@ const content = {
     intro: "27 fragments, dévoilés dans le désordre. Trois visages se précisent jusqu’au défi du 17 décembre. Entre dans le Gbonhi pour suivre Faces avant le drop.",
     join: "Je veux voir Faces", existing: "Déjà dans le Gbonhi ? Tu recevras aussi les nouvelles, sans te réinscrire.",
     artAlt: "Un visage en noir et blanc fragmenté en une mosaïque, entre regards, lèvres et blocs rouges Faces.",
+    test: "Tester le défi privé", testCode: "Code de test", testOpen: "Ouvrir le test", testExit: "Quitter le test",
     caption: "TOUT NE SE DÉVOILE PAS D'UN COUP.", countdown: "Le rendez-vous approche.",
     days: "Jours", hours: "Heures", minutes: "Min.", seconds: "Sec.",
     storyKicker: "LE VISAGE SE PRÉCISE", storyTitle: "Un regard. Un détail. Une présence.",
@@ -124,6 +133,7 @@ const content = {
     intro: "27 fragments, revealed out of order. Three faces come into view before the December 17 challenge. Join the Gbonhi to follow Faces before the drop.",
     join: "I want to see Faces", existing: "Already in the Gbonhi? You'll get the updates too. No need to sign up again.",
     artAlt: "A black-and-white face fragmented into a mosaic of eyes, lips and red Faces blocks.",
+    test: "Private challenge test", testCode: "Test code", testOpen: "Start test", testExit: "Exit test",
     caption: "NOT EVERYTHING IS REVEALED AT ONCE.", countdown: "The date is getting closer.",
     days: "Days", hours: "Hours", minutes: "Min.", seconds: "Sec.",
     storyKicker: "THE PICTURE IS COMING TOGETHER", storyTitle: "A look. A detail. A presence.",
@@ -144,7 +154,20 @@ const assetBase = `${import.meta.env.BASE_URL}faces/`;
 const dropAt = FACES_DROP_AT;
 const cartOpen = ref(false);
 const now = ref(Date.now());
-const countdown = computed(() => getFacesCountdown(now.value));
+const previewInput = ref("");
+const previewKey = ref("");
+const testDate = ref(null);
+const countdown = computed(() => getFacesCountdown(testDate.value ?? now.value));
+
+function startPreview() {
+  previewKey.value = previewInput.value;
+  previewInput.value = "";
+}
+
+function stopPreview() {
+  previewKey.value = "";
+  testDate.value = null;
+}
 const timerUnits = computed(() => ["days", "hours", "minutes", "seconds"].map(key => ({ key, label: copy.value[key] })));
 const facesProducts = computed(() => products.filter(product => product.tags?.includes("faces")));
 const isCollectionOpen = computed(() => countdown.value.finished && facesProducts.value.length > 0);
@@ -180,8 +203,11 @@ async function shareFaces() {
   const url = "https://newgbonhi.com/faces";
   shareMessage.value = "";
   try {
-    const shared = await shareContent({ title: "FACES / NEWGBONHI", text: copy.value.hook, url });
-    if (!shared) shareMessage.value = copy.value.copied;
+    if (navigator.share) await navigator.share({ title: "FACES / NEWGBONHI", text: copy.value.hook, url });
+    else {
+      await navigator.clipboard.writeText(url);
+      shareMessage.value = copy.value.copied;
+    }
   } catch (error) {
     if (error.name !== "AbortError") shareMessage.value = copy.value.shareError;
   }
@@ -225,6 +251,7 @@ function addToCart(product) {
 .faces-hidden-tile span { color: #454545; font: 400 clamp(40px, 7vw, 100px)/1 "Archivo Black", Arial, sans-serif; }
 .faces-outline span { color: transparent; -webkit-text-stroke: 1px #555; }
 .faces-art figcaption { display: flex; justify-content: space-between; gap: 10px; margin-top: 14px; font-size: .75rem; line-height: 1.4; color: #aaa; }
+.faces-test{margin-top:20px}.faces-test summary{cursor:pointer}.faces-test form{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:8px}.faces-test button,.faces-test input{min-height:44px;padding:8px;font:inherit}.faces-test input{max-width:100%}
 .faces-countdown { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; max-width: 430px; margin: 28px 0; padding: 20px 0; border-top: 1px solid #494949; border-bottom: 1px solid #494949; }
 .faces-countdown > div { display: flex; flex-direction: column-reverse; padding-left: 14px; border-left: 1px solid #494949; }
 .faces-countdown dt { color: #aaa; font-size: .875rem; }
